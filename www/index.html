@@ -1057,7 +1057,36 @@ function toast(m){const t=document.getElementById('toast');t.textContent=m;t.cla
 function esc(s){s=String(s==null?'':s);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function escJ(s){s=String(s==null?'':s);return s.replace(/'/g,"\'").replace(/"/g,'\"');}
 function shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function speak(text){if(!window.speechSynthesis) return;window.speechSynthesis.cancel();setTimeout(() => {const u = new SpeechSynthesisUtterance(text);u.lang = 'nl-NL';u.rate = 0.85;u.volume = 1;const voices = window.speechSynthesis.getVoices();const nl = voices.find(v => v.lang.startsWith('nl'));if (nl) u.voice = nl;window.speechSynthesis.speak(u)}, 100);}
+function speak(text){
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  function doSpeak() {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'nl-NL';
+    u.rate = 0.85;
+    u.volume = 1;
+    u.pitch = 1;
+    // Try to find Dutch voice
+    const voices = window.speechSynthesis.getVoices();
+    if (voices.length) {
+      const nl = voices.find(v => v.lang && v.lang.startsWith('nl'));
+      if (nl) u.voice = nl;
+    }
+    window.speechSynthesis.speak(u);
+  }
+  // Android WebView needs voices to load first
+  const voices = window.speechSynthesis.getVoices();
+  if (voices.length > 0) {
+    setTimeout(doSpeak, 50);
+  } else {
+    window.speechSynthesis.onvoiceschanged = function() {
+      window.speechSynthesis.onvoiceschanged = null;
+      setTimeout(doSpeak, 50);
+    };
+    // Fallback if onvoiceschanged never fires
+    setTimeout(doSpeak, 500);
+  }
+}
 function showXPBurst(txt){const el=document.createElement('div');el.className='xp-burst';el.textContent=txt;document.body.appendChild(el);setTimeout(()=>el.remove(),900);}
 
 // ════════════════════════════════════════════════════════════════
@@ -1717,7 +1746,47 @@ function rSettings(){
 }
 function saveKey(){const v=document.getElementById('api-inp').value.trim();if(!v||v.includes('•')){toast('⚠ Wklej nowy klucz!');return;}if(!v.startsWith('sk-')){toast('⚠ Klucz musi zaczynać się od sk-');return;}localStorage.setItem(KK,v);toast('✓ Klucz zapisany!');rSettings();rHome();}
 function clearKey(){if(!confirm('Usunąć klucz API?'))return;localStorage.removeItem(KK);document.getElementById('api-inp').value='';toast('Klucz usunięty');rSettings();rHome();}
-function expData(){const data = JSON.stringify(S, null, 2);const b64 = 'data:application/json;base64,' + btoa(unescape(encodeURIComponent(data)));const a = document.createElement('a');const ts = new Date().toISOString().slice(0,10);a.href = b64;a.download = 'holenderski-' + ts + '.json';document.body.appendChild(a);a.click();document.body.removeChild(a);toast('✓ Plik pobrany!');}
+function expData(){
+  try {
+    const data = JSON.stringify(S, null, 2);
+    const ts = new Date().toISOString().slice(0,10);
+    const filename = 'holenderski-' + ts + '.json';
+    // Method 1: Blob URL (works on most browsers)
+    try {
+      const blob = new Blob([data], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url), 3000);
+      toast('✓ Plik pobrany!');
+      return;
+    } catch(e1) {}
+    // Method 2: base64 with proper encoding for Polish chars
+    const bytes = new TextEncoder().encode(data);
+    let binary = '';
+    bytes.forEach(b => binary += String.fromCharCode(b));
+    const b64 = 'data:application/json;base64,' + btoa(binary);
+    const a = document.createElement('a');
+    a.href = b64;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast('✓ Plik pobrany!');
+  } catch(e) {
+    // Method 3: copy to clipboard
+    try {
+      navigator.clipboard.writeText(JSON.stringify(S, null, 2));
+      toast('✓ Dane skopiowane do schowka!');
+    } catch(e2) {
+      toast('⚠ Eksport niedostępny na tym urządzeniu');
+    }
+  }
+}
 function clrAll(){S.items=[];save();goTo('home');toast('Dane usunięte');}
 
 // ════════════════════════════════════════════════════════════════
@@ -2564,14 +2633,23 @@ const GR = (() => {
 // ════════════════════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════════════════════
-// FIX 1: Android back button
-document.addEventListener('ionBackButton', (ev) => {
-  ev.detail.register(10, () => {
+// FIX 1: Android back button (Capacitor)
+document.addEventListener('deviceready', function() {
+  document.addEventListener('backbutton', function(e) {
+    e.preventDefault();
+    const active = document.querySelector('.scr.active')?.id?.replace('scr-','');
+    if (active && active !== 'home') { goTo('home'); }
+    else { navigator.app && navigator.app.exitApp(); }
+  }, false);
+}, false);
+// Capacitor variant
+if (window.Capacitor) {
+  window.Capacitor.Plugins.App && window.Capacitor.Plugins.App.addListener('backButton', ({canGoBack}) => {
     const active = document.querySelector('.scr.active')?.id?.replace('scr-','');
     if (active && active !== 'home') goTo('home');
-    else if (window.Capacitor) window.Capacitor.Plugins.App.exitApp();
+    else window.Capacitor.Plugins.App.exitApp();
   });
-});
+}
 load();
 rHome();
 setInterval(()=>{document.getElementById('hdr-due').textContent=S.items.filter(isDue).length;},30000);
