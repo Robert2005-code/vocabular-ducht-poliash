@@ -1,0 +1,8 @@
+{
+  "appId": "com.robert.vocabulardutchpolish",
+  "appName": "Holanderski",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}
