@@ -1057,7 +1057,7 @@ function toast(m){const t=document.getElementById('toast');t.textContent=m;t.cla
 function esc(s){s=String(s==null?'':s);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function escJ(s){s=String(s==null?'':s);return s.replace(/'/g,"\'").replace(/"/g,'\"');}
 function shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function speak(text){if(!window.speechSynthesis)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='nl-NL';u.rate=0.85;window.speechSynthesis.speak(u);}
+function speak(text){if(!window.speechSynthesis) return;window.speechSynthesis.cancel();setTimeout(() => {const u = new SpeechSynthesisUtterance(text);u.lang = 'nl-NL';u.rate = 0.85;u.volume = 1;const voices = window.speechSynthesis.getVoices();const nl = voices.find(v => v.lang.startsWith('nl'));if (nl) u.voice = nl;window.speechSynthesis.speak(u)}, 100);}
 function showXPBurst(txt){const el=document.createElement('div');el.className='xp-burst';el.textContent=txt;document.body.appendChild(el);setTimeout(()=>el.remove(),900);}
 
 // ════════════════════════════════════════════════════════════════
@@ -1717,7 +1717,7 @@ function rSettings(){
 }
 function saveKey(){const v=document.getElementById('api-inp').value.trim();if(!v||v.includes('•')){toast('⚠ Wklej nowy klucz!');return;}if(!v.startsWith('sk-')){toast('⚠ Klucz musi zaczynać się od sk-');return;}localStorage.setItem(KK,v);toast('✓ Klucz zapisany!');rSettings();rHome();}
 function clearKey(){if(!confirm('Usunąć klucz API?'))return;localStorage.removeItem(KK);document.getElementById('api-inp').value='';toast('Klucz usunięty');rSettings();rHome();}
-function expData(){const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');const ts=new Date().toISOString().slice(0,10);a.href=URL.createObjectURL(blob);a.download='holenderski-'+ts+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000);}
+function expData(){const data = JSON.stringify(S, null, 2);const b64 = 'data:application/json;base64,' + btoa(unescape(encodeURIComponent(data)));const a = document.createElement('a');const ts = new Date().toISOString().slice(0,10);a.href = b64;a.download = 'holenderski-' + ts + '.json';document.body.appendChild(a);a.click();document.body.removeChild(a);toast('✓ Plik pobrany!');}
 function clrAll(){S.items=[];save();goTo('home');toast('Dane usunięte');}
 
 // ════════════════════════════════════════════════════════════════
@@ -2564,6 +2564,14 @@ const GR = (() => {
 // ════════════════════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════════════════════
+// FIX 1: Android back button
+document.addEventListener('ionBackButton', (ev) => {
+  ev.detail.register(10, () => {
+    const active = document.querySelector('.scr.active')?.id?.replace('scr-','');
+    if (active && active !== 'home') goTo('home');
+    else if (window.Capacitor) window.Capacitor.Plugins.App.exitApp();
+  });
+});
 load();
 rHome();
 setInterval(()=>{document.getElementById('hdr-due').textContent=S.items.filter(isDue).length;},30000);
