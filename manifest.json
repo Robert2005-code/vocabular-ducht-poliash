@@ -1,0 +1,9 @@
+{
+  "name": "Holanderski",
+  "short_name": "Holanderski",
+  "start_url": "/vocabular-ducht-polish/",
+  "display": "standalone",
+  "background_color": "#080812",
+  "theme_color": "#080812",
+  "orientation": "portrait"
+}
