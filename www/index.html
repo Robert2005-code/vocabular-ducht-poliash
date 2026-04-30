@@ -1782,19 +1782,18 @@ function expData(){
   const ts = new Date().toISOString().slice(0,10);
   const filename = 'wordra-' + ts + '.json';
 
-  // Android (Capacitor): clipboard — cel mai fiabil
-  if (window.Capacitor) {
-    try {
-      navigator.clipboard.writeText(data).then(() => {
-        toast('✓ Copiat în clipboard! Lipește în Notes/Drive și salvează ca wordra-' + ts + '.json');
-      }).catch(() => _expFallback(data, filename));
-    } catch(e) { _expFallback(data, filename); }
-    return;
-  }
-
-  // Web: blob download
+  // Metoda 1: data URI cu window.open — merge în Android WebView
   try {
-    const blob = new Blob([data], {type:'application/json'});
+    const b64 = btoa(unescape(encodeURIComponent(data)));
+    const dataUri = 'data:application/octet-stream;base64,' + b64;
+    window.open(dataUri, '_blank');
+    toast('✓ Salvează fișierul din browser!');
+    return;
+  } catch(e1) {}
+
+  // Metoda 2: blob + link click (web desktop)
+  try {
+    const blob = new Blob([data], {type:'application/octet-stream'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = filename;
@@ -1802,7 +1801,7 @@ function expData(){
     setTimeout(()=>URL.revokeObjectURL(url), 3000);
     toast('✓ Plik pobrany!');
     return;
-  } catch(e) {}
+  } catch(e2) {}
 
   _expFallback(data, filename);
 }
