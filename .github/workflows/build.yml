@@ -1,42 +1,36 @@
 name: Build Android APK
-
 on:
   push:
     branches: [ main ]
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-
       - name: Install dependencies
         run: npm install
-
+      - name: Install capacitor-assets
+        run: npm install -D @capacitor/assets
       - name: Add Android platform
         run: npx cap add android
-
       - name: Sync web assets
         run: npx cap sync android
-
+      - name: Generate icons
+        run: mkdir -p resources && cp icon.png resources/icon.png && npx capacitor-assets generate --android
       - name: Build APK
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
-
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
