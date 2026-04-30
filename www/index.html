@@ -1783,22 +1783,28 @@ function expData(){
   const filename = 'wordra-' + ts + '.json';
   const b64 = btoa(unescape(encodeURIComponent(data)));
 
-  // Android: scrie în CACHE (accesibil prin FileProvider) apoi Share
-  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem && window.Capacitor.Plugins.Share) {
-    window.Capacitor.Plugins.Filesystem.writeFile({
+  // Capacitor 6: plugin-urile sunt pe window.Capacitor.Plugins dar și pe globalThis
+  const FS = window.Capacitor?.Plugins?.Filesystem
+           || window.Filesystem
+           || globalThis.Filesystem;
+  const SH = window.Capacitor?.Plugins?.Share
+           || window.Share
+           || globalThis.Share;
+
+  if (FS && SH) {
+    FS.writeFile({
       path: filename, data: b64, directory: 'CACHE', recursive: true
     }).then(result => {
-      return window.Capacitor.Plugins.Share.share({
+      return SH.share({
         title: filename,
         url: result.uri,
-        dialogTitle: 'Salvează sau trimite backup-ul'
+        dialogTitle: 'Salvează backup-ul'
       });
-    }).then(() => {
-      toast('✓ Gata!');
-    }).catch(err => {
-      console.error('Export err:', err);
-      _expFallback(data, filename);
-    });
+    }).then(() => toast('✓ Gata!'))
+      .catch(err => {
+        console.error('Export err:', JSON.stringify(err));
+        toast('⚠ Err: ' + JSON.stringify(err));
+      });
     return;
   }
 
