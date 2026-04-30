@@ -1781,25 +1781,14 @@ function expData(){
   const data = JSON.stringify(exportObj, null, 2);
   const ts = new Date().toISOString().slice(0,10);
   const filename = 'wordra-' + ts + '.json';
-  const b64 = btoa(unescape(encodeURIComponent(data)));
 
-  // Android: scrie fișier în DATA, apoi share-uiește
-  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) {
-    window.Capacitor.Plugins.Filesystem.writeFile({
-      path: filename, data: b64, directory: 'DATA', recursive: true
-    }).then(result => {
-      const uri = result.uri;
-      if (window.Capacitor.Plugins.Share) {
-        window.Capacitor.Plugins.Share.share({
-          title: 'Wordra backup',
-          text: 'Export vocabular Wordra',
-          url: uri,
-          dialogTitle: 'Trimite fișierul JSON'
-        }).catch(() => toast('✓ Salvat: ' + filename));
-      } else {
-        toast('✓ Salvat intern. Share indisponibil.');
-      }
-    }).catch(() => _expFallback(data, filename));
+  // Android (Capacitor): clipboard — cel mai fiabil
+  if (window.Capacitor) {
+    try {
+      navigator.clipboard.writeText(data).then(() => {
+        toast('✓ Copiat în clipboard! Lipește în Notes/Drive și salvează ca wordra-' + ts + '.json');
+      }).catch(() => _expFallback(data, filename));
+    } catch(e) { _expFallback(data, filename); }
     return;
   }
 
@@ -2670,6 +2659,7 @@ const GR = (() => {
 // INIT
 // ════════════════════════════════════════════════════════════════
 // FIX 1: Android back button (Capacitor pure)
+let _backRegistered = false;
 function _handleBack() {
   const openModal = document.querySelector('.modal.open');
   if (openModal) { openModal.classList.remove('open'); return; }
@@ -2678,13 +2668,14 @@ function _handleBack() {
   try { window.Capacitor.Plugins.App.exitApp(); } catch(e) {}
 }
 function _initBackButton() {
+  if (_backRegistered) return;
   try {
     window.Capacitor.Plugins.App.addListener('backButton', _handleBack);
+    _backRegistered = true;
   } catch(e) {}
 }
-// Încearcă imediat, apoi la deviceready (Capacitor îl emite când e gata)
 document.addEventListener('deviceready', _initBackButton);
-setTimeout(_initBackButton, 300);
+setTimeout(_initBackButton, 500);
 load();
 rHome();
 setInterval(()=>{document.getElementById('hdr-due').textContent=S.items.filter(isDue).length;},30000);
