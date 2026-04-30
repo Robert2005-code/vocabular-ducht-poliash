@@ -546,9 +546,7 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
       <div class="sec" style="margin-bottom:12px">Ustawienia gry</div>
       <div class="set-row"><div><div style="font-size:13px;font-weight:600">Liczba par</div></div>
         <div style="display:flex;align-items:center;gap:10px"><button class="gsb" onclick="adjP(-2)">−</button><span id="pval" style="font-size:20px;font-weight:800;color:var(--gold);min-width:26px;text-align:center">6</span><button class="gsb" onclick="adjP(2)">+</button></div></div>
-      <div class="set-row"><div><div style="font-size:13px;font-weight:600">Czas na parę</div></div>
-        <div style="display:flex;align-items:center;gap:10px"><button class="gsb" onclick="adjT(-1)">−</button><span id="tval" style="font-size:20px;font-weight:800;color:var(--gold);min-width:26px;text-align:center">8</span><button class="gsb" onclick="adjT(1)">+</button></div></div>
-      <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:12px"><span style="color:var(--text3)">Łączny czas:</span><span style="font-weight:700;color:var(--blue)" id="tprev">48s</span></div>
+
       <div class="set-row"><div style="font-size:13px;font-weight:600">Typ</div><select id="gtype" style="width:auto;padding:7px 10px" onchange="chkReady()"><option value="all">Słowa + Frazy</option><option value="word">Tylko słowa</option><option value="phrase">Tylko frazy</option></select></div>
       <div class="set-row"><div style="font-size:13px;font-weight:600">Kategoria</div><select id="gcat" style="width:auto;padding:7px 10px" onchange="onGCatChange()"><option value="">Wszystkie</option></select></div>
       <div class="set-row" id="gsub-row" style="border:none;display:none"><div style="font-size:13px;font-weight:600">Podkategoria</div><select id="gsub" style="width:auto;padding:7px 10px" onchange="chkReady()"><option value="">Wszystkie</option></select></div>
@@ -558,19 +556,41 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
   </div>
   <div id="garena" style="display:none">
     <div class="ghdr">
-      <div><div style="font-size:9px;color:var(--text3);margin-bottom:2px">Czas</div><div class="gtimer" id="gtim">0s</div></div>
       <div style="text-align:center"><div style="font-size:9px;color:var(--text3)">Para</div><div style="font-size:18px;font-weight:800" id="gprog">0/0</div></div>
-      <div style="text-align:right"><div style="font-size:9px;color:var(--text3);margin-bottom:2px">Wynik</div><div style="font-size:22px;font-weight:800;color:var(--green)" id="gscore">0</div></div>
+      <div style="text-align:right"><div style="font-size:9px;color:var(--text3);margin-bottom:2px">Błędy</div><div style="font-size:22px;font-weight:800;color:var(--red)" id="gerrors">0</div></div>
     </div>
     <div style="font-size:10px;color:var(--text3);text-align:center;margin-bottom:10px">Kliknij NL → potem tłumaczenie PL</div>
     <div class="pgrid"><div class="pcol" id="cnl"></div><div class="pcol" id="cpl"></div></div>
     <button class="btn bs" onclick="stopGame()" style="margin-top:4px">✕ Zakończ</button>
   </div>
-  <div id="gres" style="display:none;text-align:center;padding:30px 20px">
-    <div style="font-size:54px;margin-bottom:10px" id="gremo">🎉</div>
-    <div style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;margin-bottom:6px" id="grttl">Brawo!</div>
-    <div style="color:var(--text2);font-size:13px;margin-bottom:4px" id="grsco"></div>
-    <div style="color:var(--text3);font-size:11px;margin-bottom:20px" id="grtim"></div>
+  <div id="gres" style="display:none;padding:20px 0">
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="font-size:54px;margin-bottom:8px" id="gremo">🎉</div>
+      <div style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;margin-bottom:4px" id="grttl">Brawo!</div>
+    </div>
+    <!-- Stats boxes -->
+    <div style="display:flex;gap:10px;margin-bottom:16px">
+      <div style="flex:1;text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:14px 8px">
+        <div style="font-size:28px;font-weight:900;color:var(--gold)" id="gres-time">0s</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:3px">⏱ Czas</div>
+      </div>
+      <div style="flex:1;text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:14px 8px">
+        <div style="font-size:28px;font-weight:900;color:var(--green)" id="gres-pairs">0</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:3px">✓ Pary</div>
+      </div>
+      <div style="flex:1;text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:14px 8px">
+        <div style="font-size:28px;font-weight:900;color:var(--red)" id="gres-errors">0</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:3px">✗ Błędy</div>
+      </div>
+    </div>
+    <!-- Leaderboard -->
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);margin-bottom:16px;overflow:hidden">
+      <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase">🏆 Klasament</span>
+        <button onclick="clearLeaderboard()" style="background:none;border:none;color:var(--text3);font-size:10px;cursor:pointer">Wyczyść</button>
+      </div>
+      <div id="gres-lb" style="max-height:220px;overflow-y:auto"></div>
+    </div>
     <button class="btn bp" onclick="startGame()">🔄 Zagraj jeszcze raz</button>
     <button class="btn bs" onclick="backSetup()">← Zmień ustawienia</button>
   </div>
@@ -1057,36 +1077,7 @@ function toast(m){const t=document.getElementById('toast');t.textContent=m;t.cla
 function esc(s){s=String(s==null?'':s);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function escJ(s){s=String(s==null?'':s);return s.replace(/'/g,"\'").replace(/"/g,'\"');}
 function shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function speak(text){
-  if(!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  function doSpeak() {
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'nl-NL';
-    u.rate = 0.85;
-    u.volume = 1;
-    u.pitch = 1;
-    // Try to find Dutch voice
-    const voices = window.speechSynthesis.getVoices();
-    if (voices.length) {
-      const nl = voices.find(v => v.lang && v.lang.startsWith('nl'));
-      if (nl) u.voice = nl;
-    }
-    window.speechSynthesis.speak(u);
-  }
-  // Android WebView needs voices to load first
-  const voices = window.speechSynthesis.getVoices();
-  if (voices.length > 0) {
-    setTimeout(doSpeak, 50);
-  } else {
-    window.speechSynthesis.onvoiceschanged = function() {
-      window.speechSynthesis.onvoiceschanged = null;
-      setTimeout(doSpeak, 50);
-    };
-    // Fallback if onvoiceschanged never fires
-    setTimeout(doSpeak, 500);
-  }
-}
+function speak(text){if(!window.speechSynthesis) return;window.speechSynthesis.cancel();setTimeout(() => {const u = new SpeechSynthesisUtterance(text);u.lang = 'nl-NL';u.rate = 0.85;u.volume = 1;const voices = window.speechSynthesis.getVoices();const nl = voices.find(v => v.lang.startsWith('nl'));if (nl) u.voice = nl;window.speechSynthesis.speak(u)}, 100);}
 function showXPBurst(txt){const el=document.createElement('div');el.className='xp-burst';el.textContent=txt;document.body.appendChild(el);setTimeout(()=>el.remove(),900);}
 
 // ════════════════════════════════════════════════════════════════
@@ -1116,8 +1107,18 @@ function importJSON(file){
         if(it.categoryId)it.categoryId=it.categoryId.toLowerCase()==='inne'?'inne':it.categoryId;
       });
       const{added,skipped}=mergeItems(incoming);
+      // Restore grammar photos if present
+      if(d.gr_data_v1 && Array.isArray(d.gr_data_v1) && d.gr_data_v1.length > 0){
+        try {
+          localStorage.setItem('gr_data_v1', JSON.stringify(d.gr_data_v1));
+          toast('✓ Dodano: '+added+' · Duplikaty: '+skipped+' · Gramatyka: '+d.gr_data_v1.length+' zdjęć');
+        } catch(eg) {
+          toast('✓ Dodano: '+added+' · Duplikaty: '+skipped+' (⚠ Gramatyka za duża)');
+        }
+      } else {
+        toast('✓ Dodano: '+added+' · Duplikaty: '+skipped);
+      }
       save();rHome();rWL();
-      toast('✓ Dodano: '+added+' · Duplikaty: '+skipped);
     }catch(err){toast('⚠ Błąd importu: '+err.message);}
   };
   reader.readAsText(file);
@@ -1701,9 +1702,9 @@ function startGame(){
   let pool=S.items;if(tp!=='all')pool=pool.filter(i=>i.type===tp);if(cid)pool=pool.filter(i=>i.categoryId===cid);if(sid)pool=pool.filter(i=>i.subcategoryId===sid);
   if(pool.length<G.pairs){toast('Za mało elementów!');return;}
   const sel=[...pool].sort(()=>Math.random()-.5).slice(0,G.pairs);
-  G.score=0;G.selNl=null;G.matched=0;G.total=G.pairs*G.spp;G.elapsed=0;
+  G.score=0;G.selNl=null;G.matched=0;G.total=G.pairs*G.spp;G.elapsed=0;G.errors=0;
   document.getElementById('gsetup').style.display='none';document.getElementById('gres').style.display='none';document.getElementById('garena').style.display='block';
-  document.getElementById('gscore').textContent='0';document.getElementById('gprog').textContent='0/'+G.pairs;
+  document.getElementById('gerrors').textContent='0';document.getElementById('gprog').textContent='0/'+G.pairs;
   rPairCards(sel);startTimer();
 }
 function rPairCards(pairs){
@@ -1715,23 +1716,50 @@ function rPairCards(pairs){
 function selNl(id,el){if(el.classList.contains('matched'))return;document.querySelectorAll('#cnl .pc').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');G.selNl=id;}
 function selPl(id,el){
   if(!G.selNl||el.classList.contains('matched'))return;
-  if(G.selNl===id){document.querySelectorAll(`.pc[data-id="${id}"]`).forEach(c=>{c.classList.remove('sel');c.classList.add('matched');});G.score++;G.matched++;document.getElementById('gscore').textContent=G.score;document.getElementById('gprog').textContent=G.matched+'/'+G.pairs;G.selNl=null;if(G.matched>=G.pairs)endGame(true);}
-  else{el.classList.add('wrong');const nc=document.querySelector('#cnl .pc.sel');if(nc)nc.classList.add('wrong');setTimeout(()=>{el.classList.remove('wrong','sel');if(nc)nc.classList.remove('wrong','sel');G.selNl=null;},600);}
+  if(G.selNl===id){document.querySelectorAll(`.pc[data-id="${id}"]`).forEach(c=>{c.classList.remove('sel');c.classList.add('matched');});G.score++;G.matched++;document.getElementById('gprog').textContent=G.matched+'/'+G.pairs;G.selNl=null;if(G.matched>=G.pairs)endGame(true);}
+  else{G.errors++;document.getElementById('gerrors').textContent=G.errors;el.classList.add('wrong');const nc=document.querySelector('#cnl .pc.sel');if(nc)nc.classList.add('wrong');setTimeout(()=>{el.classList.remove('wrong','sel');if(nc)nc.classList.remove('wrong','sel');G.selNl=null;},600);}
 }
 function startTimer(){
-  if(G.tmr)clearInterval(G.tmr);const te=document.getElementById('gtim');
-  function tick(){const rem=G.total-G.elapsed;const m=Math.floor(rem/60),s=rem%60;te.textContent=(m>0?m+':':'')+(s<10&&m>0?'0':'')+s+(m===0?'s':'');te.classList.toggle('danger',rem<=10);if(G.elapsed>=G.total){clearInterval(G.tmr);endGame(false);return;}G.elapsed++;}
-  tick();G.tmr=setInterval(tick,1000);
+  if(G.tmr)clearInterval(G.tmr);G.elapsed=0;
+  G.tmr=setInterval(()=>{G.elapsed++;if(G.elapsed>=G.total){clearInterval(G.tmr);endGame(false);}},1000);
 }
 function endGame(won){
   if(G.tmr)clearInterval(G.tmr);document.getElementById('garena').style.display='none';document.getElementById('gres').style.display='block';
   const pct=Math.round(G.score/G.pairs*100);let e='😅',t='Spróbuj ponownie!';
-  if(won&&pct===100){e='🏆';t='Perfekcja!';}else if(pct>=70){e='🎉';t='Świetnie!';}else if(pct>=40){e='👍';t='Nieźle!';}
+  if(won&&G.errors===0){e='🏆';t='Perfekcja!';}else if(won&&pct===100){e='🥇';t='Brawo!';}else if(pct>=70){e='🎉';t='Świetnie!';}else if(pct>=40){e='👍';t='Nieźle!';}
   document.getElementById('gremo').textContent=e;document.getElementById('grttl').textContent=t;
-  document.getElementById('grsco').textContent=G.score+' / '+G.pairs+' par ('+pct+'%)';
-  document.getElementById('grtim').textContent='Czas: '+G.elapsed+'s z '+G.total+'s';
+  // Format time
+  const sec=G.elapsed,m=Math.floor(sec/60),s=sec%60;
+  const timeStr=m>0?m+'m '+s+'s':s+'s';
+  document.getElementById('gres-time').textContent=won?timeStr:'⏰ '+timeStr;
+  document.getElementById('gres-pairs').textContent=G.score+'/'+G.pairs;
+  document.getElementById('gres-errors').textContent=G.errors;
+  // Save to leaderboard
+  const entry={ts:Date.now(),pairs:G.pairs,matched:G.score,errors:G.errors,time:G.elapsed,won};
+  try{const lb=JSON.parse(localStorage.getItem('nl_lb_v1')||'[]');lb.unshift(entry);lb.splice(20);localStorage.setItem('nl_lb_v1',JSON.stringify(lb));}catch(e){}
+  renderLeaderboard();
   if(won) markActivityDone();
 }
+function renderLeaderboard(){
+  const lb=JSON.parse(localStorage.getItem('nl_lb_v1')||'[]');
+  const el=document.getElementById('gres-lb');
+  if(!lb.length){el.innerHTML='<div style="padding:14px;text-align:center;color:var(--text3);font-size:12px">Brak wyników</div>';return;}
+  el.innerHTML=lb.map((r,i)=>{
+    const d=new Date(r.ts),dateStr=d.toLocaleDateString('pl',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('pl',{hour:'2-digit',minute:'2-digit'});
+    const m=Math.floor(r.time/60),s=r.time%60,tStr=m>0?m+'m '+s+'s':s+'s';
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'  '+(i+1)+'.';
+    const won=r.won?'<span style="color:var(--green);font-size:10px">✓</span>':'<span style="color:var(--red);font-size:10px">✗</span>';
+    return `<div style="display:flex;align-items:center;padding:9px 14px;border-bottom:1px solid var(--border);gap:8px;${i===0?'background:var(--gold-dim)':''}">
+      <span style="font-size:13px;min-width:26px">${medal}</span>
+      <span style="flex:1;font-size:11px;color:var(--text3)">${dateStr}</span>
+      <span style="font-size:12px;color:var(--blue);font-weight:700">⏱ ${tStr}</span>
+      <span style="font-size:12px;color:var(--red);font-weight:700;min-width:28px;text-align:right">✗${r.errors}</span>
+      <span style="font-size:12px;color:var(--green);font-weight:700;min-width:32px;text-align:right">${r.matched}/${r.pairs}</span>
+      ${won}
+    </div>`;
+  }).join('');
+}
+function clearLeaderboard(){if(!confirm('Wyczyścić klasament?'))return;localStorage.removeItem('nl_lb_v1');renderLeaderboard();toast('Klasament wyczyszczony');}
 function stopGame(){if(G.tmr)clearInterval(G.tmr);backSetup();}
 function backSetup(){document.getElementById('garena').style.display='none';document.getElementById('gres').style.display='none';document.getElementById('gsetup').style.display='block';}
 
@@ -1748,43 +1776,37 @@ function saveKey(){const v=document.getElementById('api-inp').value.trim();if(!v
 function clearKey(){if(!confirm('Usunąć klucz API?'))return;localStorage.removeItem(KK);document.getElementById('api-inp').value='';toast('Klucz usunięty');rSettings();rHome();}
 function expData(){
   try {
-    const data = JSON.stringify(S, null, 2);
+    const grRaw = localStorage.getItem('gr_data_v1');
+    const grData = grRaw ? JSON.parse(grRaw) : [];
+    const exportObj = Object.assign({}, S, { gr_data_v1: grData });
+    const data = JSON.stringify(exportObj, null, 2);
     const ts = new Date().toISOString().slice(0,10);
     const filename = 'holenderski-' + ts + '.json';
-    // Method 1: Blob URL (works on most browsers)
     try {
       const blob = new Blob([data], {type:'application/json'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(()=>URL.revokeObjectURL(url), 3000);
-      toast('✓ Plik pobrany!');
+      toast('✓ Plik pobrany (słówka + gramatyka)!');
       return;
     } catch(e1) {}
-    // Method 2: base64 with proper encoding for Polish chars
     const bytes = new TextEncoder().encode(data);
     let binary = '';
     bytes.forEach(b => binary += String.fromCharCode(b));
     const b64 = 'data:application/json;base64,' + btoa(binary);
     const a = document.createElement('a');
-    a.href = b64;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    toast('✓ Plik pobrany!');
+    a.href = b64; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    toast('✓ Plik pobrany (słówka + gramatyka)!');
   } catch(e) {
-    // Method 3: copy to clipboard
     try {
-      navigator.clipboard.writeText(JSON.stringify(S, null, 2));
+      const grRaw = localStorage.getItem('gr_data_v1');
+      const grData = grRaw ? JSON.parse(grRaw) : [];
+      navigator.clipboard.writeText(JSON.stringify(Object.assign({}, S, {gr_data_v1: grData}), null, 2));
       toast('✓ Dane skopiowane do schowka!');
-    } catch(e2) {
-      toast('⚠ Eksport niedostępny na tym urządzeniu');
-    }
+    } catch(e2) { toast('⚠ Eksport niedostępny na tym urządzeniu'); }
   }
 }
 function clrAll(){S.items=[];save();goTo('home');toast('Dane usunięte');}
@@ -2633,22 +2655,24 @@ const GR = (() => {
 // ════════════════════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════════════════════
-// FIX 1: Android back button (Capacitor)
-document.addEventListener('deviceready', function() {
-  document.addEventListener('backbutton', function(e) {
-    e.preventDefault();
-    const active = document.querySelector('.scr.active')?.id?.replace('scr-','');
-    if (active && active !== 'home') { goTo('home'); }
-    else { navigator.app && navigator.app.exitApp(); }
-  }, false);
-}, false);
-// Capacitor variant
-if (window.Capacitor) {
-  window.Capacitor.Plugins.App && window.Capacitor.Plugins.App.addListener('backButton', ({canGoBack}) => {
-    const active = document.querySelector('.scr.active')?.id?.replace('scr-','');
-    if (active && active !== 'home') goTo('home');
-    else window.Capacitor.Plugins.App.exitApp();
-  });
+// FIX 1: Android back button (Capacitor pure)
+function _handleBack() {
+  const active = document.querySelector('.scr.active')?.id?.replace('scr-','');
+  // Închide modal dacă e deschis
+  const openModal = document.querySelector('.modal.open');
+  if (openModal) { openModal.classList.remove('open'); return; }
+  if (active && active !== 'home') goTo('home');
+  else if (window.Capacitor) window.Capacitor.Plugins.App.exitApp();
+}
+function _initBackButton() {
+  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+    window.Capacitor.Plugins.App.addListener('backButton', _handleBack);
+  }
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _initBackButton);
+} else {
+  _initBackButton();
 }
 load();
 rHome();
