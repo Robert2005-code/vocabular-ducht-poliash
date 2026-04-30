@@ -1108,10 +1108,11 @@ function importJSON(file){
       });
       const{added,skipped}=mergeItems(incoming);
       // Restore grammar photos if present
-      if(d.gr_data_v1 && Array.isArray(d.gr_data_v1) && d.gr_data_v1.length > 0){
+      if(d.gr_data_v1 && typeof d.gr_data_v1 === 'object'){
         try {
           localStorage.setItem('gr_data_v1', JSON.stringify(d.gr_data_v1));
-          toast('✓ Dodano: '+added+' · Duplikaty: '+skipped+' · Gramatyka: '+d.gr_data_v1.length+' zdjęć');
+          const cnt = Array.isArray(d.gr_data_v1.items) ? d.gr_data_v1.items.length : '?';
+          toast('✓ Dodano: '+added+' · Duplikaty: '+skipped+' · Gramatyka: '+cnt+' zdjęć');
         } catch(eg) {
           toast('✓ Dodano: '+added+' · Duplikaty: '+skipped+' (⚠ Gramatyka za duża)');
         }
