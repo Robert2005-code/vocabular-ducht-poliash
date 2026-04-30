@@ -1476,7 +1476,7 @@ async function doScan(inp){
     if(!r.words.length&&!r.phrases.length){document.getElementById('sres').innerHTML='<div class="aerr">⚠ Nie znaleziono par słów/fraz.</div>';}
     else{
       const now=new Date().toISOString();
-      const incoming=[...r.words.map(w=>({id:Date.now()+Math.random(),nl:w.nl,pl:w.pl,type:'word',categoryId:w.cat||'inne',subcategoryId:w.sub||null,level:0,nextReview:now,addedAt:now})),...r.phrases.map(p=>({id:Date.now()+Math.random(),nl:p.nl,pl:p.pl,type:'phrase',categoryId:p.cat||'inne',subcategoryId:p.sub||null,level:0,nextReview:now,addedAt:now}))];
+      const incoming=[...r.words.map(w=>({id:Date.now()+Math.random(),nl:w.nl,pl:w.pl,type:'word',categoryId:'inne',subcategoryId:null,level:0,nextReview:now,addedAt:now})),...r.phrases.map(p=>({id:Date.now()+Math.random(),nl:p.nl,pl:p.pl,type:'phrase',categoryId:'inne',subcategoryId:null,level:0,nextReview:now,addedAt:now}))];
       const{added,skipped}=mergeItems(incoming);save();autoExport();
       const bc={};incoming.forEach(i=>{const cat=S.categories.find(c=>c.id===i.categoryId);const cn=cat?.name||'Inne';if(!bc[cn])bc[cn]={w:0,p:0,ico:cat?.icon||'📦'};if(i.type==='word')bc[cn].w++;else bc[cn].p++;});
       let h='<div class="aok">✓ Nowe: <strong>'+added+'</strong> · Duplikaty pominięte: <strong>'+skipped+'</strong><br><span style="font-size:11px;opacity:.8">💾 Plik JSON pobrany automatycznie</span></div><div class="card" style="margin-top:8px"><div class="sec">Kategoryzacja AI</div>';
