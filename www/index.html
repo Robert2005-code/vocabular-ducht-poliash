@@ -1781,19 +1781,30 @@ function expData(){
   const data = JSON.stringify(exportObj, null, 2);
   const ts = new Date().toISOString().slice(0,10);
   const filename = 'wordra-' + ts + '.json';
+  const b64 = btoa(unescape(encodeURIComponent(data)));
 
-  // Metoda 1: data URI cu window.open — merge în Android WebView
-  try {
-    const b64 = btoa(unescape(encodeURIComponent(data)));
-    const dataUri = 'data:application/octet-stream;base64,' + b64;
-    window.open(dataUri, '_blank');
-    toast('✓ Salvează fișierul din browser!');
+  // Android: scrie în CACHE (accesibil prin FileProvider) apoi Share
+  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem && window.Capacitor.Plugins.Share) {
+    window.Capacitor.Plugins.Filesystem.writeFile({
+      path: filename, data: b64, directory: 'CACHE', recursive: true
+    }).then(result => {
+      return window.Capacitor.Plugins.Share.share({
+        title: filename,
+        url: result.uri,
+        dialogTitle: 'Salvează sau trimite backup-ul'
+      });
+    }).then(() => {
+      toast('✓ Gata!');
+    }).catch(err => {
+      console.error('Export err:', err);
+      _expFallback(data, filename);
+    });
     return;
-  } catch(e1) {}
+  }
 
-  // Metoda 2: blob + link click (web desktop)
+  // Web: blob download
   try {
-    const blob = new Blob([data], {type:'application/octet-stream'});
+    const blob = new Blob([data], {type:'application/json'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = filename;
@@ -1801,7 +1812,7 @@ function expData(){
     setTimeout(()=>URL.revokeObjectURL(url), 3000);
     toast('✓ Plik pobrany!');
     return;
-  } catch(e2) {}
+  } catch(e) {}
 
   _expFallback(data, filename);
 }
