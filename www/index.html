@@ -1775,39 +1775,53 @@ function rSettings(){
 function saveKey(){const v=document.getElementById('api-inp').value.trim();if(!v||v.includes('•')){toast('⚠ Wklej nowy klucz!');return;}if(!v.startsWith('sk-')){toast('⚠ Klucz musi zaczynać się od sk-');return;}localStorage.setItem(KK,v);toast('✓ Klucz zapisany!');rSettings();rHome();}
 function clearKey(){if(!confirm('Usunąć klucz API?'))return;localStorage.removeItem(KK);document.getElementById('api-inp').value='';toast('Klucz usunięty');rSettings();rHome();}
 function expData(){
-  try {
-    const grRaw = localStorage.getItem('gr_data_v1');
-    const grData = grRaw ? JSON.parse(grRaw) : [];
-    const exportObj = Object.assign({}, S, { gr_data_v1: grData });
-    const data = JSON.stringify(exportObj, null, 2);
-    const ts = new Date().toISOString().slice(0,10);
-    const filename = 'holenderski-' + ts + '.json';
-    try {
-      const blob = new Blob([data], {type:'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = filename;
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(()=>URL.revokeObjectURL(url), 3000);
-      toast('✓ Plik pobrany (słówka + gramatyka)!');
-      return;
-    } catch(e1) {}
-    const bytes = new TextEncoder().encode(data);
-    let binary = '';
-    bytes.forEach(b => binary += String.fromCharCode(b));
-    const b64 = 'data:application/json;base64,' + btoa(binary);
-    const a = document.createElement('a');
-    a.href = b64; a.download = filename;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    toast('✓ Plik pobrany (słówka + gramatyka)!');
-  } catch(e) {
-    try {
-      const grRaw = localStorage.getItem('gr_data_v1');
-      const grData = grRaw ? JSON.parse(grRaw) : [];
-      navigator.clipboard.writeText(JSON.stringify(Object.assign({}, S, {gr_data_v1: grData}), null, 2));
-      toast('✓ Dane skopiowane do schowka!');
-    } catch(e2) { toast('⚠ Eksport niedostępny na tym urządzeniu'); }
+  const grRaw = localStorage.getItem('gr_data_v1');
+  const grData = grRaw ? JSON.parse(grRaw) : [];
+  const exportObj = Object.assign({}, S, { gr_data_v1: grData });
+  const data = JSON.stringify(exportObj, null, 2);
+  const ts = new Date().toISOString().slice(0,10);
+  const filename = 'wordra-' + ts + '.json';
+  const b64 = btoa(unescape(encodeURIComponent(data)));
+
+  // Android: scrie fișier în DATA, apoi share-uiește
+  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) {
+    window.Capacitor.Plugins.Filesystem.writeFile({
+      path: filename, data: b64, directory: 'DATA', recursive: true
+    }).then(result => {
+      const uri = result.uri;
+      if (window.Capacitor.Plugins.Share) {
+        window.Capacitor.Plugins.Share.share({
+          title: 'Wordra backup',
+          text: 'Export vocabular Wordra',
+          url: uri,
+          dialogTitle: 'Trimite fișierul JSON'
+        }).catch(() => toast('✓ Salvat: ' + filename));
+      } else {
+        toast('✓ Salvat intern. Share indisponibil.');
+      }
+    }).catch(() => _expFallback(data, filename));
+    return;
   }
+
+  // Web: blob download
+  try {
+    const blob = new Blob([data], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 3000);
+    toast('✓ Plik pobrany!');
+    return;
+  } catch(e) {}
+
+  _expFallback(data, filename);
+}
+function _expFallback(data, filename) {
+  try {
+    navigator.clipboard.writeText(data);
+    toast('✓ Copiat în clipboard! Lipește în Notes și salvează ca .json');
+  } catch(e) { toast('⚠ Export indisponibil'); }
 }
 function clrAll(){S.items=[];save();goTo('home');toast('Dane usunięte');}
 
@@ -2657,23 +2671,20 @@ const GR = (() => {
 // ════════════════════════════════════════════════════════════════
 // FIX 1: Android back button (Capacitor pure)
 function _handleBack() {
-  const active = document.querySelector('.scr.active')?.id?.replace('scr-','');
-  // Închide modal dacă e deschis
   const openModal = document.querySelector('.modal.open');
   if (openModal) { openModal.classList.remove('open'); return; }
-  if (active && active !== 'home') goTo('home');
-  else if (window.Capacitor) window.Capacitor.Plugins.App.exitApp();
+  const active = document.querySelector('.scr.active')?.id?.replace('scr-','');
+  if (active && active !== 'home') { goTo('home'); return; }
+  try { window.Capacitor.Plugins.App.exitApp(); } catch(e) {}
 }
 function _initBackButton() {
-  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+  try {
     window.Capacitor.Plugins.App.addListener('backButton', _handleBack);
-  }
+  } catch(e) {}
 }
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', _initBackButton);
-} else {
-  _initBackButton();
-}
+// Încearcă imediat, apoi la deviceready (Capacitor îl emite când e gata)
+document.addEventListener('deviceready', _initBackButton);
+setTimeout(_initBackButton, 300);
 load();
 rHome();
 setInterval(()=>{document.getElementById('hdr-due').textContent=S.items.filter(isDue).length;},30000);
