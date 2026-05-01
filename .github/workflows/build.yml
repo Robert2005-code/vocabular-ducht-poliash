@@ -28,6 +28,11 @@ jobs:
         run: mkdir -p resources && cp icon.png resources/icon.png && npx capacitor-assets generate --android
       - name: Decode keystore
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/wordra.jks
+      - name: Upload keystore backup
+        uses: actions/upload-artifact@v4
+        with:
+          name: keystore-backup
+          path: android/app/wordra.jks
       - name: Build signed APK
         run: |
           cd android
