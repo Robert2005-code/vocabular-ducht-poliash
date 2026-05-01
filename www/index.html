@@ -822,30 +822,6 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
   </div>
 </div>
 
-
-<!-- MODAL: DUPLICAT -->
-<div class="modal" id="modal-dup">
-  <div class="modal-box">
-    <div class="modal-title"><span>⚠ Duplikat znaleziony</span><button class="modal-close" onclick="closeModal('modal-dup')">✕</button></div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:14px">To słowo już istnieje w słowniku. Co chcesz zrobić?</div>
-    <div style="background:var(--bg4);border:1px solid var(--border2);border-radius:var(--r2);padding:12px;margin-bottom:8px">
-      <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">📚 Istniejące</div>
-      <div style="font-weight:700;font-size:15px" id="dup-ex-nl"></div>
-      <div style="color:var(--text2);font-size:13px;margin-top:2px" id="dup-ex-pl"></div>
-      <div style="font-size:10px;color:var(--text3);margin-top:4px" id="dup-ex-cat"></div>
-    </div>
-    <div style="background:var(--blue-dim);border:1px solid #4a9eff44;border-radius:var(--r2);padding:12px;margin-bottom:14px">
-      <div style="font-size:10px;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">✨ Nowe</div>
-      <div style="font-weight:700;font-size:15px" id="dup-new-nl"></div>
-      <div style="color:var(--text2);font-size:13px;margin-top:2px" id="dup-new-pl"></div>
-      <div style="font-size:10px;color:var(--text3);margin-top:4px" id="dup-new-cat"></div>
-    </div>
-    <button onclick="dupKeepExisting()" class="btn bs" style="margin-bottom:6px">✓ Zachowaj istniejące</button>
-    <button onclick="dupReplaceWithNew()" class="btn bb" style="margin-bottom:6px">↻ Zastąp nowym</button>
-    <button onclick="dupAddBoth()" class="btn bg2" style="margin-bottom:0">+ Dodaj oba</button>
-  </div>
-</div>
-
 <!-- MODAL: DIRECTION PICKER -->
 <div class="modal" id="modal-dir">
   <div class="modal-box" style="padding-bottom:28px">
@@ -1308,10 +1284,35 @@ function saveItem(){
     const nk=normKey(nl);
     const dup=S.items.find(ex=>normKey(ex.nl)===nk&&(ex.type||'word')===EDIT_TYPE);
     if(dup){
-      _dupNew={nl,pl,type:EDIT_TYPE,categoryId:cat,subcategoryId:sub||null};
-      _dupExisting=dup;
       closeModal('modal-item');
-      openDupModal();
+      // Switch to wordlist and highlight the duplicate
+      WLF='all';WL_SEARCH='';WL_PAGE=0;
+      document.getElementById('wl-search').value='';
+      document.getElementById('srch-clr').style.display='none';
+      document.querySelectorAll('#scr-wordlist .ft').forEach(t=>t.classList.remove('active'));
+      document.querySelector('#scr-wordlist .ft').classList.add('active');
+      goTo('wordlist');
+      // Reset cat filter to show all
+      const cf=document.getElementById('wl-cat-filter');if(cf)cf.value='';
+      document.getElementById('wl-sub-row').style.display='none';
+      rWL();
+      // Scroll to and flash the existing item
+      setTimeout(()=>{
+        const dupId=String(dup.id);
+        const els=document.querySelectorAll('#wlist .wi');
+        for(const el of els){
+          // find by checking the onclick attr
+          if(el.querySelector('[onclick*="'+dupId+'"]')){
+            el.scrollIntoView({behavior:'smooth',block:'center'});
+            el.style.transition='box-shadow .3s';
+            el.style.boxShadow='0 0 0 3px var(--gold)';
+            el.style.borderColor='var(--gold)';
+            setTimeout(()=>{el.style.boxShadow='';el.style.borderColor='';},2500);
+            break;
+          }
+        }
+      },350);
+      toast('⚠ Duplikat: "'+nl+'" już istnieje!');
       return;
     }
     S.items.push({id:Date.now()+Math.random(),nl,pl,type:EDIT_TYPE,categoryId:cat,subcategoryId:sub,level:0,nextReview:now,addedAt:now});
@@ -1689,8 +1690,8 @@ function onGCatChange(){
   else subRow.style.display='none';chkReady();
 }
 function adjP(d){G.pairs=Math.max(2,Math.min(20,G.pairs+d));document.getElementById('pval').textContent=G.pairs;updTprev();chkReady();}
-function adjT(d){G.spp=Math.max(3,Math.min(30,G.spp+d));document.getElementById('tval').textContent=G.spp;updTprev();}
-function updTprev(){const t=G.pairs*G.spp;document.getElementById('tprev').textContent=t>=60?Math.floor(t/60)+'m'+(t%60?' '+t%60+'s':''):t+'s';}
+function adjT(d){G.spp=Math.max(3,Math.min(30,G.spp+d));const el=document.getElementById('tval');if(el)el.textContent=G.spp;updTprev();}
+function updTprev(){const el=document.getElementById('tprev');if(el){const t=G.pairs*G.spp;el.textContent=t>=60?Math.floor(t/60)+'m'+(t%60?' '+t%60+'s':''):t+'s';}}
 function chkReady(){
   const tp=document.getElementById('gtype')?.value||'all';const cid=document.getElementById('gcat')?.value||'';const sid=document.getElementById('gsub')?.value||'';
   let pool=S.items;if(tp!=='all')pool=pool.filter(i=>i.type===tp);if(cid)pool=pool.filter(i=>i.categoryId===cid);if(sid)pool=pool.filter(i=>i.subcategoryId===sid);
@@ -2672,64 +2673,15 @@ const GR = (() => {
 })();
 
 // ════════════════════════════════════════════════════════════════
-
-// ════════════════════════════════════════════════════════════════
-// DUP MODAL
-// ════════════════════════════════════════════════════════════════
-let _dupNew=null,_dupExisting=null;
-function getCatLabel(catId,subId){
-  const cat=S.categories.find(c=>c.id===catId);
-  const sub=subId?(cat?.subs||[]).find(s=>s.id===subId):null;
-  return (cat?cat.icon+' '+cat.name:'?')+(sub?' › '+sub.n:'');
-}
-function openDupModal(){
-  if(!_dupExisting||!_dupNew)return;
-  document.getElementById('dup-ex-nl').textContent=_dupExisting.nl;
-  document.getElementById('dup-ex-pl').textContent=_dupExisting.pl;
-  document.getElementById('dup-ex-cat').textContent=getCatLabel(_dupExisting.categoryId,_dupExisting.subcategoryId);
-  document.getElementById('dup-new-nl').textContent=_dupNew.nl;
-  document.getElementById('dup-new-pl').textContent=_dupNew.pl;
-  document.getElementById('dup-new-cat').textContent=getCatLabel(_dupNew.categoryId,_dupNew.subcategoryId);
-  openModal('modal-dup');
-}
-function dupKeepExisting(){
-  closeModal('modal-dup');
-  toast('✓ Zachowano istniejące');
-  _dupNew=null;_dupExisting=null;
-}
-function dupReplaceWithNew(){
-  if(!_dupExisting||!_dupNew)return;
-  S.items=S.items.map(i=>String(i.id)===String(_dupExisting.id)?{...i,..._dupNew}:i);
-  save();WL_PAGE=0;rWL();rHome();
-  closeModal('modal-dup');
-  toast('✓ Zastąpiono nowym!');
-  _dupNew=null;_dupExisting=null;
-}
-function dupAddBoth(){
-  if(!_dupNew)return;
-  const now=new Date().toISOString();
-  S.items.push({id:Date.now()+Math.random(),..._dupNew,level:0,nextReview:now,addedAt:now});
-  save();WL_PAGE=0;rWL();rHome();
-  closeModal('modal-dup');
-  toast('✓ Dodano oba!');
-  _dupNew=null;_dupExisting=null;
-}
-
 // INIT
 // ════════════════════════════════════════════════════════════════
 // FIX 1: Android back button (Capacitor pure)
 let _backRegistered = false;
 function _handleBack() {
-  // 1. Zoom gramatyka deschis?
-  const zoom = document.getElementById('modal-gr-zoom');
-  if (zoom && zoom.style.display === 'flex') { GR.closeZoom(); return; }
-  // 2. Alt modal deschis?
   const openModal = document.querySelector('.modal.open');
   if (openModal) { openModal.classList.remove('open'); return; }
-  // 3. Nu suntem pe home?
   const active = document.querySelector('.scr.active')?.id?.replace('scr-','');
   if (active && active !== 'home') { goTo('home'); return; }
-  // 4. Iesim din app
   try { window.Capacitor.Plugins.App.exitApp(); } catch(e) {}
 }
 function _initBackButton() {
