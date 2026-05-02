@@ -1102,25 +1102,8 @@ function esc(s){s=String(s==null?'':s);return s.replace(/&/g,'&amp;').replace(/<
 function escJ(s){s=String(s==null?'':s);return s.replace(/'/g,"\'").replace(/"/g,'\"');}
 function shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 // ── TTS ENGINE ──────────────────────────────────────────────────
-// Capacitor TTS via registerPlugin + fallback speechSynthesis
 let _ttsUnlocked = false;
 let _ttsResumeTimer = null;
-let _capTTS = null;
-
-// Initializeaza TTS plugin dupa ce Capacitor e gata
-function _initCapTTS(){
-  try {
-    if(window.Capacitor && window.Capacitor.isNativePlatform() && window.Capacitor.registerPlugin){
-      _capTTS = window.Capacitor.registerPlugin('TextToSpeech');
-    }
-  } catch(e){ _capTTS = null; }
-}
-// Asteapta ca Capacitor sa fie initializat
-if(document.readyState === 'complete'){
-  _initCapTTS();
-} else {
-  window.addEventListener('load', _initCapTTS);
-}
 
 function _unlockTTS(){
   if(!window.speechSynthesis) return;
@@ -1135,24 +1118,8 @@ document.addEventListener('touchstart', _unlockTTS, {passive:true});
 document.addEventListener('click', _unlockTTS, {passive:true});
 
 function speak(text, lang){
-  lang = lang || 'nl-NL';
-  // Pe APK - foloseste Capacitor TTS nativ
-  if(_capTTS){
-    try {
-      _capTTS.stop().catch(()=>{});
-      _capTTS.speak({
-        text: text,
-        lang: lang,
-        rate: 1.0,
-        pitch: 1.0,
-        volume: 1.0,
-        category: 'ambient'
-      }).catch(e => console.warn('CapTTS:', e));
-      return;
-    } catch(e){ console.warn('CapTTS err:', e); }
-  }
-  // Pe browser - fallback speechSynthesis
   if(!window.speechSynthesis) return;
+  lang = lang || 'nl-NL';
   window.speechSynthesis.cancel();
   _unlockTTS();
   const _doSpeak = () => {
@@ -1170,15 +1137,24 @@ function speak(text, lang){
                    || voices.find(v => v.lang.startsWith('en'))
                    || (voices.length ? voices[0] : null);
       if(nlVoice) u.voice = nlVoice;
-      u.onstart = () => { if(_ttsResumeTimer) clearInterval(_ttsResumeTimer); _ttsResumeTimer = setInterval(()=>{ if(window.speechSynthesis.speaking) window.speechSynthesis.resume(); }, 250); };
-      u.onend = () => { if(_ttsResumeTimer){ clearInterval(_ttsResumeTimer); _ttsResumeTimer=null; } };
-      u.onerror = () => { if(_ttsResumeTimer){ clearInterval(_ttsResumeTimer); _ttsResumeTimer=null; } };
+      u.onstart = () => {
+        if(_ttsResumeTimer) clearInterval(_ttsResumeTimer);
+        _ttsResumeTimer = setInterval(()=>{
+          if(window.speechSynthesis.paused) window.speechSynthesis.resume();
+        }, 200);
+      };
+      u.onend = u.onerror = () => {
+        if(_ttsResumeTimer){ clearInterval(_ttsResumeTimer); _ttsResumeTimer=null; }
+      };
       window.speechSynthesis.speak(u);
-    } catch(e) { console.warn('TTS exception:', e); }
+    } catch(e) { console.warn('TTS:', e); }
   };
   const voices = window.speechSynthesis.getVoices();
-  if(voices.length > 0){ setTimeout(_doSpeak, 80); }
-  else { window.speechSynthesis.onvoiceschanged = () => setTimeout(_doSpeak, 80); setTimeout(_doSpeak, 600); }
+  if(voices.length > 0){ setTimeout(_doSpeak, 100); }
+  else {
+    window.speechSynthesis.onvoiceschanged = () => setTimeout(_doSpeak, 100);
+    setTimeout(_doSpeak, 700);
+  }
 }
 function showXPBurst(txt){const el=document.createElement('div');el.className='xp-burst';el.textContent=txt;document.body.appendChild(el);setTimeout(()=>el.remove(),900);}
 
