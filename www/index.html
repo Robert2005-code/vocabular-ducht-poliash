@@ -2174,19 +2174,21 @@ function renderEx(){
 
 function renderExCard(ex, container){
   // Wymowa: pronunta cuvantul din ghilimele din intrebare
-  // pl->nl: intrebarea contine cuvantul PL -> pronunta in poloneza
-  // nl->pl: intrebarea contine cuvantul NL -> pronunta in olandeza
+  // pl->nl: intrebarea contine cuvantul PL in ghilimele -> pronunta in poloneza
+  // nl->pl: intrebarea contine cuvantul NL (ex.audio) -> pronunta in olandeza
   let audioHtml = '';
-  if(ex.audio){
-    const dir = ex.dir || '';
-    const isPlNl = dir.includes('pl') && dir.includes('nl') && dir.indexOf('pl') < dir.indexOf('nl');
-    if(isPlNl && ex.pl){
-      // Intrebarea e in poloneza -> pronunta poloneza
-      audioHtml = `<button onclick="speak('${escJ(ex.pl)}','pl-PL')" style="background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue);border-radius:var(--r3);padding:8px 14px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;margin-bottom:16px;cursor:pointer">🔊 Wymowa</button>`;
-    } else {
-      // Intrebarea e in olandeza -> pronunta olandeza
-      audioHtml = `<button onclick="speak('${escJ(ex.audio)}','nl-NL')" style="background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue);border-radius:var(--r3);padding:8px 14px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;margin-bottom:16px;cursor:pointer">🔊 Wymowa</button>`;
+  const _dir = ex.dir || '';
+  const _isPlNl = _dir.includes('pl') && _dir.includes('nl') && _dir.indexOf('pl') < _dir.indexOf('nl');
+  if(_isPlNl){
+    // Extrage cuvantul din ghilimele din intrebare
+    const _qMatch = (ex.question || '').match(/["\u201c\u201d](.*?)["\u201c\u201d]/);
+    const _plWord = ex.pl || (_qMatch && _qMatch[1]) || '';
+    if(_plWord){
+      audioHtml = `<button onclick="speak('${escJ(_plWord)}','pl-PL')" style="background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue);border-radius:var(--r3);padding:8px 14px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;margin-bottom:16px;cursor:pointer">🔊 Wymowa</button>`;
     }
+  } else if(ex.audio){
+    // nl->pl: pronunta cuvantul NL (ex.audio)
+    audioHtml = `<button onclick="speak('${escJ(ex.audio)}','nl-NL')" style="background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue);border-radius:var(--r3);padding:8px 14px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;margin-bottom:16px;cursor:pointer">🔊 Wymowa</button>`;
   }
 
   let inputHtml = '';
