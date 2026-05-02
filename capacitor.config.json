@@ -3,9 +3,6 @@
   "appName": "Wordra",
   "webDir": "www",
   "server": {
-    "androidScheme": "https"
-  },
-  "plugins": {
-    "TextToSpeech": {}
+    "androidScheme": "http"
   }
 }
