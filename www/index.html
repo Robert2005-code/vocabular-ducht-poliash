@@ -1102,22 +1102,26 @@ function esc(s){s=String(s==null?'':s);return s.replace(/&/g,'&amp;').replace(/<
 function escJ(s){s=String(s==null?'':s);return s.replace(/'/g,"\'").replace(/"/g,'\"');}
 function shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 // ── TTS ENGINE ──────────────────────────────────────────────────
-// Foloseste plugin nativ Capacitor TTS pe APK, fallback pe speechSynthesis pe browser
-let _ttsPlugin = null;
-
-async function _initTTS(){
-  try {
-    if(window.Capacitor && window.Capacitor.isNativePlatform()){
-      const { TextToSpeech } = await import('@capacitor-community/text-to-speech');
-      _ttsPlugin = TextToSpeech;
-    }
-  } catch(e){ _ttsPlugin = null; }
-}
-_initTTS();
-
-// Fallback speechSynthesis pentru browser
+// Capacitor TTS via registerPlugin + fallback speechSynthesis
 let _ttsUnlocked = false;
 let _ttsResumeTimer = null;
+let _capTTS = null;
+
+// Initializeaza TTS plugin dupa ce Capacitor e gata
+function _initCapTTS(){
+  try {
+    if(window.Capacitor && window.Capacitor.isNativePlatform() && window.Capacitor.registerPlugin){
+      _capTTS = window.Capacitor.registerPlugin('TextToSpeech');
+    }
+  } catch(e){ _capTTS = null; }
+}
+// Asteapta ca Capacitor sa fie initializat
+if(document.readyState === 'complete'){
+  _initCapTTS();
+} else {
+  window.addEventListener('load', _initCapTTS);
+}
+
 function _unlockTTS(){
   if(!window.speechSynthesis) return;
   if(!_ttsUnlocked){
@@ -1132,18 +1136,20 @@ document.addEventListener('click', _unlockTTS, {passive:true});
 
 function speak(text, lang){
   lang = lang || 'nl-NL';
-  // Pe APK - foloseste plugin nativ
-  if(_ttsPlugin){
-    _ttsPlugin.stop().catch(()=>{});
-    _ttsPlugin.speak({
-      text: text,
-      lang: lang,
-      rate: 0.85,
-      pitch: 1.0,
-      volume: 1.0,
-      category: 'ambient'
-    }).catch(e => console.warn('TTS plugin error:', e));
-    return;
+  // Pe APK - foloseste Capacitor TTS nativ
+  if(_capTTS){
+    try {
+      _capTTS.stop().catch(()=>{});
+      _capTTS.speak({
+        text: text,
+        lang: lang,
+        rate: 1.0,
+        pitch: 1.0,
+        volume: 1.0,
+        category: 'ambient'
+      }).catch(e => console.warn('CapTTS:', e));
+      return;
+    } catch(e){ console.warn('CapTTS err:', e); }
   }
   // Pe browser - fallback speechSynthesis
   if(!window.speechSynthesis) return;
