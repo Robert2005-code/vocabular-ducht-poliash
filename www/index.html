@@ -1077,7 +1077,29 @@ function toast(m){const t=document.getElementById('toast');t.textContent=m;t.cla
 function esc(s){s=String(s==null?'':s);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function escJ(s){s=String(s==null?'':s);return s.replace(/'/g,"\'").replace(/"/g,'\"');}
 function shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function speak(text){if(!window.speechSynthesis) return;window.speechSynthesis.cancel();setTimeout(() => {const u = new SpeechSynthesisUtterance(text);u.lang = 'nl-NL';u.rate = 0.85;u.volume = 1;const voices = window.speechSynthesis.getVoices();const nl = voices.find(v => v.lang.startsWith('nl'));if (nl) u.voice = nl;window.speechSynthesis.speak(u)}, 100);}
+function speak(text, lang){
+  if(!window.speechSynthesis) return;
+  lang = lang || 'nl-NL';
+  window.speechSynthesis.cancel();
+  const _doSpeak = () => {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang;
+    u.rate = 0.85;
+    u.volume = 1;
+    const voices = window.speechSynthesis.getVoices();
+    // Cauta vocea nl, daca nu exista foloseste orice voce disponibila
+    const nl = voices.find(v => v.lang.startsWith('nl')) || voices.find(v => v.lang.startsWith('de')) || voices[0];
+    if(nl) u.voice = nl;
+    window.speechSynthesis.speak(u);
+  };
+  // Pe Android vocile se incarca async
+  if(window.speechSynthesis.getVoices().length > 0){
+    setTimeout(_doSpeak, 100);
+  } else {
+    window.speechSynthesis.onvoiceschanged = () => { setTimeout(_doSpeak, 100); };
+    setTimeout(_doSpeak, 300); // fallback daca onvoiceschanged nu se declanseaza
+  }
+}
 function showXPBurst(txt){const el=document.createElement('div');el.className='xp-burst';el.textContent=txt;document.body.appendChild(el);setTimeout(()=>el.remove(),900);}
 
 // ════════════════════════════════════════════════════════════════
@@ -1737,7 +1759,7 @@ function endGame(won){
   document.getElementById('gres-errors').textContent=G.errors;
   // Save to leaderboard
   const entry={ts:Date.now(),pairs:G.pairs,matched:G.score,errors:G.errors,time:G.elapsed,won};
-  try{const lb=JSON.parse(localStorage.getItem('nl_lb_v1')||'[]');lb.unshift(entry);lb.splice(20);localStorage.setItem('nl_lb_v1',JSON.stringify(lb));}catch(e){}
+  try{const lb=JSON.parse(localStorage.getItem('nl_lb_v1')||'[]');lb.push(entry);lb.sort((a,b)=>{if(b.matched!==a.matched)return b.matched-a.matched;if(a.errors!==b.errors)return a.errors-b.errors;return a.time-b.time;});lb.splice(10);localStorage.setItem('nl_lb_v1',JSON.stringify(lb));}catch(e){}
   renderLeaderboard();
   if(won) markActivityDone();
 }
@@ -2088,6 +2110,8 @@ function renderEx(){
 
   // Randează exercițiu (fără buton Sprawdź — butoanele sunt Wiem/Nie wiem)
   renderExCard(ex, container);
+  // Auto-play audio la afisarea intrebarii
+  if(ex.audio) setTimeout(()=>speak(ex.audio), 400);
 
   // Bara Wiem / Nie wiem fixată jos
   const bar = document.createElement('div');
@@ -2176,12 +2200,14 @@ function exWiem(){
     EX.correct++;
     EX.xpEarned += Math.max(1, Math.round((EX.lesson.xpReward || 15) / EX.queue.length));
     document.getElementById('ex-xp-earned').textContent = EX.xpEarned;
+    // Spune raspunsul corect dupa un mic delay
+    if(ex.audio) setTimeout(()=>speak(ex.audio), 300);
     showWiemFeedback(true, '');
   } else {
     // A apăsat Wiem dar răspunsul e greșit → tratăm ca Nie wiem
     EX.wrong++;
     if(!EX.isRetry) EX.retryQueue.push({...ex});
-    if(ex.audio) speak(ex.answer);
+    if(ex.audio) setTimeout(()=>speak(ex.audio), 400);
     const reveal = document.getElementById('ex-answer-reveal');
     if(reveal) reveal.style.display = 'block';
     const correctAns = String(ex.type === 'multiple' ? (ex.options && ex.options[ex.answer]) || '' : ex.answer || '');
@@ -2209,7 +2235,8 @@ function exNieWiem(){
   // Arată răspunsul corect
   const reveal = document.getElementById('ex-answer-reveal');
   if(reveal) reveal.style.display = 'block';
-  if(ex.audio) speak(ex.answer);
+  // Spune cuvantul NL (audio) cu delay ca sa nu se suprapuna cu UI
+  if(ex.audio) setTimeout(()=>speak(ex.audio), 400);
 
   // Adaugă în retry (doar tura principală)
   if(!EX.isRetry) EX.retryQueue.push({...ex});
