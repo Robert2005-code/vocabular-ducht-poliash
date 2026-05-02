@@ -1142,11 +1142,18 @@ function speak(text, lang){
       const u = new SpeechSynthesisUtterance(text);
       u.lang = lang; u.rate = 0.85; u.pitch = 1; u.volume = 1;
       const voices = window.speechSynthesis.getVoices();
-      const v = voices.find(x=>x.lang==='nl-NL')
-             || voices.find(x=>x.lang==='nl-BE')
-             || voices.find(x=>x.lang.startsWith('nl'))
-             || voices.find(x=>x.lang.startsWith('en'))
-             || (voices.length ? voices[0] : null);
+      let v;
+      if(lang.startsWith('pl')){
+        v = voices.find(x=>x.lang==='pl-PL')
+         || voices.find(x=>x.lang.startsWith('pl'))
+         || (voices.length ? voices[0] : null);
+      } else {
+        v = voices.find(x=>x.lang==='nl-NL')
+         || voices.find(x=>x.lang==='nl-BE')
+         || voices.find(x=>x.lang.startsWith('nl'))
+         || voices.find(x=>x.lang.startsWith('en'))
+         || (voices.length ? voices[0] : null);
+      }
       if(v) u.voice = v;
       u.onstart = ()=>{
         if(_ttsResumeTimer) clearInterval(_ttsResumeTimer);
@@ -2153,8 +2160,6 @@ function renderEx(){
 
   // Randează exercițiu (fără buton Sprawdź — butoanele sunt Wiem/Nie wiem)
   renderExCard(ex, container);
-  // Auto-play audio la afisarea intrebarii
-  if(ex.audio) setTimeout(()=>speak(ex.audio), 400);
 
   // Bara Wiem / Nie wiem fixată jos
   const bar = document.createElement('div');
@@ -2168,9 +2173,21 @@ function renderEx(){
 }
 
 function renderExCard(ex, container){
-  const audioHtml = ex.audio
-    ? `<button onclick="speak('${escJ(ex.audio)}')" style="background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue);border-radius:var(--r3);padding:8px 14px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;margin-bottom:16px;cursor:pointer">🔊 Wymowa</button>`
-    : '';
+  // Wymowa: pronunta cuvantul din ghilimele din intrebare
+  // pl->nl: intrebarea contine cuvantul PL -> pronunta in poloneza
+  // nl->pl: intrebarea contine cuvantul NL -> pronunta in olandeza
+  let audioHtml = '';
+  if(ex.audio){
+    const dir = ex.dir || '';
+    const isPlNl = dir.includes('pl') && dir.includes('nl') && dir.indexOf('pl') < dir.indexOf('nl');
+    if(isPlNl && ex.pl){
+      // Intrebarea e in poloneza -> pronunta poloneza
+      audioHtml = `<button onclick="speak('${escJ(ex.pl)}','pl-PL')" style="background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue);border-radius:var(--r3);padding:8px 14px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;margin-bottom:16px;cursor:pointer">🔊 Wymowa</button>`;
+    } else {
+      // Intrebarea e in olandeza -> pronunta olandeza
+      audioHtml = `<button onclick="speak('${escJ(ex.audio)}','nl-NL')" style="background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue);border-radius:var(--r3);padding:8px 14px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;margin-bottom:16px;cursor:pointer">🔊 Wymowa</button>`;
+    }
+  }
 
   let inputHtml = '';
   if(ex.type === 'multiple'){
@@ -2211,14 +2228,18 @@ function renderExCard(ex, container){
 function exSelectMC(idx){
   document.querySelectorAll('.mc-opt').forEach((el,i) => el.classList.toggle('sel', i===idx));
   EX.selOpt = idx;
-  // Pronunta optiunea selectata doar daca e in olandeza (directie pl->nl)
+  // Pronunta cuvantul din casuta atinsa - doar daca optiunile sunt in olandeza (pl->nl)
   const activeQ = EX.isRetry ? EX.retryQueue : EX.queue;
   const ex = activeQ && activeQ[EX.idx];
-  if(ex && ex.audio && ex.type === 'multiple'){
+  if(ex && ex.type === 'multiple'){
     const dir = ex.dir || '';
-    if(dir.includes('pl') && dir.includes('nl') && dir.indexOf('pl') < dir.indexOf('nl')){
-      const opt = ex.options && ex.options[idx];
-      if(opt) setTimeout(()=>speak(opt), 150);
+    const opt = ex.options && ex.options[idx];
+    if(opt){
+      const isPlNl = dir.includes('pl') && dir.includes('nl') && dir.indexOf('pl') < dir.indexOf('nl');
+      // pl->nl: optiunile sunt NL -> pronunta in olandeza
+      // nl->pl: optiunile sunt PL -> pronunta in poloneza
+      const lang = isPlNl ? 'nl-NL' : 'pl-PL';
+      setTimeout(()=>speak(opt, lang), 150);
     }
   }
 }
@@ -2253,14 +2274,11 @@ function exWiem(){
     EX.correct++;
     EX.xpEarned += Math.max(1, Math.round((EX.lesson.xpReward || 15) / EX.queue.length));
     document.getElementById('ex-xp-earned').textContent = EX.xpEarned;
-    // Spune raspunsul corect dupa un mic delay
-    if(ex.audio) setTimeout(()=>speak(ex.audio), 300);
     showWiemFeedback(true, '');
   } else {
     // A apăsat Wiem dar răspunsul e greșit → tratăm ca Nie wiem
     EX.wrong++;
     if(!EX.isRetry) EX.retryQueue.push({...ex});
-    if(ex.audio) setTimeout(()=>speak(ex.audio), 400);
     const reveal = document.getElementById('ex-answer-reveal');
     if(reveal) reveal.style.display = 'block';
     const correctAns = String(ex.type === 'multiple' ? (ex.options && ex.options[ex.answer]) || '' : ex.answer || '');
@@ -2288,8 +2306,6 @@ function exNieWiem(){
   // Arată răspunsul corect
   const reveal = document.getElementById('ex-answer-reveal');
   if(reveal) reveal.style.display = 'block';
-  // Spune cuvantul NL (audio) cu delay ca sa nu se suprapuna cu UI
-  if(ex.audio) setTimeout(()=>speak(ex.audio), 400);
 
   // Adaugă în retry (doar tura principală)
   if(!EX.isRetry) EX.retryQueue.push({...ex});
