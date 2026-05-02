@@ -1913,14 +1913,14 @@ function generateExercises(items, allItems) {
     const distractorPool = allItems.filter(x => x.id !== item.id);
     // NL→PL translate
     exercises.push({
-      type:'translate', question:'Co znaczy "'+item.nl+'"?',
-      answer:item.pl, hint:'🇳🇱 → 🇵🇱', audio:item.nl
+      type:'translate', dir:'nl→pl', question:'Co znaczy "'+item.nl+'"?',
+      answer:item.pl, hint:'🇳🇱 → 🇵🇱', audio:item.nl, pl:item.pl
     });
     // PL→NL translate (losowo połowa)
     if (Math.random() > 0.5) {
       exercises.push({
-        type:'translate', question:'Jak powiedzieć "'+item.pl+'" po niderlandzku?',
-        answer:item.nl, hint:'🇵🇱 → 🇳🇱', audio:item.nl
+        type:'translate', dir:'pl→nl', question:'Jak powiedzieć "'+item.pl+'" po niderlandzku?',
+        answer:item.nl, hint:'🇵🇱 → 🇳🇱', audio:item.nl, pl:item.pl
       });
     }
     // multiple NL→PL
@@ -1928,8 +1928,8 @@ function generateExercises(items, allItems) {
       const dist = shuf([...distractorPool]).slice(0,3).map(x=>x.pl);
       const opts = shuf([item.pl,...dist]);
       exercises.push({
-        type:'multiple', question:'Co znaczy "'+item.nl+'"?',
-        options:opts, answer:opts.indexOf(item.pl), audio:item.nl
+        type:'multiple', dir:'nl→pl', question:'Co znaczy "'+item.nl+'"?',
+        options:opts, answer:opts.indexOf(item.pl), audio:item.nl, pl:item.pl
       });
     }
     // multiple PL→NL
@@ -1937,8 +1937,8 @@ function generateExercises(items, allItems) {
       const dist = shuf([...distractorPool]).slice(0,3).map(x=>x.nl);
       const opts = shuf([item.nl,...dist]);
       exercises.push({
-        type:'multiple', question:'Jak powiedzieć "'+item.pl+'" po niderlandzku?',
-        options:opts, answer:opts.indexOf(item.nl), audio:item.nl
+        type:'multiple', dir:'pl→nl', question:'Jak powiedzieć "'+item.pl+'" po niderlandzku?',
+        options:opts, answer:opts.indexOf(item.nl), audio:item.nl, pl:item.pl
       });
     }
   });
