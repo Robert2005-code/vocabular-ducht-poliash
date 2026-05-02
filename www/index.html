@@ -1118,42 +1118,54 @@ document.addEventListener('touchstart', _unlockTTS, {passive:true});
 document.addEventListener('click', _unlockTTS, {passive:true});
 
 function speak(text, lang){
-  if(!window.speechSynthesis) return;
   lang = lang || 'nl-NL';
+
+  // Metoda 1: Capacitor NativeTTS plugin
+  try {
+    if(window.Capacitor && window.Capacitor.isNativePlatform()){
+      const p = window.Capacitor.Plugins;
+      if(p && p.NativeTTS){
+        p.NativeTTS.stop().catch(()=>{});
+        p.NativeTTS.speak({text, lang, rate:0.85, pitch:1.0}).catch(e=>console.warn('NativeTTS:',e));
+        return;
+      }
+    }
+  } catch(e){ console.warn('NativeTTS err:',e); }
+
+  // Metoda 2: speechSynthesis cu resume loop
+  if(!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   _unlockTTS();
-  const _doSpeak = () => {
+
+  const doSpeak = () => {
     try {
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = lang;
-      u.rate = 0.82;
-      u.pitch = 1;
-      u.volume = 1;
+      u.lang = lang; u.rate = 0.85; u.pitch = 1; u.volume = 1;
       const voices = window.speechSynthesis.getVoices();
-      const nlVoice = voices.find(v => v.lang === 'nl-NL')
-                   || voices.find(v => v.lang === 'nl-BE')
-                   || voices.find(v => v.lang.startsWith('nl'))
-                   || voices.find(v => v.lang.startsWith('de'))
-                   || voices.find(v => v.lang.startsWith('en'))
-                   || (voices.length ? voices[0] : null);
-      if(nlVoice) u.voice = nlVoice;
-      u.onstart = () => {
+      const v = voices.find(x=>x.lang==='nl-NL')
+             || voices.find(x=>x.lang==='nl-BE')
+             || voices.find(x=>x.lang.startsWith('nl'))
+             || voices.find(x=>x.lang.startsWith('en'))
+             || (voices.length ? voices[0] : null);
+      if(v) u.voice = v;
+      u.onstart = ()=>{
         if(_ttsResumeTimer) clearInterval(_ttsResumeTimer);
         _ttsResumeTimer = setInterval(()=>{
-          if(window.speechSynthesis.paused) window.speechSynthesis.resume();
-        }, 200);
+          try{ window.speechSynthesis.resume(); }catch(e){}
+        }, 100);
       };
-      u.onend = u.onerror = () => {
+      u.onend = u.onerror = ()=>{
         if(_ttsResumeTimer){ clearInterval(_ttsResumeTimer); _ttsResumeTimer=null; }
       };
       window.speechSynthesis.speak(u);
-    } catch(e) { console.warn('TTS:', e); }
+    } catch(e){ console.warn('TTS:',e); }
   };
+
   const voices = window.speechSynthesis.getVoices();
-  if(voices.length > 0){ setTimeout(_doSpeak, 100); }
+  if(voices.length > 0){ setTimeout(doSpeak, 100); }
   else {
-    window.speechSynthesis.onvoiceschanged = () => setTimeout(_doSpeak, 100);
-    setTimeout(_doSpeak, 700);
+    window.speechSynthesis.onvoiceschanged = ()=>setTimeout(doSpeak, 100);
+    setTimeout(doSpeak, 700);
   }
 }
 function showXPBurst(txt){const el=document.createElement('div');el.className='xp-burst';el.textContent=txt;document.body.appendChild(el);setTimeout(()=>el.remove(),900);}
