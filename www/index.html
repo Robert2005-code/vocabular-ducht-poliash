@@ -1101,22 +1101,54 @@ function toast(m){const t=document.getElementById('toast');t.textContent=m;t.cla
 function esc(s){s=String(s==null?'':s);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function escJ(s){s=String(s==null?'':s);return s.replace(/'/g,"\'").replace(/"/g,'\"');}
 function shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-// Unlock speechSynthesis pe Android la primul touch
-let _ttsUnlocked = false;
-function _unlockTTS(){
-  if(_ttsUnlocked || !window.speechSynthesis) return;
-  _ttsUnlocked = true;
-  const u = new SpeechSynthesisUtterance('');
-  u.volume = 0;
-  window.speechSynthesis.speak(u);
+// ── TTS ENGINE ──────────────────────────────────────────────────
+// Foloseste plugin nativ Capacitor TTS pe APK, fallback pe speechSynthesis pe browser
+let _ttsPlugin = null;
+
+async function _initTTS(){
+  try {
+    if(window.Capacitor && window.Capacitor.isNativePlatform()){
+      const { TextToSpeech } = await import('@capacitor-community/text-to-speech');
+      _ttsPlugin = TextToSpeech;
+    }
+  } catch(e){ _ttsPlugin = null; }
 }
-document.addEventListener('touchstart', _unlockTTS, {once:true, passive:true});
-document.addEventListener('click', _unlockTTS, {once:true, passive:true});
+_initTTS();
+
+// Fallback speechSynthesis pentru browser
+let _ttsUnlocked = false;
+let _ttsResumeTimer = null;
+function _unlockTTS(){
+  if(!window.speechSynthesis) return;
+  if(!_ttsUnlocked){
+    _ttsUnlocked = true;
+    const u = new SpeechSynthesisUtterance(' ');
+    u.volume = 0; u.rate = 2;
+    window.speechSynthesis.speak(u);
+  }
+}
+document.addEventListener('touchstart', _unlockTTS, {passive:true});
+document.addEventListener('click', _unlockTTS, {passive:true});
 
 function speak(text, lang){
-  if(!window.speechSynthesis) return;
   lang = lang || 'nl-NL';
+  // Pe APK - foloseste plugin nativ
+  if(_ttsPlugin){
+    _ttsPlugin.stop().catch(()=>{});
+    _ttsPlugin.speak({
+      text: text,
+      lang: lang,
+      rate: 0.85,
+      pitch: 1.0,
+      volume: 1.0,
+      category: 'ambient'
+    }).catch(e => console.warn('TTS plugin error:', e));
+    return;
+  }
+  // Pe browser - fallback speechSynthesis
+  if(!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
+  _unlockTTS();
   const _doSpeak = () => {
     try {
       const u = new SpeechSynthesisUtterance(text);
@@ -1126,21 +1158,21 @@ function speak(text, lang){
       u.volume = 1;
       const voices = window.speechSynthesis.getVoices();
       const nlVoice = voices.find(v => v.lang === 'nl-NL')
+                   || voices.find(v => v.lang === 'nl-BE')
                    || voices.find(v => v.lang.startsWith('nl'))
                    || voices.find(v => v.lang.startsWith('de'))
+                   || voices.find(v => v.lang.startsWith('en'))
                    || (voices.length ? voices[0] : null);
       if(nlVoice) u.voice = nlVoice;
+      u.onstart = () => { if(_ttsResumeTimer) clearInterval(_ttsResumeTimer); _ttsResumeTimer = setInterval(()=>{ if(window.speechSynthesis.speaking) window.speechSynthesis.resume(); }, 250); };
+      u.onend = () => { if(_ttsResumeTimer){ clearInterval(_ttsResumeTimer); _ttsResumeTimer=null; } };
+      u.onerror = () => { if(_ttsResumeTimer){ clearInterval(_ttsResumeTimer); _ttsResumeTimer=null; } };
       window.speechSynthesis.speak(u);
-    } catch(e) { console.warn('TTS error:', e); }
+    } catch(e) { console.warn('TTS exception:', e); }
   };
   const voices = window.speechSynthesis.getVoices();
-  if(voices.length > 0){
-    setTimeout(_doSpeak, 50);
-  } else {
-    const onReady = () => { setTimeout(_doSpeak, 50); };
-    window.speechSynthesis.onvoiceschanged = onReady;
-    setTimeout(_doSpeak, 500);
-  }
+  if(voices.length > 0){ setTimeout(_doSpeak, 80); }
+  else { window.speechSynthesis.onvoiceschanged = () => setTimeout(_doSpeak, 80); setTimeout(_doSpeak, 600); }
 }
 function showXPBurst(txt){const el=document.createElement('div');el.className='xp-burst';el.textContent=txt;document.body.appendChild(el);setTimeout(()=>el.remove(),900);}
 
