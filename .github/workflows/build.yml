@@ -22,6 +22,10 @@ jobs:
         run: npm install -D @capacitor/assets
       - name: Add Android platform
         run: npx cap add android
+      - name: Copy native plugins
+        run: |
+          cp native/TtsPlugin.java android/app/src/main/java/com/robert/vocabulardutchpolish/TtsPlugin.java
+          cp native/MainActivity.java android/app/src/main/java/com/robert/vocabulardutchpolish/MainActivity.java
       - name: Sync web assets
         run: npx cap sync android
       - name: Generate icons
