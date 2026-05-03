@@ -82,7 +82,7 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
 .tw{background:#3b82f622;color:#3b82f6}.tp2{background:#a78bfa22;color:#a78bfa}
 
 /* FLIP CARD */
-.fc{width:100%;min-height:190px;background:var(--bg3);border:2px solid var(--border2);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;box-shadow:0 16px 50px rgba(0,0,0,.6);transition:all .3s;padding:28px 20px;user-select:none;margin-bottom:14px}
+.fc{position:relative;width:100%;min-height:190px;background:var(--bg3);border:2px solid var(--border2);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;box-shadow:0 16px 50px rgba(0,0,0,.6);transition:all .3s;padding:28px 20px;user-select:none;margin-bottom:14px}
 .fc.fl{background:linear-gradient(135deg,#1a3a5c,#0f2a45);border-color:var(--blue)}
 .fc-lang{font-size:10px;letter-spacing:3px;text-transform:uppercase}
 .fc-word{font-family:'Fraunces',serif;font-size:26px;color:#fff;text-align:center;font-weight:700;line-height:1.3}
@@ -483,6 +483,7 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
     </div>
     <div id="ses-retry-bar" style="display:none" class="retry-bar">🔁 <span id="ses-retry-count">0</span> słów wróci na powtórkę</div>
     <div class="fc" id="ses-card" onclick="sesFlip()">
+      <button onclick="event.stopPropagation();sesSpeak()" style="position:absolute;top:10px;right:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:var(--text2);border-radius:8px;padding:5px 9px;font-size:13px;cursor:pointer;z-index:2">🔊</button>
       <div class="fc-lang" id="ses-lang" style="color:var(--blue)">🇳🇱 Niderlandzki</div>
       <div class="fc-word" id="ses-word">—</div>
       <div class="fc-hint" id="ses-hint">dotknij, aby zobaczyć odpowiedź</div>
@@ -521,6 +522,7 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
   </div>
   <div class="pgbar"><div class="pgfill" id="lpf" style="width:0%"></div></div>
   <div class="fc" id="fcard" onclick="flipCard()">
+    <button id="fc-speak-btn" onclick="event.stopPropagation();fcSpeak()" style="position:absolute;top:10px;right:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:var(--text2);border-radius:8px;padding:5px 9px;font-size:13px;cursor:pointer;z-index:2">🔊</button>
     <div class="fc-lang" id="fcl" style="color:var(--blue)">🇳🇱 Niderlandzki</div>
     <div class="fc-word" id="fcw">—</div>
     <div class="fc-hint" id="fch">dotknij, aby zobaczyć tłumaczenie</div>
@@ -1034,7 +1036,7 @@ const LEKCJE_DATA = [
 const SK='nl_pl_v5', KK='nl_pl_key', LK='nl_lk_v1';
 const DEFAULT_KEY='WPROWADZ_NOWY_KLUCZ_API';
 const LN=['Nowe','Podstawowe','Znane','Dobre','Pewne','Biegłe','Opanowane'];
-const LC=['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899'];
+const LC=['#FFFFFF','#4A8DFF','#7A5CFF','#FF1A1A','#F29A38','#D9B24C','#45C66A'];
 
 let S={items:[],categories:[
   {id:'inne',name:'Inne',icon:'📦',subs:[]},
@@ -1335,7 +1337,7 @@ function rWL(append=false){
     let nlHtml=esc(it.nl),plHtml=esc(it.pl);
     if(re_esc_pat){nlHtml=nlHtml.replace(re_esc_pat,'<mark style="background:#e8a83844;color:var(--gold);border-radius:3px">$1</mark>');plHtml=plHtml.replace(re_esc_pat,'<mark style="background:#e8a83844;color:var(--gold);border-radius:3px">$1</mark>');}
     const idStr=String(it.id);
-    div.innerHTML=`<div style="flex:1;min-width:0;cursor:pointer" onclick="openEditItem('${idStr}')"><div style="font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">${nlHtml}<span class="type-badge ${it.type==='phrase'?'tp2':'tw'}">${it.type==='phrase'?'fraza':'słowo'}</span></div><div style="color:var(--text2);font-size:12px;margin-top:2px">${plHtml}</div>${cat?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${cat.icon} ${cat.name}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px"><span class="tag" style="background:${LC[l]}22;color:${LC[l]}">poz.${l}</span>${isDue(it)?'<span class="tag tg" style="font-size:9px">nauka</span>':''}<div style="display:flex;gap:4px;margin-top:2px"><button onclick="openMoveModal('${idStr}')" style="background:var(--blue-dim);border:1px solid var(--blue)44;color:var(--blue);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">↗</button><button onclick="delItem('${idStr}')" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🗑</button></div></div>`;
+    div.innerHTML=`<div style="flex:1;min-width:0;cursor:pointer" onclick="openEditItem('${idStr}')"><div style="font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">${nlHtml}<span class="type-badge ${it.type==='phrase'?'tp2':'tw'}">${it.type==='phrase'?'fraza':'słowo'}</span></div><div style="color:var(--text2);font-size:12px;margin-top:2px">${plHtml}</div>${cat?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${cat.icon} ${cat.name}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px"><span class="tag" style="background:${LC[l]}22;color:${LC[l]}">poz.${l}</span>${isDue(it)?'<span class="tag tg" style="font-size:9px">nauka</span>':''}<div style="display:flex;gap:4px;margin-top:2px"><button onclick="event.stopPropagation();speak('${escJ(it.nl)}','nl-NL')" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🔊</button><button onclick="openMoveModal('${idStr}')" style="background:var(--blue-dim);border:1px solid var(--blue)44;color:var(--blue);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">↗</button><button onclick="delItem('${idStr}')" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🗑</button></div></div>`;
     frag.appendChild(div);
   });
   list.appendChild(frag);
@@ -1610,6 +1612,19 @@ function rLCard(){
   const l=Math.min(it.level||0,6),b=document.getElementById('lbadge');
   b.textContent=(it.type==='phrase'?'💬 Fraza':'📝 Słowo')+' · '+LN[l];b.style.background=LC[l]+'22';b.style.color=LC[l];
 }
+function fcSpeak(){
+  const it = LRN.queue && LRN.queue[LRN.idx];
+  if(!it) return;
+  if(LRN.flipped){
+    // Cardul e intors - pronunta traducerea (pl sau nl in functie de directie)
+    const showNl = (LRN.dir||'nl') === 'nl';
+    speak(showNl ? it.pl : it.nl, showNl ? 'pl-PL' : 'nl-NL');
+  } else {
+    // Cardul nu e intors - pronunta cuvantul afisat
+    const showNl = (LRN.dir||'nl') === 'nl';
+    speak(showNl ? it.nl : it.pl, showNl ? 'nl-NL' : 'pl-PL');
+  }
+}
 function flipCard(){
   if(LRN.flipped)return;const it=LRN.queue[LRN.idx];LRN.flipped=true;
   const showNl=(LRN.dir||'nl')==='nl';
@@ -1704,6 +1719,19 @@ function renderSesCard(){
   document.getElementById('ses-retry-count').textContent=rc;document.getElementById('ses-retry-lbl').textContent=rc>0?rc+' do powtórki':'';
   const l=Math.min(it.level||0,6),b=document.getElementById('ses-badge');
   b.textContent=(it.type==='phrase'?'💬':'📝')+' poz.'+l;b.style.background=LC[l]+'22';b.style.color=LC[l];
+}
+function sesSpeak(){
+  const q = SES.isRetry ? SES.retryQueue : SES.queue;
+  const it = q && q[SES.idx];
+  if(!it) return;
+  const showNl = SES.dir === 'nl';
+  if(SES.flipped){
+    // Cardul intors - pronunta traducerea
+    speak(showNl ? it.pl : it.nl, showNl ? 'pl-PL' : 'nl-NL');
+  } else {
+    // Cardul neintors - pronunta cuvantul afisat
+    speak(showNl ? it.nl : it.pl, showNl ? 'nl-NL' : 'pl-PL');
+  }
 }
 function sesFlip(){
   if(SES.flipped)return;const q=SES.isRetry?SES.retryQueue:SES.queue;const it=q[SES.idx];SES.flipped=true;
