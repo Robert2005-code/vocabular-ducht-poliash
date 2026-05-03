@@ -1214,37 +1214,25 @@ function importJSON(file){
       const knownCatIds=new Set(S.categories.map(c=>c.id));
       incoming.forEach(it=>{if(it.categoryId&&!knownCatIds.has(it.categoryId))it.categoryId='inne';});
       const{added,skipped}=mergeItems(incoming);
-      // Restore grammar photos if present — imagini în IDB, metadate în localStorage
+      // Restore grammar photos — metadate în localStorage, imagini în IDB via GR._idbPut
       if(d.gr_data_v1 && typeof d.gr_data_v1 === 'object'){
         const grImport = d.gr_data_v1;
         const grItems = Array.isArray(grImport.items) ? grImport.items : [];
-        // Salvăm metadate în localStorage (fără data)
+        // Salvăm metadate în localStorage (fără câmpul data)
         const grMeta = { ...grImport, items: grItems.map(i => { const {data,...rest}=i; return rest; }) };
         try { localStorage.setItem('gr_data_v1', JSON.stringify(grMeta)); } catch(eg) { console.warn('GR meta save error', eg); }
-        // Salvăm imaginile în IDB
-        let idbWritten = 0;
-        const idbPromises = grItems.filter(i => i.data).map(i =>
-          GR._idbGetAll ? // verificăm că GR e inițializat
-            fetch('data:application/octet-stream,').then(()=>{ // dummy pentru a intra async
-              return new Promise(res => {
-                const req = indexedDB.open('wordra_gr', 1);
-                req.onsuccess = e => {
-                  const db = e.target.result;
-                  const tx = db.transaction('images', 'readwrite');
-                  tx.objectStore('images').put({ id: String(i.id), data: i.data });
-                  tx.oncomplete = () => { idbWritten++; res(); };
-                  tx.onerror = res;
-                };
-                req.onerror = res;
-              });
-            })
-          : Promise.resolve()
-        );
-        Promise.all(idbPromises).then(() => {
-          toast('✓ Dodano: '+added+' · Duplikaty: '+skipped+' · Gramatyka: '+grItems.length+' zdjęć');
-        }).catch(() => {
-          toast('✓ Dodano: '+added+' · Duplikaty: '+skipped+' · Gramatyka: '+grItems.length+' zdjęć');
-        });
+        // Salvăm imaginile în IDB folosind GR._idbPut (gestionează open + string ID corect)
+        const withImages = grItems.filter(i => i.data && i.data.startsWith('data:'));
+        Promise.all(withImages.map(i => GR._idbPut(String(i.id), i.data)))
+          .then(() => {
+            // Resetăm flag-ul de migrare — datele noi sunt deja în IDB
+            localStorage.setItem('gr_migration_v1', 'done');
+            toast('✓ Dodano: '+added+' · Duplikaty: '+skipped+' · Gramatyka: '+withImages.length+' zdjęć');
+          })
+          .catch(e => {
+            console.error('GR import IDB error:', e);
+            toast('✓ Dodano: '+added+' · Duplikaty: '+skipped+' (⚠ Eroare imagini Gramatyka)');
+          });
       } else {
         toast('✓ Dodano: '+added+' · Duplikaty: '+skipped);
       }
@@ -1997,7 +1985,9 @@ function clrAll(){
   save();
   localStorage.removeItem('nl_lb_v1');
   localStorage.removeItem('gr_data_v1');
+  localStorage.removeItem('gr_migration_v1');
   GR._idbClear().catch(()=>{});
+  GR._reset();  // resetează starea internă a modulului GR
   goTo('home');
   toast('Wszystkie dane usunięte');
 }
@@ -3031,7 +3021,15 @@ const GR = (() => {
     toast('Kategoria usunięta');
   }
 
-  return { render, triggerAdd, handleFiles, saveItem, openAddCat, saveCat, deleteCat, openZoom, closeZoom, editFromZoom, deleteFromZoom, zoomNav, _idbGetAll, _idbClear };
+  function _reset() {
+    _data = { categories: [], items: [] };
+    _activeCat = 'all_gr';
+    _loaded = false;
+    _zoomId = null;
+    _zoomItems = [];
+    _zoomIdx = 0;
+  }
+  return { render, triggerAdd, handleFiles, saveItem, openAddCat, saveCat, deleteCat, openZoom, closeZoom, editFromZoom, deleteFromZoom, zoomNav, _idbGetAll, _idbClear, _idbPut, _reset };
 })();
 
 // ════════════════════════════════════════════════════════════════
