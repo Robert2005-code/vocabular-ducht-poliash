@@ -1286,18 +1286,34 @@ function importJSON(file){
         try { localStorage.setItem('gr_data_v1', JSON.stringify(grMeta)); } catch(eg) { console.warn('GR meta save error', eg); }
         // Salvăm imaginile în IDB folosind GR._idbPut (gestionează open + string ID corect)
         const withImages = grItems.filter(i => i.data && i.data.startsWith('data:'));
-        Promise.all(withImages.map(i => GR._idbPut(String(i.id), i.data)))
+        // Scriem direct în IDB fără să depindem de starea internă GR
+        function _writeToIDB(id, data) {
+          return new Promise((resolve, reject) => {
+            const req = indexedDB.open('wordra_gr', 1);
+            req.onupgradeneeded = e => e.target.result.createObjectStore('images', { keyPath: 'id' });
+            req.onsuccess = e => {
+              const db = e.target.result;
+              const tx = db.transaction('images', 'readwrite');
+              tx.objectStore('images').put({ id: String(id), data: data });
+              tx.oncomplete = resolve;
+              tx.onerror = e => reject(e.target.error);
+            };
+            req.onerror = e => reject(e.target.error);
+          });
+        }
+        Promise.all(withImages.map(i => _writeToIDB(String(i.id), i.data)))
           .then(() => {
-            // Resetăm flag-ul de migrare — datele noi sunt deja în IDB
             localStorage.setItem('gr_migration_v1', 'done');
-            toast('✓ Dodano: '+added+' · Duplikaty: '+skipped+' · Gramatyka: '+withImages.length+' zdjęć');
+            // Resetăm GR în memorie ca să preia noile date din localStorage+IDB
+            GR._reset();
+            toast('✓ Dodano: '+added+' · Pominięto: '+skipped+' · Gramatyka: '+withImages.length+' zdjęć');
           })
           .catch(e => {
             console.error('GR import IDB error:', e);
-            toast('✓ Dodano: '+added+' · Duplikaty: '+skipped+' (⚠ Eroare imagini Gramatyka)');
+            toast('✓ Dodano: '+added+' · Pominięto: '+skipped+' (⚠ Błąd importu zdjęć)');
           });
       } else {
-        toast('✓ Dodano: '+added+' · Duplikaty: '+skipped);
+        toast('✓ Dodano: '+added+' · Pominięto: '+skipped);
       }
       save();rHome();rWL();
     }catch(err){toast('⚠ Błąd importu: '+err.message);}
@@ -1967,7 +1983,7 @@ function saveKey(){const v=document.getElementById('api-inp').value.trim();if(!v
 function clearKey(){if(!confirm('Usunąć klucz API?'))return;localStorage.removeItem(KK);document.getElementById('api-inp').value='';toast('Klucz usunięty');rSettings();rHome();}
 function expData(){
   // Export complet: include imaginile din IDB în gr_data_v1
-  toast('⏳ Se pregătește exportul...');
+  toast('⏳ Przygotowuję eksport...');
   setTimeout(() => _doExport(), 50); // permite UI-ului să se actualizeze înainte de async
 }
 async function _doExport(){
@@ -2021,12 +2037,12 @@ function _finishExport(grData){
       return SH.share({
         title: filename,
         url: result.uri,
-        dialogTitle: 'Salvează backup-ul'
+        dialogTitle: 'Zapisz kopię zapasową'
       });
-    }).then(() => toast('✓ Gata!'))
+    }).then(() => toast('✓ Gotowe!'))
       .catch(err => {
         console.error('Export err:', JSON.stringify(err));
-        toast('⚠ Err: ' + JSON.stringify(err));
+        toast('⚠ Błąd: ' + JSON.stringify(err));
       });
     return;
   }
@@ -2039,7 +2055,7 @@ function _finishExport(grData){
     a.href = url; a.download = filename;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(()=>URL.revokeObjectURL(url), 3000);
-    toast('✓ Plik pobrany!');
+    toast('✓ Plik zapisany!');
     return;
   } catch(e) {}
 
@@ -2048,8 +2064,8 @@ function _finishExport(grData){
 function _expFallback(data, filename) {
   try {
     navigator.clipboard.writeText(data);
-    toast('✓ Copiat în clipboard! Lipește în Notes și salvează ca .json');
-  } catch(e) { toast('⚠ Export indisponibil'); }
+    toast('✓ Skopiowano do schowka! Wklej do notatek i zapisz jako .json');
+  } catch(e) { toast('⚠ Eksport niedostępny'); }
 }
 function clrAll(){
   S.items=[];
@@ -2061,7 +2077,7 @@ function clrAll(){
   GR._idbClear().catch(()=>{});
   GR._reset();  // resetează starea internă a modulului GR
   goTo('home');
-  toast('Wszystkie dane usunięte');
+  toast('✓ Wszystkie dane usunięte');
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -2624,7 +2640,7 @@ const GR = (() => {
       // Salvăm metadate fără câmpul data (imaginile sunt în IDB)
       const meta = { categories: _data.categories, items: _data.items.map(i => ({ id: i.id, title: i.title, categoryId: i.categoryId, addedAt: i.addedAt })) };
       localStorage.setItem(GK, JSON.stringify(meta));
-    } catch(e) { console.error('GR save() error:', e); toast('⚠ Eroare la salvare metadate!'); }
+    } catch(e) { console.error('GR save() error:', e); toast('⚠ Błąd zapisu metadanych!'); }
   }
 
   // Încărcare: metadate din localStorage, imagini din IDB on-demand
@@ -2865,7 +2881,7 @@ const GR = (() => {
         if (_addQueue.length) setTimeout(processNextInQueue, 300);
       }).catch(e => {
         console.error('IDB write error:', e);
-        toast('⚠ Eroare la salvare imagine!');
+        toast('⚠ Błąd zapisu zdjęcia!');
       });
       return; // async — nu continuăm sincron
     }
