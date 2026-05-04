@@ -602,31 +602,65 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
 <!-- ═══ GAMES ═══ -->
 <div class="scr" id="scr-games">
   <div class="sec">Gry językowe</div>
+  <!-- Ekran wyboru trybu -->
   <div id="gsetup">
-    <div class="hero" style="margin-bottom:10px">
-      <div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:4px">🎮 Znajdź pary</div>
-      <div style="font-size:12px;color:var(--text3)">Połącz słowa/frazy niderlandzkie z tłumaczeniami!</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="hero" onclick="showClassicSetup()" style="cursor:pointer;margin-bottom:0">
+        <div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:4px">🎮 Match-up klasyczny</div>
+        <div style="font-size:12px;color:var(--text3)">Połącz wszystkie pary na czas!</div>
+      </div>
+      <div class="hero" onclick="showEndlessSetup()" style="cursor:pointer;margin-bottom:0;background:linear-gradient(135deg,#1a0a2e,#0f0620)">
+        <div style="font-size:13px;font-weight:700;color:#a78bfa;margin-bottom:4px">♾️ Endless Match-up</div>
+        <div style="font-size:12px;color:var(--text3)">Nowe pary pojawiają się bez końca!</div>
+      </div>
     </div>
+  </div>
+
+  <!-- Setup klasyczny -->
+  <div id="gsetup-classic" style="display:none">
+    <button onclick="showGameMenu()" style="background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;padding:0;margin-bottom:10px">‹ Wróć</button>
     <div class="card">
-      <div class="sec" style="margin-bottom:12px">Ustawienia gry</div>
+      <div class="sec" style="margin-bottom:12px">🎮 Ustawienia Match-up</div>
       <div class="set-row"><div><div style="font-size:13px;font-weight:600">Liczba par</div></div>
         <div style="display:flex;align-items:center;gap:10px"><button class="gsb" onclick="adjP(-2)">−</button><span id="pval" style="font-size:20px;font-weight:800;color:var(--gold);min-width:26px;text-align:center">6</span><button class="gsb" onclick="adjP(2)">+</button></div></div>
-
       <div class="set-row"><div style="font-size:13px;font-weight:600">Typ</div><select id="gtype" style="width:auto;padding:7px 10px" onchange="chkReady()"><option value="all">Słowa + Frazy</option><option value="word">Tylko słowa</option><option value="phrase">Tylko frazy</option></select></div>
       <div class="set-row"><div style="font-size:13px;font-weight:600">Kategoria</div><select id="gcat" style="width:auto;padding:7px 10px" onchange="onGCatChange()"><option value="">Wszystkie</option></select></div>
       <div class="set-row" id="gsub-row" style="border:none;display:none"><div style="font-size:13px;font-weight:600">Podkategoria</div><select id="gsub" style="width:auto;padding:7px 10px" onchange="chkReady()"><option value="">Wszystkie</option></select></div>
     </div>
-    <button class="btn bp" onclick="startGame()" id="sgbtn">🎮 Zacznij grę</button>
+    <button class="btn bp" onclick="startGame()" id="sgbtn" style="display:none">🎮 Zacznij grę</button>
     <div id="gnw" style="display:none" class="aerr">⚠ Za mało słów!</div>
   </div>
-  <div id="garena" style="display:none">
-    <div class="ghdr">
-      <div style="text-align:center"><div style="font-size:9px;color:var(--text3)">Para</div><div style="font-size:18px;font-weight:800" id="gprog">0/0</div></div>
-      <div style="text-align:right"><div style="font-size:9px;color:var(--text3);margin-bottom:2px">Błędy</div><div style="font-size:22px;font-weight:800;color:var(--red)" id="gerrors">0</div></div>
+
+  <!-- Setup endless -->
+  <div id="gsetup-endless" style="display:none">
+    <button onclick="showGameMenu()" style="background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;padding:0;margin-bottom:10px">‹ Wróć</button>
+    <div class="card">
+      <div class="sec" style="margin-bottom:12px">♾️ Ustawienia Endless</div>
+      <div class="set-row">
+        <div><div style="font-size:13px;font-weight:600">Czas</div><div style="font-size:10px;color:var(--text3)">10s – 5 min, co 30s</div></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="gsb" onclick="adjEndlessTime(-30)">−</button>
+          <span id="endless-time-val" style="font-size:16px;font-weight:800;color:var(--gold);min-width:48px;text-align:center">60s</span>
+          <button class="gsb" onclick="adjEndlessTime(30)">+</button>
+        </div>
+      </div>
+      <div class="set-row"><div style="font-size:13px;font-weight:600">Typ</div><select id="etype" style="width:auto;padding:7px 10px" onchange="chkReadyEndless()"><option value="all">Słowa + Frazy</option><option value="word">Tylko słowa</option><option value="phrase">Tylko frazy</option></select></div>
+      <div class="set-row"><div style="font-size:13px;font-weight:600">Kategoria</div><select id="ecat" style="width:auto;padding:7px 10px" onchange="onECatChange()"><option value="">Wszystkie</option></select></div>
+      <div class="set-row" id="esub-row" style="border:none;display:none"><div style="font-size:13px;font-weight:600">Podkategoria</div><select id="esub" style="width:auto;padding:7px 10px" onchange="chkReadyEndless()"><option value="">Wszystkie</option></select></div>
     </div>
-    <div style="font-size:10px;color:var(--text3);text-align:center;margin-bottom:10px">Kliknij NL → potem tłumaczenie PL</div>
-    <div class="pgrid"><div class="pcol" id="cnl"></div><div class="pcol" id="cpl"></div></div>
-    <button class="btn bs" onclick="stopGame()" style="margin-top:4px">✕ Zakończ</button>
+    <button class="btn bp" onclick="startEndless()" id="sebtn" style="display:none">♾️ Zacznij Endless</button>
+    <div id="enw" style="display:none" class="aerr">⚠ Za mało słów! (min. 8)</div>
+  </div>
+  <div id="garena" style="display:none">
+    <div class="ghdr" style="position:relative">
+      <button onclick="stopGame()" style="position:absolute;top:0;right:0;background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:4px 8px;line-height:1">✕</button>
+      <div style="text-align:center"><div style="font-size:9px;color:var(--text3)">Para</div><div style="font-size:18px;font-weight:800" id="gprog">0/0</div></div>
+      <div id="gtimer-wrap" style="text-align:center;display:none"><div style="font-size:9px;color:var(--text3)">Czas</div><div class="gtimer" id="gtimer-val">60</div></div>
+      <div style="text-align:right;padding-right:28px"><div style="font-size:9px;color:var(--text3);margin-bottom:2px">Błędy</div><div style="font-size:22px;font-weight:800;color:var(--red)" id="gerrors">0</div></div>
+    </div>
+    <div style="font-size:10px;color:var(--text3);text-align:center;margin-bottom:10px">Kliknij dowolne słowo → potem jego tłumaczenie</div>
+    <div class="pgrid" id="classic-grid"><div class="pcol" id="cnl"></div><div class="pcol" id="cpl"></div></div>
+    <div id="endless-grid" style="display:none;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"></div>
   </div>
   <div id="gres" style="display:none;padding:20px 0">
     <div style="text-align:center;margin-bottom:18px">
@@ -656,7 +690,7 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
       </div>
       <div id="gres-lb" style="max-height:220px;overflow-y:auto"></div>
     </div>
-    <button class="btn bp" onclick="startGame()">🔄 Zagraj jeszcze raz</button>
+    <button class="btn bp" onclick="EM._lastMode==='endless'?startEndless():startGame()">🔄 Zagraj jeszcze raz</button>
     <button class="btn bs" onclick="backSetup()">← Zmień ustawienia</button>
   </div>
 </div>
@@ -919,9 +953,10 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
   <div class="modal-box" style="padding-bottom:28px">
     <div class="modal-title"><span id="dir-picker-title">Wybierz kierunek</span><button class="modal-close" onclick="closeModal('modal-dir')">✕</button></div>
     <div style="font-size:12px;color:var(--text3);margin-bottom:16px" id="dir-picker-sub"></div>
-    <input type="hidden" id="dp-cat"><input type="hidden" id="dp-sub">
+    <input type="hidden" id="dp-cat"><input type="hidden" id="dp-sub"><input type="hidden" id="dp-return" value="home">
     <button onclick="launchLearn('nl')" style="width:100%;background:linear-gradient(135deg,#1e3a5f,#0f2a45);border:1px solid #1e4a7a;color:#7dd3fc;border-radius:var(--r2);padding:16px;font-size:15px;font-weight:700;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px"><span style="font-size:22px">🇳🇱</span> Niderlandzki → Polski</button>
-    <button onclick="launchLearn('pl')" style="width:100%;background:linear-gradient(135deg,#3d1a00,#5a2800);border:1px solid #7a3a0088;color:#fbbf7c;border-radius:var(--r2);padding:16px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px"><span style="font-size:22px">🇵🇱</span> Polski → Niderlandzki</button>
+    <button onclick="launchLearn('pl')" style="width:100%;background:linear-gradient(135deg,#3d1a00,#5a2800);border:1px solid #7a3a0088;color:#fbbf7c;border-radius:var(--r2);padding:16px;font-size:15px;font-weight:700;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px"><span style="font-size:22px">🇵🇱</span> Polski → Niderlandzki</button>
+
   </div>
 </div>
 
@@ -1112,7 +1147,7 @@ let S={items:[],categories:[
 let LS={completedLessons:[],xp:0,streak:0,lastStudyDate:null,totalCorrect:0,totalAnswered:0};
 
 let LRN={queue:[],idx:0,flipped:false};
-let G={pairs:6,spp:8,selNl:null,matched:0,score:0,tmr:null,total:0,elapsed:0};
+let G={pairs:6,spp:8,sel:null,selNl:null,matched:0,score:0,tmr:null,total:0,elapsed:0};
 let WLF='all',WL_SEARCH='',EDIT_TYPE='word',WL_PAGE=0,WL_PAGE_SIZE=50;
 let WL_SEARCH_TIMER=null;
 let SES={count:30,dir:'nl',type:'all',catId:'',queue:[],retryQueue:[],idx:0,flipped:false,round:1,knownCnt:0,unknownCnt:0,skipCnt:0,isRetry:false};
@@ -1355,6 +1390,7 @@ function goTo(id){
   if(id==='session')rSesSetup();
   if(id==='games')rGameSetup();
   if(id==='settings')rSettings();
+  if(id==='games')setTimeout(showGameMenu,10);
   if(id==='lekcje')rLekcje();
   if(id==='gramatyka')GR.render();
 }
@@ -1676,16 +1712,17 @@ async function aiScan(b64){
 // ════════════════════════════════════════════════════════════════
 // DIRECTION PICKER + LEARN
 // ════════════════════════════════════════════════════════════════
-function openDirPicker(catId,subId){
+function openDirPicker(catId,subId,returnTo){
   document.getElementById('dp-cat').value=catId||'';document.getElementById('dp-sub').value=subId||'';
+  document.getElementById('dp-return').value=returnTo||'categories';
   const cat=S.categories.find(c=>c.id===catId);const sub=subId?cat?.subs?.find(s=>s.id===subId):null;
   document.getElementById('dir-picker-title').textContent=sub?sub.n:(cat?.name||'Wszystkie');
   const cnt=S.items.filter(i=>isDue(i)&&(!catId||i.categoryId===catId)&&(!subId||i.subcategoryId===subId)).length;
   document.getElementById('dir-picker-sub').textContent=cnt+' słów/fraz do powtórzenia';
   openModal('modal-dir');
 }
-function launchLearn(dir){const catId=document.getElementById('dp-cat').value||null;const subId=document.getElementById('dp-sub').value||null;closeModal('modal-dir');startLearn(catId,subId,'all',dir);}
-function startLearn(cid,sid,type,dir='nl'){
+function launchLearn(dir){const catId=document.getElementById('dp-cat').value||null;const subId=document.getElementById('dp-sub').value||null;const ret=document.getElementById('dp-return').value||'home';closeModal('modal-dir');startLearn(catId,subId,'all',dir,ret);}
+function startLearn(cid,sid,type,dir='nl',returnTo='home'){
   let pool=S.items.filter(isDue);
   if(cid)pool=pool.filter(i=>i.categoryId===cid);
   if(sid)pool=pool.filter(i=>i.subcategoryId===sid);
@@ -1693,7 +1730,7 @@ function startLearn(cid,sid,type,dir='nl'){
   if(type==='phrase')pool=pool.filter(i=>i.type==='phrase');
   pool.sort((a,b)=>(a.level||0)-(b.level||0));
   if(!pool.length){toast('Brak elementów do powtórzenia!');return;}
-  LRN={queue:pool,idx:0,flipped:false,dir};goTo('learn');rLCard();
+  LRN={queue:pool,idx:0,flipped:false,dir,returnTo};goTo('learn');rLCard();
 }
 function rLCard(){
   const it=LRN.queue[LRN.idx];if(!it)return;
@@ -1736,7 +1773,7 @@ function flipCard(){
 function markYes(){const it=LRN.queue[LRN.idx];const l=Math.min((it.level||0)+1,6);upd(it.id,{level:l,nextReview:nrev(l)});nxtCard();}
 function markNo(){const it=LRN.queue[LRN.idx];upd(it.id,{level:0,nextReview:nrev(0)});nxtCard();}
 function skipCard(){nxtCard();}
-function nxtCard(){if(LRN.idx+1>=LRN.queue.length){toast('✓ Sesja zakończona!');goTo('home');}else{LRN.idx++;rLCard();}}
+function nxtCard(){if(LRN.idx+1>=LRN.queue.length){toast('✓ Sesja zakończona!');markActivityDone();goTo(LRN.returnTo||'home');}else{LRN.idx++;rLCard();}}
 
 // ════════════════════════════════════════════════════════════════
 // SESSION ENGINE
@@ -1883,11 +1920,18 @@ function endSession(){save();showSesSetup();}
 // GAME — ZNAJDŹ PARY
 // ════════════════════════════════════════════════════════════════
 function rGameSetup(){
-  document.getElementById('gsetup').style.display='block';document.getElementById('garena').style.display='none';document.getElementById('gres').style.display='none';
+  document.getElementById('gsetup').style.display='block';document.getElementById('gsetup-classic').style.display='none';document.getElementById('gsetup-endless').style.display='none';document.getElementById('garena').style.display='none';document.getElementById('gres').style.display='none';
   updTprev();
   const sel=document.getElementById('gcat');sel.innerHTML='<option value="">Wszystkie</option>';
   S.categories.forEach(c=>{if(S.items.some(i=>i.categoryId===c.id))sel.innerHTML+=`<option value="${c.id}">${c.icon} ${c.name}</option>`;});
   sel.value='';document.getElementById('gsub-row').style.display='none';document.getElementById('gsub').innerHTML='<option value="">Wszystkie</option>';chkReady();
+}
+function rGCats(){
+  const sel=document.getElementById('gcat');
+  sel.innerHTML='<option value="">Wszystkie</option>';
+  S.categories.forEach(c=>{if(S.items.some(i=>i.categoryId===c.id))sel.innerHTML+=`<option value="${c.id}">${esc(c.icon)} ${esc(c.name)}</option>`;});
+  sel.value='';document.getElementById('gsub-row').style.display='none';
+  chkReady();
 }
 function onGCatChange(){
   const catId=document.getElementById('gcat').value;const subRow=document.getElementById('gsub-row');const subSel=document.getElementById('gsub');
@@ -1898,19 +1942,69 @@ function onGCatChange(){
 function adjP(d){G.pairs=Math.max(2,Math.min(20,G.pairs+d));document.getElementById('pval').textContent=G.pairs;updTprev();chkReady();}
 function adjT(d){G.spp=Math.max(3,Math.min(30,G.spp+d));const el=document.getElementById('tval');if(el)el.textContent=G.spp;updTprev();}
 function updTprev(){const el=document.getElementById('tprev');if(el){const t=G.pairs*G.spp;el.textContent=t>=60?Math.floor(t/60)+'m'+(t%60?' '+t%60+'s':''):t+'s';}}
+function showGameMenu(){
+  document.getElementById('gsetup').style.display='block';
+  document.getElementById('gsetup-classic').style.display='none';
+  document.getElementById('gsetup-endless').style.display='none';
+}
+function showClassicSetup(){
+  document.getElementById('gsetup').style.display='none';
+  document.getElementById('gsetup-classic').style.display='block';
+  document.getElementById('gsetup-endless').style.display='none';
+  rGCats(); chkReady();
+}
+function showEndlessSetup(){
+  document.getElementById('gsetup').style.display='none';
+  document.getElementById('gsetup-classic').style.display='none';
+  document.getElementById('gsetup-endless').style.display='block';
+  rECats(); chkReadyEndless();
+}
 function chkReady(){
-  const tp=document.getElementById('gtype')?.value||'all';const cid=document.getElementById('gcat')?.value||'';const sid=document.getElementById('gsub')?.value||'';
+  const tp=document.getElementById('gtype')?.value||'all';
+  const cid=document.getElementById('gcat')?.value||'';
+  const sid=document.getElementById('gsub')?.value||'';
   let pool=S.items;if(tp!=='all')pool=pool.filter(i=>i.type===tp);if(cid)pool=pool.filter(i=>i.categoryId===cid);if(sid)pool=pool.filter(i=>i.subcategoryId===sid);
   const ok=pool.length>=G.pairs;
-  document.getElementById('sgbtn').style.display=ok?'flex':'none';document.getElementById('gnw').style.display=ok?'none':'block';
+  document.getElementById('sgbtn').style.display=ok?'flex':'none';
+  document.getElementById('gnw').style.display=ok?'none':'block';
+}
+function chkReadyEndless(){
+  const tp=document.getElementById('etype')?.value||'all';
+  const cid=document.getElementById('ecat')?.value||'';
+  const sid=document.getElementById('esub')?.value||'';
+  let pool=S.items;if(tp!=='all')pool=pool.filter(i=>i.type===tp);if(cid)pool=pool.filter(i=>i.categoryId===cid);if(sid)pool=pool.filter(i=>i.subcategoryId===sid);
+  const ok=pool.length>=8;
+  document.getElementById('sebtn').style.display=ok?'flex':'none';
+  document.getElementById('enw').style.display=ok?'none':'block';
+}
+function rECats(){
+  const sel=document.getElementById('ecat');
+  sel.innerHTML='<option value="">Wszystkie</option>';
+  S.categories.forEach(c=>{if(S.items.some(i=>i.categoryId===c.id))sel.innerHTML+=`<option value="${c.id}">${esc(c.icon)} ${esc(c.name)}</option>`;});
+  sel.value='';
+  document.getElementById('esub-row').style.display='none';
+  chkReadyEndless();
+}
+function onECatChange(){
+  const cid=document.getElementById('ecat').value;
+  const cat=S.categories.find(c=>c.id===cid);
+  const row=document.getElementById('esub-row');
+  const sel=document.getElementById('esub');
+  if(cat&&cat.subs&&cat.subs.length){
+    sel.innerHTML='<option value="">Wszystkie</option>';
+    cat.subs.forEach(s=>sel.innerHTML+=`<option value="${s.id}">${esc(s.n)}</option>`);
+    row.style.display='flex';
+  } else { row.style.display='none'; }
+  chkReadyEndless();
 }
 function startGame(){
+  EM._lastMode='classic';
   const tp=document.getElementById('gtype').value||'all';const cid=document.getElementById('gcat').value||'';const sid=document.getElementById('gsub').value||'';
   let pool=S.items;if(tp!=='all')pool=pool.filter(i=>i.type===tp);if(cid)pool=pool.filter(i=>i.categoryId===cid);if(sid)pool=pool.filter(i=>i.subcategoryId===sid);
   if(pool.length<G.pairs){toast('Za mało elementów!');return;}
   const sel=[...pool].sort(()=>Math.random()-.5).slice(0,G.pairs);
-  G.score=0;G.selNl=null;G.matched=0;G.total=G.pairs*G.spp;G.elapsed=0;G.errors=0;
-  document.getElementById('gsetup').style.display='none';document.getElementById('gres').style.display='none';document.getElementById('garena').style.display='block';
+  G.score=0;G.sel=null;G.selNl=null;G.matched=0;G.total=G.pairs*G.spp;G.elapsed=0;G.errors=0;
+  document.getElementById('gsetup').style.display='none';document.getElementById('gsetup-classic').style.display='none';document.getElementById('gsetup-endless').style.display='none';document.getElementById('gres').style.display='none';document.getElementById('garena').style.display='block';
   document.getElementById('gerrors').textContent='0';document.getElementById('gprog').textContent='0/'+G.pairs;
   rPairCards(sel);startTimer();
 }
@@ -1920,12 +2014,57 @@ function rPairCards(pairs){
   pairs.forEach(p=>{const c=document.createElement('div');c.className='pc';c.dataset.id=p.id;c.textContent=p.nl;c.onclick=()=>selNl(p.id,c);nlc.appendChild(c);});
   shpl.forEach(p=>{const c=document.createElement('div');c.className='pc';c.dataset.id=p.id;c.textContent=p.pl;c.onclick=()=>selPl(p.id,c);plc.appendChild(c);});
 }
-function selNl(id,el){if(el.classList.contains('matched'))return;document.querySelectorAll('#cnl .pc').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');G.selNl=id;}
-function selPl(id,el){
-  if(!G.selNl||el.classList.contains('matched'))return;
-  if(G.selNl===id){document.querySelectorAll(`.pc[data-id="${id}"]`).forEach(c=>{c.classList.remove('sel');c.classList.add('matched');});G.score++;G.matched++;document.getElementById('gprog').textContent=G.matched+'/'+G.pairs;G.selNl=null;if(G.matched>=G.pairs)endGame(true);}
-  else{G.errors++;document.getElementById('gerrors').textContent=G.errors;el.classList.add('wrong');const nc=document.querySelector('#cnl .pc.sel');if(nc)nc.classList.add('wrong');setTimeout(()=>{el.classList.remove('wrong','sel');if(nc)nc.classList.remove('wrong','sel');G.selNl=null;},600);}
+// Sistem unificat: click din oricare coloana
+// G.sel = { id, side:'nl'|'pl' }
+function selCard(id, side, el) {
+  if (el.classList.contains('matched') || el.classList.contains('wrong')) return;
+  // Daca nu e nimic selectat
+  if (!G.sel) {
+    document.querySelectorAll('.pc.sel').forEach(c => c.classList.remove('sel'));
+    el.classList.add('sel');
+    G.sel = { id, side };
+    return;
+  }
+  // Click pe acelasi card → deselecteaza
+  if (G.sel.id === id && G.sel.side === side) {
+    el.classList.remove('sel');
+    G.sel = null;
+    return;
+  }
+  // Click pe acelasi side → schimba selectia
+  if (G.sel.side === side) {
+    document.querySelectorAll('.pc.sel').forEach(c => c.classList.remove('sel'));
+    el.classList.add('sel');
+    G.sel = { id, side };
+    return;
+  }
+  // Click pe side opus → verifica match
+  if (G.sel.id === id) {
+    // CORECT
+    document.querySelectorAll(`.pc[data-id="${id}"]`).forEach(c => {
+      c.classList.remove('sel'); c.classList.add('matched');
+    });
+    G.score++; G.matched++;
+    document.getElementById('gprog').textContent = G.matched + '/' + G.pairs;
+    G.sel = null;
+    if (G.matched >= G.pairs) endGame(true);
+  } else {
+    // GRESIT
+    G.errors++;
+    document.getElementById('gerrors').textContent = G.errors;
+    const prevEl = document.querySelector('.pc.sel');
+    el.classList.add('wrong');
+    if (prevEl) prevEl.classList.add('wrong');
+    setTimeout(() => {
+      el.classList.remove('wrong', 'sel');
+      if (prevEl) prevEl.classList.remove('wrong', 'sel');
+      G.sel = null;
+    }, 600);
+  }
 }
+// Păstrăm compatibilitatea cu HTML existent
+function selNl(id, el) { selCard(id, 'nl', el); }
+function selPl(id, el) { selCard(id, 'pl', el); }
 function startTimer(){
   if(G.tmr)clearInterval(G.tmr);G.elapsed=0;
   G.tmr=setInterval(()=>{G.elapsed++;if(G.elapsed>=G.total){clearInterval(G.tmr);endGame(false);}},1000);
@@ -1967,8 +2106,38 @@ function renderLeaderboard(){
   }).join('');
 }
 function clearLeaderboard(){if(!confirm('Wyczyścić klasament?'))return;localStorage.removeItem('nl_lb_v1');renderLeaderboard();toast('Klasament wyczyszczony');}
-function stopGame(){if(G.tmr)clearInterval(G.tmr);backSetup();}
-function backSetup(){document.getElementById('garena').style.display='none';document.getElementById('gres').style.display='none';document.getElementById('gsetup').style.display='block';}
+function stopGame(){
+  if(G.tmr)clearInterval(G.tmr);
+  if(EM.tmr)clearInterval(EM.tmr);
+  document.getElementById('classic-grid').style.display='flex';
+  document.getElementById('endless-grid').style.display='none';
+  document.getElementById('gtimer-wrap').style.display='none';
+  backSetup();
+}
+function backSetup(){
+  document.getElementById('garena').style.display='none';
+  document.getElementById('gres').style.display='none';
+  if(EM._lastMode==='endless'){
+    document.getElementById('gsetup-endless').style.display='block';
+  } else {
+    document.getElementById('gsetup-classic').style.display='block';
+  }
+}
+function launchMatchFromCat(){
+  const catId=document.getElementById('dp-cat').value||'';
+  const subId=document.getElementById('dp-sub').value||'';
+  closeModal('modal-dir');
+  closeModal('modal-cat-opts');
+  closeModal('modal-sub-opts');
+  goTo('games');
+  // Pre-setează categoria în game setup
+  setTimeout(()=>{
+    const gc=document.getElementById('gcat');
+    if(gc&&catId){gc.value=catId;onGCatChange();}
+    if(subId){const gs=document.getElementById('gsub');if(gs)gs.value=subId;}
+    chkReady();
+  },100);
+}
 
 // ════════════════════════════════════════════════════════════════
 // SETTINGS
@@ -2562,6 +2731,304 @@ document.addEventListener('keydown',e=>{
     if(fbNext) fbNext.click();
   }
 });
+
+
+// ════════════════════════════════════════════════════════════════
+// ENDLESS MATCH-UP MODE — 6 NL + 6 PL, poziții fixe
+// Start: 8 iteme (A-H), NL are A-F, PL are C-H
+//   → C/D/E/F au pereche vizibilă, A/B orfane NL, G/H orfane PL
+// Ciclu după fiecare eliminare: apare 1NL + 1PL din coadă
+// Coada: NL_A→PL_A, NL_B→PL_B (perechile orfanelor), apoi noi orfane
+// Regula: PL.X nu pe același rând cu NL.X
+// ════════════════════════════════════════════════════════════════
+let EM = {
+  pool: [],
+  pending: [],
+  nlSlots: [],   // 6
+  plSlots: [],   // 6
+  nlMap: {},     // id → rowIndex pentru NL
+  plMap: {},     // id → rowIndex pentru PL
+  matched: 0,
+  errors: 0,
+  countdown: 60,
+  countdownMax: 60,
+  tmr: null,
+  sel: null,
+  // Coada de carduri individual: [{item, side:'nl'|'pl'}]
+  // La fiecare eliminare se scot 2 (1NL + 1PL)
+  queue: [],
+  freeNl: [],
+  freePl: [],
+  _lastMode: 'classic'
+};
+
+function adjEndlessTime(d) {
+  // Sub 60s: pași de 10s; de la 60s în sus: pași de 30s
+  let cur = EM.countdownMax;
+  if (d > 0) {
+    if (cur < 60) cur = Math.min(60, cur + 10);
+    else cur = Math.min(300, cur + 30);
+  } else {
+    if (cur <= 60) cur = Math.max(10, cur - 10);
+    else cur = Math.max(60, cur - 30);
+  }
+  EM.countdownMax = cur;
+  const el = document.getElementById('endless-time-val');
+  if (el) el.textContent = cur >= 60
+    ? Math.floor(cur/60) + 'min' + (cur%60 ? ' ' + cur%60 + 's' : '')
+    : cur + 's';
+}
+
+function emOnBoard(id) {
+  return EM.nlSlots.some(s => s && s.filled && s.id === String(id)) ||
+         EM.plSlots.some(s => s && s.filled && s.id === String(id)) ||
+         EM.queue.some(r => String(r.item.id) === String(id));
+}
+
+function emPickFresh(excludeIds) {
+  const excl = new Set([
+    ...EM.nlSlots.filter(s => s && s.filled).map(s => s.id),
+    ...EM.plSlots.filter(s => s && s.filled).map(s => s.id),
+    ...EM.queue.map(r => String(r.item.id)),
+    ...(excludeIds || []).map(String),
+  ]);
+  let cands = EM.pending.filter(i => !excl.has(String(i.id)));
+  if (!cands.length) {
+    EM.pending = shuf([...EM.pool].filter(i => !excl.has(String(i.id))));
+    cands = EM.pending.length ? EM.pending : shuf([...EM.pool]);
+  }
+  const item = cands[0];
+  EM.pending = EM.pending.filter(i => String(i.id) !== String(item.id));
+  return item;
+}
+
+// Adaugă în coadă: pentru fiecare orfan NL → vine PL-ul lui, și viceversa
+// Plus noi orfane pentru ciclul următor
+function emEnqueuePairs(nlOrphans, plOrphans) {
+  // Perechile orfanelor NL → vin PL-urile lor
+  nlOrphans.forEach(item => EM.queue.push({ item, side: 'pl' }));
+  // Perechile orfanelor PL → vin NL-urile lor
+  plOrphans.forEach(item => EM.queue.push({ item, side: 'nl' }));
+}
+
+// Plasează NL evitând rândul unde e PL.X
+function emPlaceNl(item) {
+  const plRow = EM.plMap[String(item.id)];
+  let allowed = EM.freeNl.filter(i => i !== plRow);
+  if (!allowed.length) allowed = [...EM.freeNl];
+  const pick = allowed[Math.floor(Math.random() * allowed.length)];
+  EM.freeNl.splice(EM.freeNl.indexOf(pick), 1);
+  EM.nlSlots[pick] = { id: String(item.id), text: item.nl, filled: true };
+  EM.nlMap[String(item.id)] = pick;
+}
+
+// Plasează PL evitând rândul unde e NL.X
+function emPlacePl(item) {
+  const nlRow = EM.nlMap[String(item.id)];
+  let allowed = EM.freePl.filter(i => i !== nlRow);
+  if (!allowed.length) allowed = [...EM.freePl];
+  const pick = allowed[Math.floor(Math.random() * allowed.length)];
+  EM.freePl.splice(EM.freePl.indexOf(pick), 1);
+  EM.plSlots[pick] = { id: String(item.id), text: item.pl, filled: true };
+  EM.plMap[String(item.id)] = pick;
+}
+
+// Scoate și plasează 1 NL + 1 PL din coadă
+function emFlush() {
+  // Scoate 1 card NL din coadă
+  const nlIdx = EM.queue.findIndex(r => r.side === 'nl');
+  if (nlIdx === -1 || !EM.freeNl.length) return;
+  const [nlCard] = EM.queue.splice(nlIdx, 1);
+  emPlaceNl(nlCard.item);
+
+  // Scoate 1 card PL din coadă
+  const plIdx = EM.queue.findIndex(r => r.side === 'pl');
+  if (plIdx === -1 || !EM.freePl.length) return;
+  const [plCard] = EM.queue.splice(plIdx, 1);
+  emPlacePl(plCard.item);
+
+  // Dacă coada are prea puține, adăugăm noi orfane
+  if (EM.queue.length < 4) {
+    const newA = emPickFresh();
+    const newB = emPickFresh([newA.id]);
+    // NL_A și PL_B sunt orfane noi; perechile lor vin mai târziu
+    EM.queue.push({ item: newA, side: 'nl' });
+    EM.queue.push({ item: newB, side: 'pl' });
+    // Perechile: PL_A și NL_B
+    EM.queue.push({ item: newA, side: 'pl' });
+    EM.queue.push({ item: newB, side: 'nl' });
+  }
+}
+
+function startEndless() {
+  EM._lastMode = 'endless';
+  const tp = document.getElementById('etype')?.value || document.getElementById('gtype')?.value || 'all';
+  const cid = document.getElementById('ecat')?.value || document.getElementById('gcat')?.value || '';
+  const sid = document.getElementById('esub')?.value || document.getElementById('gsub')?.value || '';
+  let pool = S.items;
+  if (tp !== 'all') pool = pool.filter(i => i.type === tp);
+  if (cid) pool = pool.filter(i => i.categoryId === cid);
+  if (sid) pool = pool.filter(i => i.subcategoryId === sid);
+  if (pool.length < 8) { toast('Za mało elementów! Potrzeba min. 8'); return; }
+
+  EM.pool = [...pool];
+  EM.pending = shuf([...pool]);
+  EM.matched = 0; EM.errors = 0;
+  EM.countdown = EM.countdownMax;
+  EM.sel = null;
+  EM.freeNl = [0,1,2,3,4,5];
+  EM.freePl = [0,1,2,3,4,5];
+  EM.nlSlots = Array.from({length:6}, () => ({filled:false}));
+  EM.plSlots = Array.from({length:6}, () => ({filled:false}));
+  EM.nlMap = {}; EM.plMap = {};
+  EM.queue = [];
+
+  // Start: 8 iteme (A-H)
+  // NL: A,B,C,D,E,F  PL: C,D,E,F,G,H
+  // → C/D/E/F au pereche vizibilă imediat
+  // → A/B sunt orfane NL (PL-urile lor vin primul)
+  // → G/H sunt orfane PL (NL-urile lor vin al doilea)
+  const all8 = [];
+  for (let i = 0; i < 8; i++) all8.push(EM.pending.shift());
+  const [A, B, C, D, E, F, G, H] = all8;
+
+  // NL: A,B,C,D,E,F plasate random
+  [A,B,C,D,E,F].forEach(it => emPlaceNl(it));
+  // PL: C,D,E,F,G,H plasate evitând rândul NL perechii
+  [G,H,C,D,E,F].forEach(it => emPlacePl(it));
+
+  // Coadă inițială: perechile orfanelor
+  // PL_A și PL_B (perechile NL orfane) + NL_G și NL_H (perechile PL orfane)
+  EM.queue.push({ item: A, side: 'pl' });
+  EM.queue.push({ item: G, side: 'nl' });
+  EM.queue.push({ item: B, side: 'pl' });
+  EM.queue.push({ item: H, side: 'nl' });
+  // Noi orfane pentru ciclul următor
+  const newA = emPickFresh();
+  const newB = emPickFresh([newA.id]);
+  EM.queue.push({ item: newA, side: 'nl' });
+  EM.queue.push({ item: newB, side: 'pl' });
+  EM.queue.push({ item: newA, side: 'pl' });
+  EM.queue.push({ item: newB, side: 'nl' });
+
+  document.getElementById('gsetup').style.display = 'none';
+  document.getElementById('gsetup-classic').style.display = 'none';
+  document.getElementById('gsetup-endless').style.display = 'none';
+  document.getElementById('gres').style.display = 'none';
+  document.getElementById('garena').style.display = 'block';
+  document.getElementById('classic-grid').style.display = 'none';
+  document.getElementById('endless-grid').style.display = 'grid';
+  document.getElementById('gtimer-wrap').style.display = 'block';
+  document.getElementById('gprog').textContent = '0';
+  document.getElementById('gerrors').textContent = '0';
+  document.querySelector('#gprog').previousElementSibling.textContent = 'Pary';
+  emRender();
+
+  if (EM.tmr) clearInterval(EM.tmr);
+  EM.tmr = setInterval(() => {
+    EM.countdown--;
+    const el = document.getElementById('gtimer-val');
+    if (el) { el.textContent = EM.countdown; el.className = 'gtimer' + (EM.countdown <= 10 ? ' danger' : ''); }
+    if (EM.countdown <= 0) { clearInterval(EM.tmr); endEndless(); }
+  }, 1000);
+}
+
+function emRender() {
+  const grid = document.getElementById('endless-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const nlCol = document.createElement('div'); nlCol.className = 'pcol';
+  const plCol = document.createElement('div'); plCol.className = 'pcol';
+  for (let i = 0; i < 6; i++) {
+    const nl = EM.nlSlots[i];
+    const cnl = document.createElement('div');
+    cnl.className = 'pc'; cnl.dataset.side = 'nl'; cnl.dataset.idx = i;
+    if (nl && nl.filled) {
+      cnl.textContent = nl.text;
+      if (EM.sel && EM.sel.side === 'nl' && EM.sel.idx === i) cnl.classList.add('sel');
+      cnl.onclick = () => emSel('nl', i);
+    } else { cnl.style.opacity = '0'; cnl.style.pointerEvents = 'none'; }
+    nlCol.appendChild(cnl);
+
+    const pl = EM.plSlots[i];
+    const cpl = document.createElement('div');
+    cpl.className = 'pc'; cpl.dataset.side = 'pl'; cpl.dataset.idx = i;
+    if (pl && pl.filled) {
+      cpl.textContent = pl.text;
+      if (EM.sel && EM.sel.side === 'pl' && EM.sel.idx === i) cpl.classList.add('sel');
+      cpl.onclick = () => emSel('pl', i);
+    } else { cpl.style.opacity = '0'; cpl.style.pointerEvents = 'none'; }
+    plCol.appendChild(cpl);
+  }
+  grid.appendChild(nlCol);
+  grid.appendChild(plCol);
+}
+
+function emSel(side, idx) {
+  const slot = side === 'nl' ? EM.nlSlots[idx] : EM.plSlots[idx];
+  if (!slot || !slot.filled) return;
+  const el = document.querySelector(`#endless-grid .pc[data-side="${side}"][data-idx="${idx}"]`);
+  if (!el) return;
+
+  if (!EM.sel) { EM.sel = {side,idx}; el.classList.add('sel'); return; }
+  if (EM.sel.side === side && EM.sel.idx === idx) { EM.sel = null; el.classList.remove('sel'); return; }
+  if (EM.sel.side === side) {
+    document.querySelector(`#endless-grid .pc[data-side="${side}"][data-idx="${EM.sel.idx}"]`)?.classList.remove('sel');
+    EM.sel = {side,idx}; el.classList.add('sel'); return;
+  }
+
+  const prevSel = EM.sel; EM.sel = null;
+  const prevSlot = prevSel.side === 'nl' ? EM.nlSlots[prevSel.idx] : EM.plSlots[prevSel.idx];
+  const prevEl = document.querySelector(`#endless-grid .pc[data-side="${prevSel.side}"][data-idx="${prevSel.idx}"]`);
+
+  if (prevSlot && prevSlot.id === slot.id) {
+    [el, prevEl].forEach(c => { if(c){c.classList.remove('sel');c.classList.add('matched');}});
+    EM.matched++;
+    document.getElementById('gprog').textContent = EM.matched;
+    const nlIdx = side === 'nl' ? idx : prevSel.idx;
+    const plIdx = side === 'pl' ? idx : prevSel.idx;
+    const mid = slot.id;
+
+    setTimeout(() => {
+      EM.nlSlots[nlIdx] = {filled:false};
+      EM.plSlots[plIdx] = {filled:false};
+      delete EM.nlMap[mid]; delete EM.plMap[mid];
+      EM.freeNl.push(nlIdx);
+      EM.freePl.push(plIdx);
+      emRender();
+      setTimeout(() => { emFlush(); emRender(); }, 300);
+    }, 380);
+  } else {
+    EM.errors++;
+    document.getElementById('gerrors').textContent = EM.errors;
+    [el, prevEl].forEach(c => { if(c){c.classList.add('wrong');c.classList.remove('sel');}});
+    setTimeout(() => { [el,prevEl].forEach(c=>{if(c)c.classList.remove('wrong');}); }, 600);
+  }
+}
+
+function endEndless() {
+  if (EM.tmr) clearInterval(EM.tmr);
+  document.getElementById('garena').style.display = 'none';
+  document.getElementById('gres').style.display = 'block';
+  document.getElementById('classic-grid').style.display = 'flex';
+  document.getElementById('endless-grid').style.display = 'none';
+  document.getElementById('gtimer-wrap').style.display = 'none';
+  let e='😅',t='Spróbuj ponownie!';
+  if(EM.matched>=20&&EM.errors===0){e='🏆';t='Perfekcja!';}
+  else if(EM.matched>=15){e='🥇';t='Świetnie!';}
+  else if(EM.matched>=10){e='🎉';t='Dobrze!';}
+  else if(EM.matched>=5){e='👍';t='Nieźle!';}
+  document.getElementById('gremo').textContent=e;
+  document.getElementById('grttl').textContent=t;
+  document.getElementById('gres-time').textContent=EM.countdownMax+'s';
+  document.getElementById('gres-pairs').textContent=EM.matched;
+  document.getElementById('gres-errors').textContent=EM.errors;
+  const entry={ts:Date.now(),pairs:EM.matched,matched:EM.matched,errors:EM.errors,time:EM.countdownMax,won:true,mode:'endless'};
+  try{const lb=JSON.parse(localStorage.getItem('nl_lb_v1')||'[]');lb.push(entry);lb.sort((a,b)=>b.matched-a.matched||a.errors-b.errors);lb.splice(10);localStorage.setItem('nl_lb_v1',JSON.stringify(lb));}catch(e){}
+  renderLeaderboard();
+  if(EM.matched>0)markActivityDone();
+}
+
 
 // ════════════════════════════════════════════════════════════════
 // GRAMATYKA MODULE
