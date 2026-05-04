@@ -433,7 +433,7 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
 <div class="scr" id="scr-session">
   <div id="ses-setup">
     <div class="hero" style="margin-bottom:12px">
-      <div style="font-size:11px;color:var(--purple);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">Sesja ćwiczeń</div>
+      <div style="font-size:11px;color:var(--purple);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">Fiszki</div>
       <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:900">Wybierz zakres 🎯</div>
       <div style="font-size:12px;color:var(--text3);margin-top:4px">Ćwicz tyle słów ile chcesz — nieznane wrócą na koniec</div>
     </div>
@@ -461,6 +461,7 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
     </div>
     <div class="sec">Szybkie presetki</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <button id="sp-5"   onclick="setSesPreset(5)"   class="sp-btn">5</button>
       <button id="sp-10"  onclick="setSesPreset(10)"  class="sp-btn">10</button>
       <button id="sp-20"  onclick="setSesPreset(20)"  class="sp-btn">20</button>
       <button id="sp-30"  onclick="setSesPreset(30)"  class="sp-btn sp-active">30</button>
@@ -507,7 +508,7 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
       <div style="flex:1;padding:14px 8px;text-align:center"><div style="font-size:24px;font-weight:800;color:var(--gold)" id="sr-skip">0</div><div style="font-size:10px;color:var(--text3)">Pominięte</div></div>
     </div>
     <button class="btn bp" onclick="repeatSessionNewWords()" id="ses-repeat-btn" style="background:linear-gradient(135deg,#1e3a5f,#0f2a45);color:#7dd3fc">🔀 Te same ustawienia, nowe słowa</button>
-    <button class="btn bp" onclick="startSession()">🔄 Nowa sesja (te same słowa)</button>
+    <button class="btn bp" onclick="replaySession()">🔄 Nowa sesja (te same słowa)</button>
     <button class="btn bs" onclick="showSesSetup()">← Zmień ustawienia</button>
     <button class="btn bs" onclick="goTo('home')">🏠 Start</button>
   </div>
@@ -1249,7 +1250,7 @@ function autoExport(){
 // NAVIGATION
 // ════════════════════════════════════════════════════════════════
 const SCRS=['home','wordlist','categories','scan','learn','session','games','settings','lekcje','exercise','lkcomplete','gramatyka'];
-const TTLS={home:'Nauka',wordlist:'Słownik',categories:'Kategorie',scan:'Skanuj',learn:'Powtórka',session:'Sesja ćwiczeń',games:'Gry',settings:'Ustawienia',lekcje:'Lekcje',exercise:'Ćwiczenie',lkcomplete:'Wynik',gramatyka:'Gramatyka'};
+const TTLS={home:'Nauka',wordlist:'Słownik',categories:'Kategorie',scan:'Skanuj',learn:'Powtórka',session:'Fiszki',games:'Gry',settings:'Ustawienia',lekcje:'Lekcje',exercise:'Ćwiczenie',lkcomplete:'Wynik',gramatyka:'Gramatyka'};
 const NAVS=['home','scan','categories','wordlist','gramatyka','settings'];
 
 function goTo(id){
@@ -1678,12 +1679,13 @@ function onSesCatChange(){
   updateSesAvail();
 }
 function setDir(d){SES.dir=d;document.getElementById('dir-nl').classList.toggle('active',d==='nl');document.getElementById('dir-pl').classList.toggle('active',d==='pl');}
-function adjSes(d){SES.count=Math.max(10,Math.min(100,SES.count+d));document.getElementById('ses-cnt').textContent=SES.count;updateSesAvail();}
+function setSesCount(n){SES.count=n;document.getElementById('ses-cnt').textContent=SES.count;updateSesAvail();}
+function adjSes(d){SES.count=Math.max(5,Math.min(100,SES.count+d));document.getElementById('ses-cnt').textContent=SES.count;updateSesAvail();}
 function setSesPreset(n){
   SES.count=n;
   document.getElementById('ses-cnt').textContent=n;
   // Update active button
-  [10,20,30,50,100].forEach(v=>{
+  [5,10,20,30,50,100].forEach(v=>{
     const btn=document.getElementById('sp-'+v);
     if(btn) btn.classList.toggle('sp-active', v===n);
   });
@@ -1706,6 +1708,14 @@ function startSession(){
   pool=[...pool].sort(()=>Math.random()-.5).slice(0,SES.count);
   SES.queue=pool;SES.retryQueue=[];SES.idx=0;SES.flipped=false;SES.round=1;SES.knownCnt=0;SES.unknownCnt=0;SES.skipCnt=0;SES.isRetry=false;
   document.getElementById('ses-setup').style.display='none';document.getElementById('ses-result').style.display='none';document.getElementById('ses-learn').style.display='block';
+  renderSesCard();
+}
+function replaySession(){
+  // Reia exact aceleași cuvinte din sesiunea anterioară (amestecate din nou)
+  if(!SES.queue||!SES.queue.length){toast('Brak poprzedniej sesji!');return;}
+  const same=[...SES.queue].sort(()=>Math.random()-.5);
+  SES.queue=same;SES.retryQueue=[];SES.idx=0;SES.flipped=false;SES.round=1;SES.knownCnt=0;SES.unknownCnt=0;SES.skipCnt=0;SES.isRetry=false;
+  document.getElementById('ses-result').style.display='none';document.getElementById('ses-setup').style.display='none';document.getElementById('ses-learn').style.display='block';
   renderSesCard();
 }
 function repeatSessionNewWords(){
