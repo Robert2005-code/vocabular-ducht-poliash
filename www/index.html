@@ -22,6 +22,7 @@
   --r:16px;--r2:12px;--r3:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg);}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:80px;overflow-x:hidden}
 button{cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .15s,transform .1s}
 button:active{opacity:.8;transform:scale(.97)}
@@ -282,6 +283,67 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
 .wiem-btn:active{transform:scale(.96);}
 .wiem-no{background:linear-gradient(135deg,#7f1d1d,#991b1b);color:#fca5a5;}
 .wiem-yes{background:linear-gradient(135deg,#14532d,#166534);color:#86efac;}
+
+/* ═══ TABLET / DESKTOP RESPONSIVE ═══ */
+@media (min-width: 600px) {
+  body {
+    max-width: 700px;
+  }
+  .nav {
+    max-width: 700px;
+  }
+  .modal-box {
+    max-width: 700px;
+    border-radius: 20px;
+  }
+  .feedback-bar, .wiem-bar, .check-btn {
+    max-width: 700px;
+  }
+  /* Home grid: 2 coloane pentru butoane rapide */
+  .home-quick-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  /* Card mai lat */
+  .card {
+    padding: 18px 20px;
+  }
+  /* Font mai mare pe tabletă */
+  .hdr-l .ttl {
+    font-size: 26px;
+  }
+  /* Nav icons mai mari */
+  .nb img {
+    width: 80px;
+    height: 80px;
+  }
+  /* Session card mai mare */
+  #ses-card {
+    min-height: 260px;
+    font-size: 18px;
+  }
+  /* Gallery grid mai multe coloane */
+  #gr-gallery {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+@media (min-width: 900px) {
+  body {
+    max-width: 860px;
+  }
+  .nav {
+    max-width: 860px;
+  }
+  .modal-box {
+    max-width: 860px;
+  }
+  .feedback-bar, .wiem-bar, .check-btn {
+    max-width: 860px;
+  }
+  #gr-gallery {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
 </style>
 </head>
 <body>
