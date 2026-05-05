@@ -138,6 +138,9 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
 .sr-edit-row{display:flex;gap:5px}
 .sr-edit-row input{flex:1}
 
+.lvl-btn{opacity:.65;transition:opacity .15s,box-shadow .15s}
+.lvl-btn.active{box-shadow:0 0 0 2px currentColor;opacity:1}
+
 /* TOAST */
 #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);padding:9px 18px;color:var(--text);font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.6);z-index:1000;white-space:nowrap;opacity:0;transition:opacity .25s;pointer-events:none}
 #toast.show{opacity:1}
@@ -508,7 +511,7 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
     <div style="color:var(--text3);font-size:12px;margin-bottom:14px">AI wyodrębni słowa + frazy, skategoryzuje i zweryfikuje język</div>
     <div id="sp" class="spin">⏳ Analizuję i kategoryzuję...</div>
     <button class="btn bp" id="sbtn" onclick="triggerCam()" style="width:auto;padding:13px 28px;margin:0 auto;display:inline-flex">📷 Wybierz / Sfotografuj</button>
-    <input type="file" id="cinp" accept="image/*" capture="environment" style="display:none" onchange="doScan(this)">
+    <input type="file" id="cinp" accept="image/*" style="display:none" onchange="doScan(this)">
     <img id="preview-img" alt="">
   </div>
   <div id="sres"></div>
@@ -533,7 +536,7 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
       </div>
       <div class="ss-row">
         <div><div class="ss-label">Typ</div></div>
-        <select id="ses-type" style="width:auto;padding:7px 10px"><option value="all">Słowa + Frazy</option><option value="word">Tylko słowa</option><option value="phrase">Tylko frazy</option></select>
+        <select id="ses-type" style="width:auto;padding:7px 10px" onchange="updateSesAvail()"><option value="all">Słowa + Frazy</option><option value="word">Tylko słowa</option><option value="phrase">Tylko frazy</option></select>
       </div>
       <div class="ss-row" style="border:none">
         <div><div class="ss-label">Kategoria</div></div>
@@ -542,6 +545,20 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
       <div class="ss-row" id="ses-sub-row" style="border:none;display:none">
         <div><div class="ss-label">Podkategoria</div></div>
         <select id="ses-sub" style="width:auto;padding:7px 10px" onchange="updateSesAvail()"><option value="">Wszystkie</option></select>
+      </div>
+      <div class="ss-row" style="border:none;flex-direction:column;align-items:flex-start;gap:8px">
+        <div><div class="ss-label">Poziom</div><div class="ss-sub">filtruj po stopniu znajomości</div></div>
+        <div id="ses-level-picker" style="display:flex;flex-wrap:wrap;gap:6px">
+          <button class="lvl-btn active" data-lvl="" onclick="sesLvlPick(this)" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">Wszystkie</button>
+          <button class="lvl-btn" data-lvl="0" onclick="sesLvlPick(this)" style="background:#FFFFFF22;border:1px solid #FFFFFF66;color:#FFFFFF;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">● 0 nowe</button>
+          <button class="lvl-btn" data-lvl="1" onclick="sesLvlPick(this)" style="background:#4A8DFF22;border:1px solid #4A8DFF66;color:#4A8DFF;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">● 1</button>
+          <button class="lvl-btn" data-lvl="2" onclick="sesLvlPick(this)" style="background:#7A5CFF22;border:1px solid #7A5CFF66;color:#7A5CFF;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">● 2</button>
+          <button class="lvl-btn" data-lvl="3" onclick="sesLvlPick(this)" style="background:#FF1A1A22;border:1px solid #FF1A1A66;color:#FF1A1A;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">● 3</button>
+          <button class="lvl-btn" data-lvl="4" onclick="sesLvlPick(this)" style="background:#F29A3822;border:1px solid #F29A3866;color:#F29A38;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">● 4</button>
+          <button class="lvl-btn" data-lvl="5" onclick="sesLvlPick(this)" style="background:#D9B24C22;border:1px solid #D9B24C66;color:#D9B24C;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">● 5</button>
+          <button class="lvl-btn" data-lvl="6" onclick="sesLvlPick(this)" style="background:#45C66A22;border:1px solid #45C66A66;color:#45C66A;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">● 6 opanowane</button>
+        </div>
+        <input type="hidden" id="ses-level" value="">
       </div>
     </div>
     <div class="sec">Szybkie presetki</div>
@@ -2001,6 +2018,11 @@ function rSesSetup(){
   const sel=document.getElementById('ses-cat');sel.innerHTML='<option value="">Wszystkie</option>';
   S.categories.forEach(c=>{if(S.items.some(i=>i.categoryId===c.id))sel.innerHTML+=`<option value="${c.id}">${c.icon} ${c.name}</option>`;});
   sel.value='';document.getElementById('ses-sub-row').style.display='none';
+  // Reset level picker to "Wszystkie"
+  document.querySelectorAll('#ses-level-picker .lvl-btn').forEach(b=>b.classList.remove('active'));
+  const allBtn=document.querySelector('#ses-level-picker .lvl-btn[data-lvl=""]');
+  if(allBtn)allBtn.classList.add('active');
+  document.getElementById('ses-level').value='';
   updateSesAvail();
 }
 function onSesCatChange(){
@@ -2023,19 +2045,39 @@ function setSesPreset(n){
   });
   updateSesAvail();
 }
+function sesLvlPick(btn){
+  document.querySelectorAll('#ses-level-picker .lvl-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('ses-level').value=btn.dataset.lvl;
+  updateSesAvail();
+}
 function updateSesAvail(){
-  const tp=document.getElementById('ses-type')?.value||'all';const cid=document.getElementById('ses-cat')?.value||'';const sid=document.getElementById('ses-sub')?.value||'';
-  let pool=S.items;if(tp!=='all')pool=pool.filter(i=>i.type===tp);if(cid)pool=pool.filter(i=>i.categoryId===cid);if(sid)pool=pool.filter(i=>i.subcategoryId===sid);
+  const tp=document.getElementById('ses-type')?.value||'all';
+  const cid=document.getElementById('ses-cat')?.value||'';
+  const sid=document.getElementById('ses-sub')?.value||'';
+  const lvl=document.getElementById('ses-level')?.value;
+  let pool=S.items;
+  if(tp!=='all')pool=pool.filter(i=>i.type===tp);
+  if(cid)pool=pool.filter(i=>i.categoryId===cid);
+  if(sid)pool=pool.filter(i=>i.subcategoryId===sid);
+  if(lvl!==''&&lvl!=null)pool=pool.filter(i=>(i.level||0)===parseInt(lvl));
   const avail=pool.length;
   document.getElementById('ses-avail').textContent=avail>0?`Dostępnych: ${avail} elementów (sesja: ${Math.min(SES.count,avail)})`:'Brak słów w tej kategorii';
   document.getElementById('ses-start-btn').style.display=avail>0?'flex':'none';
   document.getElementById('ses-noitems').style.display=avail>0?'none':'block';
 }
 function startSession(){
-  const tp=document.getElementById('ses-type')?.value||'all';const cid=document.getElementById('ses-cat')?.value||'';const sid=document.getElementById('ses-sub')?.value||'';
+  const tp=document.getElementById('ses-type')?.value||'all';
+  const cid=document.getElementById('ses-cat')?.value||'';
+  const sid=document.getElementById('ses-sub')?.value||'';
+  const lvl=document.getElementById('ses-level')?.value;
   SES.dir=document.getElementById('dir-nl').classList.contains('active')?'nl':'pl';
-  SES.lastTp=tp;SES.lastCid=cid;SES.lastSid=sid;SES.lastDir=SES.dir;SES.lastCount=SES.count;
-  let pool=S.items;if(tp!=='all')pool=pool.filter(i=>i.type===tp);if(cid)pool=pool.filter(i=>i.categoryId===cid);if(sid)pool=pool.filter(i=>i.subcategoryId===sid);
+  SES.lastTp=tp;SES.lastCid=cid;SES.lastSid=sid;SES.lastLvl=lvl;SES.lastDir=SES.dir;SES.lastCount=SES.count;
+  let pool=S.items;
+  if(tp!=='all')pool=pool.filter(i=>i.type===tp);
+  if(cid)pool=pool.filter(i=>i.categoryId===cid);
+  if(sid)pool=pool.filter(i=>i.subcategoryId===sid);
+  if(lvl!==''&&lvl!=null)pool=pool.filter(i=>(i.level||0)===parseInt(lvl));
   if(!pool.length){toast('Brak słów!');return;}
   pool=[...pool].sort(()=>Math.random()-.5).slice(0,SES.count);
   SES.queue=pool;SES.retryQueue=[];SES.idx=0;SES.flipped=false;SES.round=1;SES.knownCnt=0;SES.unknownCnt=0;SES.skipCnt=0;SES.isRetry=false;
@@ -2051,9 +2093,13 @@ function replaySession(){
   renderSesCard();
 }
 function repeatSessionNewWords(){
-  const tp=SES.lastTp||'all';const cid=SES.lastCid||'';const sid=SES.lastSid||'';
+  const tp=SES.lastTp||'all';const cid=SES.lastCid||'';const sid=SES.lastSid||'';const lvl=SES.lastLvl;
   SES.dir=SES.lastDir||'nl';SES.count=SES.lastCount||30;
-  let pool=S.items;if(tp!=='all')pool=pool.filter(i=>i.type===tp);if(cid)pool=pool.filter(i=>i.categoryId===cid);if(sid)pool=pool.filter(i=>i.subcategoryId===sid);
+  let pool=S.items;
+  if(tp!=='all')pool=pool.filter(i=>i.type===tp);
+  if(cid)pool=pool.filter(i=>i.categoryId===cid);
+  if(sid)pool=pool.filter(i=>i.subcategoryId===sid);
+  if(lvl!==''&&lvl!=null)pool=pool.filter(i=>(i.level||0)===parseInt(lvl));
   if(!pool.length){toast('Brak słów!');return;}
   const seenIds=new Set((SES.queue||[]).map(i=>i.id));let fresh=pool.filter(i=>!seenIds.has(i.id));
   const source=fresh.length>=Math.min(SES.count,pool.length)?fresh:pool;
@@ -2122,8 +2168,8 @@ function showSesResult(){
   document.getElementById('ses-res-stats').textContent=SES.knownCnt+' z '+total+' znanych ('+pct+'%)';
   document.getElementById('ses-res-sub').textContent=SES.retryQueue.length>0?'Powtarzałeś '+SES.round+' razy':'Wszystkie w jednej rundzie!';
   document.getElementById('sr-known').textContent=SES.knownCnt;document.getElementById('sr-unknown').textContent=SES.unknownCnt;document.getElementById('sr-skip').textContent=SES.skipCnt;
-  const tp=SES.lastTp||'all',cid=SES.lastCid||'',sid=SES.lastSid||'';
-  let fullPool=S.items;if(tp!=='all')fullPool=fullPool.filter(i=>i.type===tp);if(cid)fullPool=fullPool.filter(i=>i.categoryId===cid);if(sid)fullPool=fullPool.filter(i=>i.subcategoryId===sid);
+  const tp=SES.lastTp||'all',cid=SES.lastCid||'',sid=SES.lastSid||'',lvl=SES.lastLvl;
+  let fullPool=S.items;if(tp!=='all')fullPool=fullPool.filter(i=>i.type===tp);if(cid)fullPool=fullPool.filter(i=>i.categoryId===cid);if(sid)fullPool=fullPool.filter(i=>i.subcategoryId===sid);if(lvl!==''&&lvl!=null)fullPool=fullPool.filter(i=>(i.level||0)===parseInt(lvl));
   const seenIds=new Set((SES.queue||[]).map(i=>i.id));const freshCount=fullPool.filter(i=>!seenIds.has(i.id)).length;
   const btn=document.getElementById('ses-repeat-btn');
   if(fullPool.length>total){btn.textContent=freshCount>0?`🔀 Nowe słowa z tej samej puli (${freshCount} niewidzianych)`:`🔀 Powtórz z tej samej puli (${fullPool.length} słów)`;btn.style.display='flex';}
