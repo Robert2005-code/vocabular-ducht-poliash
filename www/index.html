@@ -115,6 +115,27 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
 .aerr{background:#7f1d1d33;border:1px solid #991b1b;border-radius:var(--r2);padding:11px 14px;color:#fca5a5;font-size:13px}
 .ainfo{background:var(--blue-dim);border:1px solid #1e4a7a;border-radius:var(--r2);padding:11px 14px;color:#7dd3fc;font-size:13px}
 
+/* SCAN REVIEW */
+.sr-item{display:flex;align-items:flex-start;gap:8px;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;transition:border-color .15s}
+.sr-item.excluded{opacity:.38;border-style:dashed}
+.sr-item.excluded .sr-item-texts{text-decoration:line-through}
+.sr-chk{width:22px;height:22px;border-radius:6px;border:2px solid var(--border2);background:var(--bg4);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:13px;transition:all .15s;margin-top:1px}
+.sr-chk.on{background:var(--green);border-color:var(--green);color:#fff}
+.sr-item-texts{flex:1;min-width:0;cursor:pointer}
+.sr-item-nl{font-weight:700;font-size:13px}
+.sr-item-pl{font-size:11px;color:var(--text2);margin-top:1px}
+.sr-item-cat{font-size:10px;color:var(--gold);margin-top:2px}
+.sr-type-tag{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;flex-shrink:0;margin-top:3px;align-self:flex-start}
+.sr-sort-bar{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.sr-sort-bar::-webkit-scrollbar{display:none}
+.sr-sort-btn{border-radius:var(--r3);padding:5px 10px;white-space:nowrap;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text3);flex-shrink:0}
+.sr-sort-btn.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold)}
+.sr-edit-inline{display:none;gap:5px;margin-top:7px;flex-direction:column}
+.sr-edit-inline.open{display:flex}
+.sr-edit-inline input,.sr-edit-inline select{font-size:12px;padding:6px 10px}
+.sr-edit-row{display:flex;gap:5px}
+.sr-edit-row input{flex:1}
+
 /* TOAST */
 #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);padding:9px 18px;color:var(--text);font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.6);z-index:1000;white-space:nowrap;opacity:0;transition:opacity .25s;pointer-events:none}
 #toast.show{opacity:1}
@@ -925,6 +946,33 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
 </div>
 
 
+<!-- MODAL: SCAN REVIEW -->
+<div class="modal" id="scan-review-modal">
+  <div class="modal-box" style="max-height:96vh;padding:16px 16px 0 16px">
+    <div class="modal-title" style="margin-bottom:10px">
+      <span>✅ Przejrzyj wyniki AI</span>
+      <button class="modal-close" onclick="closeModal('scan-review-modal')">✕</button>
+    </div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:10px" id="sr-summary"></div>
+    <div class="sr-sort-bar">
+      <button class="sr-sort-btn active" onclick="srSort('type',this)">📁 Typ</button>
+      <button class="sr-sort-btn" onclick="srSort('nl',this)">🔤 A–Z NL</button>
+      <button class="sr-sort-btn" onclick="srSort('pl',this)">🔤 A–Z PL</button>
+      <button class="sr-sort-btn" onclick="srSort('cat',this)">📂 Kategoria</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center">
+      <button onclick="srSelectAll(true)" style="background:var(--green-dim);border:1px solid var(--green);color:var(--green);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer">✓ Wszystkie</button>
+      <button onclick="srSelectAll(false)" style="background:var(--red-dim);border:1px solid var(--red);color:var(--red);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer">✕ Żadnego</button>
+      <span style="font-size:11px;color:var(--text3)" id="sr-sel-count"></span>
+    </div>
+    <div id="sr-item-list" style="overflow-y:auto;max-height:50vh;padding-right:2px"></div>
+    <div style="position:sticky;bottom:0;background:#0f0f22;padding:12px 0 16px;margin:0 -16px;padding-left:16px;padding-right:16px;border-top:1px solid var(--border);margin-top:8px">
+      <button class="btn bp" style="margin-bottom:6px" onclick="srConfirmImport()">💾 Dodaj zaznaczone</button>
+      <button class="btn bs" style="margin:0" onclick="closeModal('scan-review-modal')">Anuluj</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL: DUPLICAT -->
 <div class="modal" id="modal-dup">
   <div class="modal-box">
@@ -1174,8 +1222,9 @@ function load(){
 function updateStreak(){
   const today=new Date().toDateString();
   const yesterday=new Date(Date.now()-86400000).toDateString();
-  if(LS.lastStudyDate===today||LS.lastStudyDate===yesterday)return;
-  if(LS.lastStudyDate){LS.streak=0;saveLK();}
+  if(LS.lastStudyDate===today)return;
+  if(LS.lastStudyDate===yesterday)LS.streak++;
+  else if(LS.lastStudyDate&&LS.lastStudyDate!==today)LS.streak=0;
 }
 
 // Apelat la finalizarea completă a oricărei activități
@@ -1203,7 +1252,7 @@ function upd(id,ch){S.items=S.items.map(i=>String(i.id)===String(id)?{...i,...ch
 function delItem(id){if(!confirm('Usunąć ten element?'))return;S.items=S.items.filter(i=>String(i.id)!==String(id));save();WL_PAGE=0;rWL();toast('Usunięto');}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
 function esc(s){s=String(s==null?'':s);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function escJ(s){s=String(s==null?'':s);return s.replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/\r/g,'\\r').replace(/\t/g,'\\t').replace(/'/g,"\\'").replace(/"/g,'&quot;');}
+function escJ(s){s=String(s==null?'':s);return s.replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/\r/g,'\\r').replace(/\t/g,'\\t').replace(/'/g,"\\'").replace(/"/g,'\\"');}
 function shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 // ── TTS ENGINE ──────────────────────────────────────────────────
 let _ttsUnlocked = false;
@@ -1355,7 +1404,14 @@ function importJSON(file){
   reader.readAsText(file);
 }
 function autoExport(){
-  try{const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');const ts=new Date().toISOString().slice(0,10);a.href=URL.createObjectURL(blob);a.download='holenderski-'+ts+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000);}catch(e){}
+  try{
+    const now=new Date().toISOString();
+    const exportObj={...S,version:2,exportedAt:now,appName:'Wordra'};
+    const blob=new Blob([JSON.stringify(exportObj,null,2)],{type:'application/json'});
+    const a=document.createElement('a');const ts=now.slice(0,10);
+    a.href=URL.createObjectURL(blob);a.download='holenderski-'+ts+'.json';
+    a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+  }catch(e){}
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1682,15 +1738,141 @@ async function doScan(inp){
     if(!r.words.length&&!r.phrases.length){document.getElementById('sres').innerHTML='<div class="aerr">⚠ Nie znaleziono par słów/fraz.</div>';}
     else{
       const now=new Date().toISOString();
-      const incoming=[...r.words.map(w=>({id:_newId(),nl:w.nl,pl:w.pl,type:'word',categoryId:'inne',subcategoryId:null,level:0,nextReview:now,addedAt:now})),...r.phrases.map(p=>({id:_newId(),nl:p.nl,pl:p.pl,type:'phrase',categoryId:'inne',subcategoryId:null,level:0,nextReview:now,addedAt:now}))];
-      const{added,skipped}=mergeItems(incoming);save();autoExport();
-      const bc={};incoming.forEach(i=>{const cat=S.categories.find(c=>c.id===i.categoryId);const cn=cat?.name||'Inne';if(!bc[cn])bc[cn]={w:0,p:0,ico:cat?.icon||'📦'};if(i.type==='word')bc[cn].w++;else bc[cn].p++;});
-      let h='<div class="aok">✓ Nowe: <strong>'+added+'</strong> · Duplikaty pominięte: <strong>'+skipped+'</strong><br><span style="font-size:11px;opacity:.8">💾 Plik JSON pobrany automatycznie</span></div><div class="card" style="margin-top:8px"><div class="sec">Kategoryzacja AI</div>';
-      Object.entries(bc).forEach(([cn,v])=>{h+=`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px"><span>${v.ico} ${cn}</span><span style="color:var(--text3)">${v.w>0?v.w+' słów':''}${v.w>0&&v.p>0?' · ':''}${v.p>0?v.p+' fraz':''}</span></div>`;});
-      h+='</div>';document.getElementById('sres').innerHTML=h;rHome();
+      const incoming=[
+        ...r.words.map(w=>({id:_newId(),nl:w.nl,pl:w.pl,type:'word',categoryId:w.cat||'inne',subcategoryId:w.sub||null,level:0,nextReview:now,addedAt:now})),
+        ...r.phrases.map(p=>({id:_newId(),nl:p.nl,pl:p.pl,type:'phrase',categoryId:p.cat||'inne',subcategoryId:p.sub||null,level:0,nextReview:now,addedAt:now}))
+      ];
+      openScanReview(incoming);
     }
   }catch(e){document.getElementById('sres').innerHTML='<div class="aerr">⚠ Błąd: '+e.message+'</div>';}
   document.getElementById('sp').style.display='none';document.getElementById('sbtn').style.display='inline-flex';inp.value='';
+}
+
+// ── SCAN REVIEW ─────────────────────────────────────────────────
+let _srItems=[];
+let _srSort='type';
+
+function openScanReview(incoming){
+  _srItems=incoming.map(inc=>{
+    const nk=normKey(inc.nl),tp=inc.type||'word';
+    const dup=S.items.find(ex=>normKey(ex.nl)===nk&&(ex.type||'word')===tp);
+    return{...inc,_selected:!dup,_dupOf:dup?dup.id:null,_editOpen:false};
+  });
+  _srSort='type';
+  srRender();
+  openModal('scan-review-modal');
+}
+
+function srSort(key,btn){
+  _srSort=key;
+  document.querySelectorAll('.sr-sort-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  srRender();
+}
+
+function srSelectAll(val){_srItems.forEach(i=>i._selected=val);srRender();}
+
+function srToggle(idx){_srItems[idx]._selected=!_srItems[idx]._selected;srRenderItem(idx);srUpdateCount();}
+
+function srToggleEdit(idx){_srItems[idx]._editOpen=!_srItems[idx]._editOpen;srRenderItem(idx);}
+
+function srSaveEdit(idx){
+  const nl=document.getElementById('sr-nl-'+idx).value.trim();
+  const pl=document.getElementById('sr-pl-'+idx).value.trim();
+  const cat=document.getElementById('sr-cat-'+idx).value;
+  const sub=document.getElementById('sr-sub-'+idx).value||null;
+  const type=document.getElementById('sr-type-'+idx).value;
+  if(!nl||!pl){toast('⚠ Wypełnij oba pola!');return;}
+  const nk=normKey(nl);
+  const dup=S.items.find(ex=>normKey(ex.nl)===nk&&(ex.type||'word')===type&&String(ex.id)!==String(_srItems[idx].id));
+  _srItems[idx]={..._srItems[idx],nl,pl,categoryId:cat,subcategoryId:sub,type,_dupOf:dup?dup.id:null,_editOpen:false};
+  srRenderItem(idx);
+}
+
+function srPopulateSub(idx){
+  const catId=document.getElementById('sr-cat-'+idx).value;
+  const sel=document.getElementById('sr-sub-'+idx);
+  const cat=S.categories.find(c=>c.id===catId);
+  sel.innerHTML='<option value="">— brak —</option>';
+  (cat?.subs||[]).forEach(s=>sel.innerHTML+=`<option value="${s.id}">${s.n}</option>`);
+}
+
+function srRenderItem(idx){
+  const el=document.getElementById('sr-row-'+idx);
+  if(!el)return;
+  el.outerHTML=srItemHtml(_srItems[idx],idx);
+}
+
+function srItemHtml(item,idx){
+  const cat=S.categories.find(c=>c.id===item.categoryId);
+  const sub=item.subcategoryId?(cat?.subs||[]).find(s=>s.id===item.subcategoryId):null;
+  const catLabel=(cat?cat.icon+' '+cat.name:'📦 Inne')+(sub?' › '+sub.n:'');
+  const isDup=!!item._dupOf;
+  const typeBg=item.type==='phrase'?'background:#a78bfa22;color:#a78bfa':'background:#3b82f622;color:#3b82f6';
+  const dupWarn=isDup?`<span style="font-size:9px;color:var(--red);font-weight:700;margin-left:4px">⚠ dup</span>`:'';
+  let catOpts=S.categories.map(c=>`<option value="${c.id}"${c.id===item.categoryId?' selected':''}>${esc(c.icon)} ${esc(c.name)}</option>`).join('');
+  const editCat=S.categories.find(c=>c.id===item.categoryId);
+  let subOpts='<option value="">— brak —</option>'+(editCat?.subs||[]).map(s=>`<option value="${s.id}"${s.id===item.subcategoryId?' selected':''}>${esc(s.n)}</option>`).join('');
+  const editHtml=`<div class="sr-edit-inline${item._editOpen?' open':''}" id="sr-edit-${idx}">
+    <div class="sr-edit-row">
+      <input id="sr-nl-${idx}" type="text" value="${esc(item.nl)}" placeholder="🇳🇱 Niderlandzki">
+      <input id="sr-pl-${idx}" type="text" value="${esc(item.pl)}" placeholder="🇵🇱 Polski">
+    </div>
+    <div class="sr-edit-row">
+      <select id="sr-type-${idx}" style="width:auto;font-size:12px;padding:6px 8px">
+        <option value="word"${item.type==='word'?' selected':''}>📝 Słowo</option>
+        <option value="phrase"${item.type==='phrase'?' selected':''}>💬 Fraza</option>
+      </select>
+      <select id="sr-cat-${idx}" style="flex:1;font-size:12px;padding:6px 8px" onchange="srPopulateSub(${idx})">${catOpts}</select>
+    </div>
+    <select id="sr-sub-${idx}" style="font-size:12px;padding:6px 8px">${subOpts}</select>
+    <div class="sr-edit-row">
+      <button onclick="srSaveEdit(${idx})" style="flex:1;background:var(--green);color:#fff;border:none;border-radius:7px;padding:7px;font-size:12px;font-weight:700;cursor:pointer">💾 Zapisz</button>
+      <button onclick="srToggleEdit(${idx})" style="background:var(--bg4);color:var(--text3);border:1px solid var(--border2);border-radius:7px;padding:7px 12px;font-size:12px;cursor:pointer">✕</button>
+    </div>
+  </div>`;
+  return `<div class="sr-item${item._selected?'':' excluded'}" id="sr-row-${idx}">
+    <div class="sr-chk${item._selected?' on':''}" onclick="srToggle(${idx})">${item._selected?'✓':''}</div>
+    <div class="sr-item-texts" onclick="srToggleEdit(${idx})">
+      <div class="sr-item-nl">${esc(item.nl)}${dupWarn}</div>
+      <div class="sr-item-pl">${esc(item.pl)}</div>
+      <div class="sr-item-cat">${catLabel}</div>
+      ${editHtml}
+    </div>
+    <span class="sr-type-tag" style="${typeBg}">${item.type==='phrase'?'fraza':'słowo'}</span>
+  </div>`;
+}
+
+function srRender(){
+  const sorted=[..._srItems.entries()];
+  if(_srSort==='nl') sorted.sort((a,b)=>a[1].nl.localeCompare(b[1].nl));
+  else if(_srSort==='pl') sorted.sort((a,b)=>a[1].pl.localeCompare(b[1].pl));
+  else if(_srSort==='cat') sorted.sort((a,b)=>(a[1].categoryId||'').localeCompare(b[1].categoryId||''));
+  else sorted.sort((a,b)=>a[1].type.localeCompare(b[1].type)||a[1].nl.localeCompare(b[1].nl));
+  document.getElementById('sr-item-list').innerHTML=sorted.map(([idx,item])=>srItemHtml(item,idx)).join('');
+  const total=_srItems.length,words=_srItems.filter(i=>i.type==='word').length,phrases=_srItems.filter(i=>i.type==='phrase').length,dups=_srItems.filter(i=>i._dupOf).length;
+  document.getElementById('sr-summary').innerHTML=`AI znalazło: <strong>${total}</strong> (${words} słów, ${phrases} fraz)${dups>0?` · <span style="color:var(--red)">${dups} duplikatów</span>`:''}`;
+  srUpdateCount();
+}
+
+function srUpdateCount(){
+  const sel=_srItems.filter(i=>i._selected).length;
+  document.getElementById('sr-sel-count').textContent=`Zaznaczono: ${sel} / ${_srItems.length}`;
+}
+
+function srConfirmImport(){
+  const toImport=_srItems.filter(i=>i._selected);
+  if(!toImport.length){toast('⚠ Nic nie zaznaczono!');return;}
+  const{added,skipped}=mergeItems(toImport);
+  save();autoExport();
+  closeModal('scan-review-modal');
+  const bc={};toImport.forEach(i=>{const cat=S.categories.find(c=>c.id===i.categoryId);const cn=cat?.name||'Inne';if(!bc[cn])bc[cn]={w:0,p:0,ico:cat?.icon||'📦'};if(i.type==='word')bc[cn].w++;else bc[cn].p++;});
+  let h=`<div class="aok">✓ Dodano: <strong>${added}</strong> · Pominięto: <strong>${skipped}</strong><br><span style="font-size:11px;opacity:.8">💾 Plik JSON pobrany automatycznie</span></div><div class="card" style="margin-top:8px"><div class="sec">Podsumowanie</div>`;
+  Object.entries(bc).forEach(([cn,v])=>{h+=`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px"><span>${v.ico} ${cn}</span><span style="color:var(--text3)">${v.w>0?v.w+' słów':''}${v.w>0&&v.p>0?' · ':''}${v.p>0?v.p+' fraz':''}</span></div>`;});
+  h+='</div>';
+  document.getElementById('sres').innerHTML=h;
+  rHome();
+  toast('✓ Dodano '+added+' elementów!');
 }
 function i2b64(file){
   return new Promise((res,rej)=>{
@@ -1705,7 +1887,16 @@ async function aiScan(b64){
   const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:3000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:prompt}]}]})});
   if(!resp.ok){const e=await resp.json();throw new Error(e.error?.message||'API '+resp.status);}
   const data=await resp.json();const text=data.content?.find(b=>b.type==='text')?.text||'{"words":[],"phrases":[]}';
-  const p=JSON.parse(text.replace(/```json|```/g,'').trim());return{words:p.words||[],phrases:p.phrases||[]};
+  const p=JSON.parse(text.replace(/```json|```/g,'').trim());
+  // Validate cat/sub IDs from AI against actual S.categories
+  const validCatIds=new Set(S.categories.map(c=>c.id));
+  const validSubMap={};S.categories.forEach(c=>(c.subs||[]).forEach(s=>{validSubMap[s.id]=c.id;}));
+  function fixCatIds(item){
+    if(!item.cat||!validCatIds.has(item.cat))item.cat='inne';
+    if(item.sub&&validSubMap[item.sub]!==item.cat)item.sub=null;
+    return item;
+  }
+  return{words:(p.words||[]).map(fixCatIds),phrases:(p.phrases||[]).map(fixCatIds)};
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1897,7 +2088,7 @@ function sesNext(){
 }
 function showSesResult(){
   document.getElementById('ses-learn').style.display='none';document.getElementById('ses-result').style.display='block';
-  const total=SES.queue.length,pct=Math.round(SES.knownCnt/total*100);
+  const total=SES.queue.length;const pct=total>0?Math.round(SES.knownCnt/total*100):0;
   let emoji='😅',title='Ćwicz dalej!';
   if(pct>=90){emoji='🏆';title='Doskonale!';}else if(pct>=70){emoji='🎉';title='Świetnie!';}else if(pct>=50){emoji='👍';title='Nieźle!';}
   document.getElementById('ses-res-emoji').textContent=emoji;document.getElementById('ses-res-title').textContent=title;
@@ -2537,18 +2728,10 @@ function renderExCard(ex, container){
   }
 
   let inputHtml = '';
-  const letters = ['A','B','C','D'];
   if(ex.type === 'multiple'){
     // Wybór wielokrotny — opcje clickabile
+    const letters = ['A','B','C','D'];
     const opts = ex.options.map((o,i) =>
-      `<button class="mc-opt" id="mc-${i}" onclick="exSelectMC(${i})">
-        <span class="mc-letter">${letters[i]}</span>${esc(o)}
-       </button>`
-    ).join('');
-    inputHtml = `<div class="mc-grid" style="margin-bottom:90px">${opts}</div>`;
-  } else if(ex.type === 'fill'){
-    // Uzupełnij lukę — wybór z opcji
-    const opts = ex.choices.map((o,i) =>
       `<button class="mc-opt" id="mc-${i}" onclick="exSelectMC(${i})">
         <span class="mc-letter">${letters[i]}</span>${esc(o)}
        </button>`
@@ -2562,24 +2745,19 @@ function renderExCard(ex, container){
       style="margin-bottom:90px">`;
   }
 
-  const displayQuestion = ex.type === 'fill' ? ex.sentence : ex.question;
-  const displayHint = ex.hint || (ex.type === 'fill' ? ex.translation : '') || '';
-  const badgeLabel = ex.type === 'multiple' ? '☑️ Wybór wielokrotny' : ex.type === 'fill' ? '✏️ Uzupełnij lukę' : '✍️ Tłumaczenie';
-  const revealAnswer = ex.type === 'multiple' ? (ex.options && ex.options[ex.answer]) || '' : ex.type === 'fill' ? (ex.blanks && ex.blanks[0]) || '' : ex.answer || '';
-
   container.innerHTML = `
-    <div class="ex-type-badge">${badgeLabel}</div>
-    <div class="ex-question">${esc(displayQuestion)}</div>
-    <div class="ex-hint">${esc(displayHint)}</div>
+    <div class="ex-type-badge">${ex.type === 'multiple' ? '☑️ Wybór wielokrotny' : '✍️ Tłumaczenie'}</div>
+    <div class="ex-question">${esc(ex.question)}</div>
+    <div class="ex-hint">${esc(ex.hint || '')}</div>
     ${audioHtml}
     ${inputHtml}
     <div id="ex-answer-reveal" style="display:none;margin-top:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);padding:14px 16px">
       <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px">Odpowiedź</div>
-      <div style="font-size:18px;font-weight:800;color:var(--gold)">${esc(revealAnswer)}</div>
+      <div style="font-size:18px;font-weight:800;color:var(--gold)">${esc(ex.type === 'multiple' ? (ex.options && ex.options[ex.answer]) || '' : ex.answer || '')}</div>
     </div>
   `;
 
-  if(ex.type !== 'multiple' && ex.type !== 'fill'){
+  if(ex.type !== 'multiple'){
     setTimeout(() => document.getElementById('ex-inp')?.focus(), 100);
   }
 }
@@ -2628,16 +2806,6 @@ function exWiem(){
         el.disabled = true;
       });
     }
-  } else if(ex.type === 'fill'){
-    if(EX.selOpt !== null){
-      const correctIdx = ex.choices.indexOf(ex.blanks[0]);
-      userCorrect = EX.selOpt === correctIdx;
-      document.querySelectorAll('.mc-opt').forEach((el,i) => {
-        if(i === correctIdx) el.classList.add('correct');
-        else if(i === EX.selOpt && !userCorrect) el.classList.add('wrong');
-        el.disabled = true;
-      });
-    }
   }
 
   if(userCorrect){
@@ -2651,7 +2819,7 @@ function exWiem(){
     if(!EX.isRetry) EX.retryQueue.push({...ex});
     const reveal = document.getElementById('ex-answer-reveal');
     if(reveal) reveal.style.display = 'block';
-    const correctAns = String(ex.type === 'multiple' ? (ex.options && ex.options[ex.answer]) || '' : ex.type === 'fill' ? (ex.blanks && ex.blanks[0]) || '' : ex.answer || '');
+    const correctAns = String(ex.type === 'multiple' ? (ex.options && ex.options[ex.answer]) || '' : ex.answer || '');
     showWiemFeedback(false, correctAns);
   }
 }
@@ -2671,13 +2839,6 @@ function exNieWiem(){
       else if(i === EX.selOpt) el.classList.add('wrong');
       el.disabled = true;
     });
-  } else if(ex.type === 'fill'){
-    const correctIdx = ex.choices.indexOf(ex.blanks[0]);
-    document.querySelectorAll('.mc-opt').forEach((el,i) => {
-      if(i === correctIdx) el.classList.add('correct');
-      else if(i === EX.selOpt) el.classList.add('wrong');
-      el.disabled = true;
-    });
   }
 
   // Arată răspunsul corect
@@ -2687,7 +2848,7 @@ function exNieWiem(){
   // Adaugă în retry (doar tura principală)
   if(!EX.isRetry) EX.retryQueue.push({...ex});
 
-  const correctAns = String(ex.type === 'multiple' ? (ex.options && ex.options[ex.answer]) || '' : ex.type === 'fill' ? (ex.blanks && ex.blanks[0]) || '' : ex.answer || '');
+  const correctAns = String(ex.type === 'multiple' ? (ex.options && ex.options[ex.answer]) || '' : ex.answer || '');
   showWiemFeedback(false, correctAns);
 }
 
@@ -2735,7 +2896,7 @@ function finishLekcja(){
   showXPBurst('+' + EX.xpEarned + ' XP');
   markActivityDone();
   const total = EX.queue.length;
-  const pct = total > 0 ? Math.min(100, Math.round(EX.correct / total * 100)) : 0;
+  const pct = total > 0 ? Math.round(EX.correct / total * 100) : 0;
   let emoji='😅', sub='Ćwicz dalej!';
   if(pct===100){ emoji='🏆'; sub='Idealne! Zero błędów!'; }
   else if(pct>=80){ emoji='🎉'; sub='Świetnie! Prawie idealnie!'; }
@@ -2891,9 +3052,9 @@ function emFlush() {
 
 function startEndless() {
   EM._lastMode = 'endless';
-  const tp = document.getElementById('etype')?.value || document.getElementById('gtype')?.value || 'all';
-  const cid = document.getElementById('ecat')?.value || document.getElementById('gcat')?.value || '';
-  const sid = document.getElementById('esub')?.value || document.getElementById('gsub')?.value || '';
+  const tp = document.getElementById('etype')?.value || 'all';
+  const cid = document.getElementById('ecat')?.value || '';
+  const sid = document.getElementById('esub')?.value || '';
   let pool = S.items;
   if (tp !== 'all') pool = pool.filter(i => i.type === tp);
   if (cid) pool = pool.filter(i => i.categoryId === cid);
@@ -3346,7 +3507,6 @@ const GR = (() => {
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
       callback(canvas.toDataURL('image/jpeg', 0.78));
     };
-    img.onerror = () => callback(dataUrl);
     img.src = dataUrl;
   }
 
