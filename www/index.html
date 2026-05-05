@@ -1776,7 +1776,10 @@ function srSelectAll(val){_srItems.forEach(i=>i._selected=val);srRender();}
 
 function srToggle(idx){_srItems[idx]._selected=!_srItems[idx]._selected;srRenderItem(idx);srUpdateCount();}
 
-function srToggleEdit(idx){_srItems[idx]._editOpen=!_srItems[idx]._editOpen;srRenderItem(idx);}
+function srToggleEdit(idx){
+  _srItems[idx]._editOpen=!_srItems[idx]._editOpen;
+  srRenderItem(idx);
+}
 
 function srSaveEdit(idx){
   const nl=document.getElementById('sr-nl-'+idx).value.trim();
@@ -1819,17 +1822,17 @@ function srItemHtml(item,idx){
   // Zona de editare cu stopPropagation pe fiecare element interactiv
   const editHtml=`<div class="sr-edit-inline${item._editOpen?' open':''}" id="sr-edit-${idx}" onclick="event.stopPropagation()">
     <div class="sr-edit-row">
-      <input id="sr-nl-${idx}" type="text" value="${esc(item.nl)}" placeholder="🇳🇱 Niderlandzki" onclick="event.stopPropagation()" oninput="event.stopPropagation()">
-      <input id="sr-pl-${idx}" type="text" value="${esc(item.pl)}" placeholder="🇵🇱 Polski" onclick="event.stopPropagation()" oninput="event.stopPropagation()">
+      <input id="sr-nl-${idx}" type="text" value="${esc(item.nl)}" placeholder="🇳🇱 Niderlandzki" onclick="event.stopPropagation()" oninput="event.stopPropagation()" onfocus="srScrollToRow(${idx})">
+      <input id="sr-pl-${idx}" type="text" value="${esc(item.pl)}" placeholder="🇵🇱 Polski" onclick="event.stopPropagation()" oninput="event.stopPropagation()" onfocus="srScrollToRow(${idx})">
     </div>
     <div class="sr-edit-row">
-      <select id="sr-type-${idx}" style="width:auto;font-size:12px;padding:6px 8px" onclick="event.stopPropagation()" onchange="event.stopPropagation()">
+      <select id="sr-type-${idx}" style="width:auto;font-size:12px;padding:6px 8px" onclick="event.stopPropagation()" onchange="event.stopPropagation()" onfocus="srScrollToRow(${idx})">
         <option value="word"${item.type==='word'?' selected':''}>📝 Słowo</option>
         <option value="phrase"${item.type==='phrase'?' selected':''}>💬 Fraza</option>
       </select>
-      <select id="sr-cat-${idx}" style="flex:1;font-size:12px;padding:6px 8px" onclick="event.stopPropagation()" onchange="event.stopPropagation();srPopulateSub(${idx})">${catOpts}</select>
+      <select id="sr-cat-${idx}" style="flex:1;font-size:12px;padding:6px 8px" onclick="event.stopPropagation()" onchange="event.stopPropagation();srPopulateSub(${idx})" onfocus="srScrollToRow(${idx})">${catOpts}</select>
     </div>
-    <select id="sr-sub-${idx}" style="font-size:12px;padding:6px 8px" onclick="event.stopPropagation()" onchange="event.stopPropagation()">${subOpts}</select>
+    <select id="sr-sub-${idx}" style="font-size:12px;padding:6px 8px" onclick="event.stopPropagation()" onchange="event.stopPropagation()" onfocus="srScrollToRow(${idx})">${subOpts}</select>
     <div class="sr-edit-row">
       <button onclick="event.stopPropagation();srSaveEdit(${idx})" style="flex:1;background:var(--green);color:#fff;border:none;border-radius:7px;padding:7px;font-size:12px;font-weight:700;cursor:pointer">💾 Zapisz</button>
       <button onclick="event.stopPropagation();srToggleEdit(${idx})" style="background:var(--bg4);color:var(--text3);border:1px solid var(--border2);border-radius:7px;padding:7px 12px;font-size:12px;cursor:pointer">✕</button>
@@ -1851,6 +1854,20 @@ function srItemHtml(item,idx){
     </div>
     <span class="sr-type-tag" style="${typeBg}">${item.type==='phrase'?'fraza':'słowo'}</span>
   </div>`;
+}
+
+function srScrollToRow(idx){
+  // Așteptăm puțin ca tastatura să apară și viewport-ul să se micșoreze
+  setTimeout(()=>{
+    const row=document.getElementById('sr-row-'+idx);
+    const list=document.getElementById('sr-item-list');
+    if(!row||!list)return;
+    // Scroll-uiăm lista din modal astfel încât rândul să fie vizibil sus
+    const listRect=list.getBoundingClientRect();
+    const rowRect=row.getBoundingClientRect();
+    const offset=rowRect.top-listRect.top;
+    list.scrollTop=list.scrollTop+offset-8;
+  },320); // 320ms — suficient cât tastatura să se deschidă
 }
 
 function srRender(){
