@@ -1174,9 +1174,8 @@ function load(){
 function updateStreak(){
   const today=new Date().toDateString();
   const yesterday=new Date(Date.now()-86400000).toDateString();
-  if(LS.lastStudyDate===today)return;
-  if(LS.lastStudyDate===yesterday)LS.streak++;
-  else if(LS.lastStudyDate&&LS.lastStudyDate!==today)LS.streak=0;
+  if(LS.lastStudyDate===today||LS.lastStudyDate===yesterday)return;
+  if(LS.lastStudyDate){LS.streak=0;saveLK();}
 }
 
 // Apelat la finalizarea completă a oricărei activități
@@ -1204,7 +1203,7 @@ function upd(id,ch){S.items=S.items.map(i=>String(i.id)===String(id)?{...i,...ch
 function delItem(id){if(!confirm('Usunąć ten element?'))return;S.items=S.items.filter(i=>String(i.id)!==String(id));save();WL_PAGE=0;rWL();toast('Usunięto');}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
 function esc(s){s=String(s==null?'':s);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function escJ(s){s=String(s==null?'':s);return s.replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/\r/g,'\\r').replace(/\t/g,'\\t').replace(/'/g,"\\'").replace(/"/g,'\\"');}
+function escJ(s){s=String(s==null?'':s);return s.replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/\r/g,'\\r').replace(/\t/g,'\\t').replace(/'/g,"\\'").replace(/"/g,'&quot;');}
 function shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 // ── TTS ENGINE ──────────────────────────────────────────────────
 let _ttsUnlocked = false;
@@ -2538,10 +2537,18 @@ function renderExCard(ex, container){
   }
 
   let inputHtml = '';
+  const letters = ['A','B','C','D'];
   if(ex.type === 'multiple'){
     // Wybór wielokrotny — opcje clickabile
-    const letters = ['A','B','C','D'];
     const opts = ex.options.map((o,i) =>
+      `<button class="mc-opt" id="mc-${i}" onclick="exSelectMC(${i})">
+        <span class="mc-letter">${letters[i]}</span>${esc(o)}
+       </button>`
+    ).join('');
+    inputHtml = `<div class="mc-grid" style="margin-bottom:90px">${opts}</div>`;
+  } else if(ex.type === 'fill'){
+    // Uzupełnij lukę — wybór z opcji
+    const opts = ex.choices.map((o,i) =>
       `<button class="mc-opt" id="mc-${i}" onclick="exSelectMC(${i})">
         <span class="mc-letter">${letters[i]}</span>${esc(o)}
        </button>`
@@ -2555,19 +2562,24 @@ function renderExCard(ex, container){
       style="margin-bottom:90px">`;
   }
 
+  const displayQuestion = ex.type === 'fill' ? ex.sentence : ex.question;
+  const displayHint = ex.hint || (ex.type === 'fill' ? ex.translation : '') || '';
+  const badgeLabel = ex.type === 'multiple' ? '☑️ Wybór wielokrotny' : ex.type === 'fill' ? '✏️ Uzupełnij lukę' : '✍️ Tłumaczenie';
+  const revealAnswer = ex.type === 'multiple' ? (ex.options && ex.options[ex.answer]) || '' : ex.type === 'fill' ? (ex.blanks && ex.blanks[0]) || '' : ex.answer || '';
+
   container.innerHTML = `
-    <div class="ex-type-badge">${ex.type === 'multiple' ? '☑️ Wybór wielokrotny' : '✍️ Tłumaczenie'}</div>
-    <div class="ex-question">${esc(ex.question)}</div>
-    <div class="ex-hint">${esc(ex.hint || '')}</div>
+    <div class="ex-type-badge">${badgeLabel}</div>
+    <div class="ex-question">${esc(displayQuestion)}</div>
+    <div class="ex-hint">${esc(displayHint)}</div>
     ${audioHtml}
     ${inputHtml}
     <div id="ex-answer-reveal" style="display:none;margin-top:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);padding:14px 16px">
       <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px">Odpowiedź</div>
-      <div style="font-size:18px;font-weight:800;color:var(--gold)">${esc(ex.type === 'multiple' ? (ex.options && ex.options[ex.answer]) || '' : ex.answer || '')}</div>
+      <div style="font-size:18px;font-weight:800;color:var(--gold)">${esc(revealAnswer)}</div>
     </div>
   `;
 
-  if(ex.type !== 'multiple'){
+  if(ex.type !== 'multiple' && ex.type !== 'fill'){
     setTimeout(() => document.getElementById('ex-inp')?.focus(), 100);
   }
 }
@@ -2616,6 +2628,16 @@ function exWiem(){
         el.disabled = true;
       });
     }
+  } else if(ex.type === 'fill'){
+    if(EX.selOpt !== null){
+      const correctIdx = ex.choices.indexOf(ex.blanks[0]);
+      userCorrect = EX.selOpt === correctIdx;
+      document.querySelectorAll('.mc-opt').forEach((el,i) => {
+        if(i === correctIdx) el.classList.add('correct');
+        else if(i === EX.selOpt && !userCorrect) el.classList.add('wrong');
+        el.disabled = true;
+      });
+    }
   }
 
   if(userCorrect){
@@ -2629,7 +2651,7 @@ function exWiem(){
     if(!EX.isRetry) EX.retryQueue.push({...ex});
     const reveal = document.getElementById('ex-answer-reveal');
     if(reveal) reveal.style.display = 'block';
-    const correctAns = String(ex.type === 'multiple' ? (ex.options && ex.options[ex.answer]) || '' : ex.answer || '');
+    const correctAns = String(ex.type === 'multiple' ? (ex.options && ex.options[ex.answer]) || '' : ex.type === 'fill' ? (ex.blanks && ex.blanks[0]) || '' : ex.answer || '');
     showWiemFeedback(false, correctAns);
   }
 }
@@ -2649,6 +2671,13 @@ function exNieWiem(){
       else if(i === EX.selOpt) el.classList.add('wrong');
       el.disabled = true;
     });
+  } else if(ex.type === 'fill'){
+    const correctIdx = ex.choices.indexOf(ex.blanks[0]);
+    document.querySelectorAll('.mc-opt').forEach((el,i) => {
+      if(i === correctIdx) el.classList.add('correct');
+      else if(i === EX.selOpt) el.classList.add('wrong');
+      el.disabled = true;
+    });
   }
 
   // Arată răspunsul corect
@@ -2658,7 +2687,7 @@ function exNieWiem(){
   // Adaugă în retry (doar tura principală)
   if(!EX.isRetry) EX.retryQueue.push({...ex});
 
-  const correctAns = String(ex.type === 'multiple' ? (ex.options && ex.options[ex.answer]) || '' : ex.answer || '');
+  const correctAns = String(ex.type === 'multiple' ? (ex.options && ex.options[ex.answer]) || '' : ex.type === 'fill' ? (ex.blanks && ex.blanks[0]) || '' : ex.answer || '');
   showWiemFeedback(false, correctAns);
 }
 
@@ -2706,7 +2735,7 @@ function finishLekcja(){
   showXPBurst('+' + EX.xpEarned + ' XP');
   markActivityDone();
   const total = EX.queue.length;
-  const pct = total > 0 ? Math.round(EX.correct / total * 100) : 0;
+  const pct = total > 0 ? Math.min(100, Math.round(EX.correct / total * 100)) : 0;
   let emoji='😅', sub='Ćwicz dalej!';
   if(pct===100){ emoji='🏆'; sub='Idealne! Zero błędów!'; }
   else if(pct>=80){ emoji='🎉'; sub='Świetnie! Prawie idealnie!'; }
@@ -3317,6 +3346,7 @@ const GR = (() => {
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
       callback(canvas.toDataURL('image/jpeg', 0.78));
     };
+    img.onerror = () => callback(dataUrl);
     img.src = dataUrl;
   }
 
