@@ -2328,8 +2328,8 @@ function _runFuzzySearch(){
         if(ok.has(_pairKey(a,b)))continue;
         const nlScore=_fuzzyScore(a.nl,b.nl);
         const plScore=_fuzzyScore(a.pl,b.pl);
-        const nlSim=nlScore<=0.35;
-        const plSim=plScore<=0.35;
+        const nlSim=nlScore<=0.20;
+        const plSim=plScore<=0.20;
         if(nlSim||plSim){pairs.push({a,b,nlScore,plScore,nlSim,plSim});}
       }
     }
