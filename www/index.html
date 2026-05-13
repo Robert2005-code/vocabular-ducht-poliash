@@ -736,6 +736,15 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
       <div class="set-row"><div style="font-size:13px;font-weight:600">Typ</div><select id="etype" style="width:auto;padding:7px 10px" onchange="chkReadyEndless()"><option value="all">Słowa + Frazy</option><option value="word">Tylko słowa</option><option value="phrase">Tylko frazy</option></select></div>
       <div class="set-row"><div style="font-size:13px;font-weight:600">Kategoria</div><select id="ecat" style="width:auto;padding:7px 10px" onchange="onECatChange()"><option value="">Wszystkie</option></select></div>
       <div class="set-row" id="esub-row" style="border:none;display:none"><div style="font-size:13px;font-weight:600">Podkategoria</div><select id="esub" style="width:auto;padding:7px 10px" onchange="chkReadyEndless()"><option value="">Wszystkie</option></select></div>
+      <div class="set-row" style="border:none">
+        <div style="font-size:13px;font-weight:600">Tryb</div>
+        <div class="mode-toggle">
+          <button class="mode-btn active" id="em-mode-normal" onclick="setEndlessMode('normal')">♾️ Normal</button>
+          <button class="mode-btn" id="em-mode-hard" onclick="setEndlessMode('hard')">💀 Hard</button>
+          <button class="mode-btn" id="em-mode-nightmare" onclick="setEndlessMode('nightmare')">☠️ Nightmare</button>
+          <button class="mode-btn" id="em-mode-insane" onclick="setEndlessMode('insane')">🔥 Insane</button>
+        </div>
+      </div>
     </div>
     <button class="btn bp" onclick="startEndless()" id="sebtn" style="display:none">♾️ Zacznij Endless</button>
     <div id="enw" style="display:none" class="aerr">⚠ Za mało słów! (min. 8)</div>
@@ -3651,6 +3660,9 @@ function startEndless() {
   EM.queue.push({ item: newA, side: 'pl' });
   EM.queue.push({ item: newB, side: 'nl' });
 
+  // Nightmare mode init (după ce queue-ul de bază e construit)
+  nmInit(EM.pool);
+
   document.getElementById('gsetup').style.display = 'none';
   document.getElementById('gsetup-classic').style.display = 'none';
   document.getElementById('gsetup-endless').style.display = 'none';
@@ -3685,6 +3697,7 @@ function emRender() {
     cnl.className = 'pc'; cnl.dataset.side = 'nl'; cnl.dataset.idx = i;
     if (nl && nl.filled) {
       cnl.textContent = nl.text;
+      if (nl.isFake) cnl.style.borderColor = '#f59e0b44';
       if (EM.sel && EM.sel.side === 'nl' && EM.sel.idx === i) cnl.classList.add('sel');
       cnl.onclick = () => emSel('nl', i);
     } else { cnl.style.opacity = '0'; cnl.style.pointerEvents = 'none'; }
@@ -3695,6 +3708,7 @@ function emRender() {
     cpl.className = 'pc'; cpl.dataset.side = 'pl'; cpl.dataset.idx = i;
     if (pl && pl.filled) {
       cpl.textContent = pl.text;
+      if (pl.isFake) cpl.style.borderColor = '#f59e0b44';
       if (EM.sel && EM.sel.side === 'pl' && EM.sel.idx === i) cpl.classList.add('sel');
       cpl.onclick = () => emSel('pl', i);
     } else { cpl.style.opacity = '0'; cpl.style.pointerEvents = 'none'; }
@@ -3735,8 +3749,13 @@ function emSel(side, idx) {
       delete EM.nlMap[mid]; delete EM.plMap[mid];
       EM.freeNl.push(nlIdx);
       EM.freePl.push(plIdx);
-      emRender();
-      setTimeout(() => { emFlush(); emRender(); }, 300);
+      NM.matchCount++;
+      if(NM.mode!=='normal'){
+        nmAdvance();
+      } else {
+        emRender();
+        setTimeout(() => { emFlush(); emRender(); }, 300);
+      }
     }, 380);
   } else {
     EM.errors++;
@@ -3748,6 +3767,8 @@ function emSel(side, idx) {
 
 function endEndless() {
   if (EM.tmr) clearInterval(EM.tmr);
+  if (NM.fakeTmr) clearInterval(NM.fakeTmr);
+  NM.fakeCards=[];NM.hiddenQueue=[];
   document.getElementById('garena').style.display = 'none';
   document.getElementById('gres').style.display = 'block';
   document.getElementById('classic-grid').style.display = 'flex';
@@ -3767,6 +3788,228 @@ function endEndless() {
   try{const lb=JSON.parse(localStorage.getItem('nl_lb_v1')||'[]');lb.push(entry);lb.sort((a,b)=>b.matched-a.matched||a.errors-b.errors);lb.splice(10);localStorage.setItem('nl_lb_v1',JSON.stringify(lb));}catch(e){}
   renderLeaderboard();
   if(EM.matched>0)markActivityDone();
+}
+
+// ════════════════════════════════════════════════════════════════
+// NIGHTMARE ENDLESS MODE
+// ════════════════════════════════════════════════════════════════
+const NM = {
+  mode: 'normal', // 'normal' | 'hard' | 'nightmare' | 'insane'
+  config: {
+    normal:    { orphanCount:0,  fakePairChance:0,    minDelay:0,  maxDelay:0,  reshuffleEvery:0  },
+    hard:      { orphanCount:4,  fakePairChance:0.20, minDelay:4,  maxDelay:8,  reshuffleEvery:3  },
+    nightmare: { orphanCount:6,  fakePairChance:0.35, minDelay:4,  maxDelay:8,  reshuffleEvery:2  },
+    insane:    { orphanCount:8,  fakePairChance:0.50, minDelay:6,  maxDelay:12, reshuffleEvery:2  },
+  },
+  hiddenQueue: [],   // [{delay, card:{item,side}}]
+  fakeCards: [],     // [{id, side, nlIdx|plIdx, ttl(ms), born, lastCol}]
+  usedIds: new Set(),
+  matchCount: 0,
+  lastFakeCol: -1,
+  fakeTmr: null,
+};
+
+function setEndlessMode(m){
+  NM.mode=m;
+  ['normal','hard','nightmare','insane'].forEach(x=>{
+    document.getElementById('em-mode-'+x)?.classList.toggle('active',x===m);
+  });
+}
+
+function nmRandInt(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+
+function nmCfg(){return NM.config[NM.mode]||NM.config.normal;}
+
+// Ciclează pool-ul când e epuizat
+function nmPickFresh(excludeIds){
+  const excl=new Set([
+    ...EM.nlSlots.filter(s=>s&&s.filled).map(s=>s.id),
+    ...EM.plSlots.filter(s=>s&&s.filled).map(s=>s.id),
+    ...EM.queue.map(r=>String(r.item.id)),
+    ...NM.hiddenQueue.map(h=>String(h.card.item.id)),
+    ...NM.fakeCards.map(f=>String(f.item?.id||'')),
+    ...(excludeIds||[]).map(String),
+  ]);
+  // Încearcă mai întâi cuvinte nefolosite
+  let cands=EM.pool.filter(i=>!excl.has(String(i.id))&&!NM.usedIds.has(String(i.id)));
+  if(!cands.length){
+    // Ciclează — resetăm usedIds
+    NM.usedIds=new Set([...excl]);
+    cands=EM.pool.filter(i=>!excl.has(String(i.id)));
+  }
+  if(!cands.length)cands=EM.pool;
+  const item=shuf([...cands])[0];
+  NM.usedIds.add(String(item.id));
+  return item;
+}
+
+// Injectează un fake card pe o coloană diferită față de ultima
+function nmInjectFake(wordPool){
+  const cfg=nmCfg();
+  if(Math.random()>cfg.fakePairChance)return;
+  const excl=new Set([
+    ...EM.nlSlots.filter(s=>s&&s.filled).map(s=>s.id),
+    ...EM.plSlots.filter(s=>s&&s.filled).map(s=>s.id),
+  ]);
+  const fake=shuf([...wordPool]).find(w=>!excl.has(String(w.id)));
+  if(!fake)return;
+
+  const side=Math.random()<0.5?'nl':'pl';
+  const slots=side==='nl'?EM.nlSlots:EM.plSlots;
+  const freeSlots=side==='nl'?EM.freeNl:EM.freePl;
+
+  // Coloana diferită față de ultimul fake
+  let cols=[...freeSlots];
+  if(NM.lastFakeCol!==-1) cols=cols.filter(c=>c!==NM.lastFakeCol);
+  if(!cols.length)cols=[...freeSlots];
+  if(!cols.length)return;
+
+  const col=cols[Math.floor(Math.random()*cols.length)];
+  NM.lastFakeCol=col;
+
+  // Plasăm fake-ul
+  if(side==='nl'){
+    EM.freeNl.splice(EM.freeNl.indexOf(col),1);
+    EM.nlSlots[col]={id:'fake_'+Date.now(),text:fake.nl,filled:true,isFake:true};
+  } else {
+    EM.freePl.splice(EM.freePl.indexOf(col),1);
+    EM.plSlots[col]={id:'fake_'+Date.now(),text:fake.pl,filled:true,isFake:true};
+  }
+
+  const ttl=nmRandInt(10,15)*1000;
+  NM.fakeCards.push({
+    slotId:side==='nl'?EM.nlSlots[col].id:EM.plSlots[col].id,
+    side, col, born:Date.now(), ttl, item:fake
+  });
+  emRender();
+
+  // Timer individual per fake card
+  setTimeout(()=>nmRemoveFake(col,side),ttl);
+}
+
+function nmRemoveFake(col,side){
+  // Animație fade pe cardul fake
+  const el=document.querySelector(`#endless-grid .pc[data-side="${side}"][data-idx="${col}"]`);
+  if(el){el.style.transition='opacity .5s';el.style.opacity='0';}
+  setTimeout(()=>{
+    if(side==='nl'){
+      if(EM.nlSlots[col]?.isFake){
+        EM.nlSlots[col]={filled:false};
+        EM.freeNl.push(col);
+      }
+    } else {
+      if(EM.plSlots[col]?.isFake){
+        EM.plSlots[col]={filled:false};
+        EM.freePl.push(col);
+      }
+    }
+    NM.fakeCards=NM.fakeCards.filter(f=>!(f.col===col&&f.side===side));
+    emRender();
+    // Injectăm un fake nou pe altă coloană
+    setTimeout(()=>nmInjectFake(EM.pool),nmRandInt(2000,5000));
+  },500);
+}
+
+// Advance hidden queue — apelat după fiecare match
+function nmAdvance(){
+  const cfg=nmCfg();
+  // Decrementăm delay-urile
+  NM.hiddenQueue.forEach(e=>e.delay--);
+  const ready=NM.hiddenQueue.filter(e=>e.delay<=0);
+  NM.hiddenQueue=NM.hiddenQueue.filter(e=>e.delay>0);
+
+  // Plasăm cardurile gata
+  ready.forEach(e=>{
+    EM.queue.push(e.card);
+  });
+
+  // Reshuffle pozițional validat la fiecare N match-uri
+  if(cfg.reshuffleEvery>0 && NM.matchCount%cfg.reshuffleEvery===0 && NM.matchCount>0){
+    nmReshuffle();
+  }
+
+  // Replenish orfani
+  while(NM.hiddenQueue.filter(h=>h.card.side==='pl').length<cfg.orphanCount){
+    const item=nmPickFresh();
+    const delay=nmRandInt(cfg.minDelay,cfg.maxDelay);
+    EM.queue.push({item,side:'nl'});
+    NM.hiddenQueue.push({delay,card:{item,side:'pl'}});
+    NM.usedIds.add(String(item.id));
+  }
+
+  emFlush();
+  emRender();
+}
+
+// Reshuffle cu validare anti-conflict
+function nmReshuffle(){
+  const nlFilled=EM.nlSlots.map((s,i)=>s&&s.filled?i:-1).filter(i=>i>=0);
+  const plFilled=EM.plSlots.map((s,i)=>s&&s.filled?i:-1).filter(i=>i>=0);
+  shuf(nlFilled); shuf(plFilled);
+
+  // Swap slots NL
+  const newNl=Array.from({length:6},()=>({filled:false}));
+  const newNlMap={};
+  nlFilled.forEach((oldIdx,newIdx)=>{
+    const slot=EM.nlSlots[oldIdx];
+    const targetRow=newIdx%6;
+    newNl[targetRow]=slot;
+    if(slot.id)newNlMap[slot.id]=targetRow;
+  });
+
+  // Validare: NL.X și PL.X nu pe același rând
+  let attempts=0;
+  while(attempts<20){
+    let conflict=false;
+    for(const id of Object.keys(newNlMap)){
+      const nlRow=newNlMap[id];
+      const plRow=EM.plMap[id];
+      if(plRow!==undefined&&nlRow===plRow){conflict=true;break;}
+    }
+    if(!conflict)break;
+    // Swap două NL random
+    const a=Math.floor(Math.random()*nlFilled.length);
+    const b=Math.floor(Math.random()*nlFilled.length);
+    if(a!==b){
+      [nlFilled[a],nlFilled[b]]=[nlFilled[b],nlFilled[a]];
+      nlFilled.forEach((oldIdx,newIdx)=>{
+        const slot=EM.nlSlots[oldIdx];
+        const targetRow=newIdx%6;
+        newNl[targetRow]=slot;
+        if(slot.id)newNlMap[slot.id]=targetRow;
+      });
+    }
+    attempts++;
+  }
+
+  EM.nlSlots=newNl;
+  EM.nlMap=newNlMap;
+  EM.freeNl=[];
+  newNl.forEach((s,i)=>{if(!s||!s.filled)EM.freeNl.push(i);});
+}
+
+// Inițializare Nightmare la startEndless
+function nmInit(pool){
+  const cfg=nmCfg();
+  NM.hiddenQueue=[];
+  NM.fakeCards=[];
+  NM.usedIds=new Set();
+  NM.matchCount=0;
+  NM.lastFakeCol=-1;
+  if(NM.fakeTmr)clearInterval(NM.fakeTmr);
+
+  if(NM.mode==='normal')return; // Normal mode folosește logica existentă
+
+  // Construim orfanii cu delay
+  for(let i=0;i<cfg.orphanCount;i++){
+    const item=nmPickFresh();
+    const delay=nmRandInt(cfg.minDelay,cfg.maxDelay);
+    EM.queue.push({item,side:'nl'});
+    NM.hiddenQueue.push({delay,card:{item,side:'pl'}});
+  }
+
+  // Primele fake cards după 3-6 secunde
+  setTimeout(()=>nmInjectFake(pool),nmRandInt(3000,6000));
 }
 
 
