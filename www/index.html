@@ -149,6 +149,22 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
 .fz-actions{display:none;gap:6px;margin-top:10px;flex-wrap:wrap}
 .fz-actions.show{display:flex}
 
+/* CUSTOM KEYBOARD */
+.ck-wrap{width:100%;margin-top:4px}
+.ck-row{display:flex;justify-content:center;gap:5px;margin-bottom:5px}
+.ck-key{background:var(--bg4);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:15px;font-weight:600;padding:0;height:42px;min-width:32px;flex:1;max-width:38px;cursor:pointer;transition:background .1s,transform .08s;display:flex;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none}
+.ck-key:active{background:var(--gold-dim);border-color:var(--gold);transform:scale(.92)}
+.ck-key.wide{min-width:52px;max-width:64px;font-size:12px}
+.ck-key.space{min-width:140px;max-width:200px;flex:3}
+.ck-key.special{background:var(--bg3);font-size:13px}
+.ck-key.special.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold)}
+.ck-special-key{background:var(--bg4);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:15px;font-weight:600;height:42px;min-width:32px;flex:1;max-width:38px;cursor:pointer;display:flex;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none;transition:background .1s,transform .08s}
+.ck-special-key:active{background:var(--gold-dim);border-color:var(--gold);transform:scale(.92)}
+.ck-display{width:100%;background:var(--bg4);border:2px solid var(--border2);border-radius:var(--r3);color:var(--text);padding:12px 16px;font-size:20px;text-align:center;min-height:52px;letter-spacing:1px;font-family:'DM Sans',sans-serif;transition:border-color .2s,box-shadow .2s;word-break:break-all}
+.ck-display.correct{border-color:var(--green);background:rgba(34,197,94,.08)}
+.ck-display.wrong{border-color:var(--red);background:rgba(239,68,68,.08)}
+.ck-display:empty::before{content:'…';opacity:.3}
+
 /* WRITE MODE */
 .mode-toggle{display:flex;border:1px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:0}
 .mode-btn{padding:9px 14px;font-size:12px;font-weight:700;border:none;background:transparent;color:var(--text3);cursor:pointer;transition:all .2s;flex:1}
@@ -633,12 +649,35 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
       <div class="fc-lang" id="write-lang" style="color:var(--blue)">🇳🇱 Niderlandzki</div>
       <div class="write-question" id="write-question">—</div>
       <div class="write-sub" id="write-sub">Wpisz tłumaczenie</div>
-      <input class="write-input" id="write-input" type="text" placeholder="…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="writeOnInput()" onkeydown="writeOnKey(event)">
+      <div class="ck-display" id="ck-display"></div>
       <div class="write-feedback" id="write-feedback"></div>
       <div class="write-correct-ans" id="write-correct-ans"></div>
       <div class="la" id="write-actions" style="display:none;margin-top:0;width:100%">
         <button class="lb br" onclick="writeNext(false)" style="flex:1">✗ Nie znam</button>
         <button class="lb bg2" onclick="writeNext(true)" style="flex:1">→ Dalej</button>
+      </div>
+      <!-- CUSTOM KEYBOARD -->
+      <div class="ck-wrap" id="ck-wrap">
+        <div class="ck-row">
+          <div class="ck-key" onclick="ckKey('q')">q</div><div class="ck-key" onclick="ckKey('w')">w</div><div class="ck-key" onclick="ckKey('e')">e</div><div class="ck-key" onclick="ckKey('r')">r</div><div class="ck-key" onclick="ckKey('t')">t</div><div class="ck-key" onclick="ckKey('y')">y</div><div class="ck-key" onclick="ckKey('u')">u</div><div class="ck-key" onclick="ckKey('i')">i</div><div class="ck-key" onclick="ckKey('o')">o</div><div class="ck-key" onclick="ckKey('p')">p</div>
+        </div>
+        <div class="ck-row">
+          <div class="ck-key" onclick="ckKey('a')">a</div><div class="ck-key" onclick="ckKey('s')">s</div><div class="ck-key" onclick="ckKey('d')">d</div><div class="ck-key" onclick="ckKey('f')">f</div><div class="ck-key" onclick="ckKey('g')">g</div><div class="ck-key" onclick="ckKey('h')">h</div><div class="ck-key" onclick="ckKey('j')">j</div><div class="ck-key" onclick="ckKey('k')">k</div><div class="ck-key" onclick="ckKey('l')">l</div>
+        </div>
+        <div class="ck-row">
+          <div class="ck-key" onclick="ckKey('z')">z</div><div class="ck-key" onclick="ckKey('x')">x</div><div class="ck-key" onclick="ckKey('c')">c</div><div class="ck-key" onclick="ckKey('v')">v</div><div class="ck-key" onclick="ckKey('b')">b</div><div class="ck-key" onclick="ckKey('n')">n</div><div class="ck-key" onclick="ckKey('m')">m</div><div class="ck-key wide special" onclick="ckBackspace()">⌫</div>
+        </div>
+        <!-- Special chars page -->
+        <div id="ck-special-page" style="display:none;flex-wrap:wrap;gap:6px;justify-content:center;padding:6px 0">
+          <div id="ck-special-grid" style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;width:100%"></div>
+        </div>
+        <div class="ck-row">
+          <div class="ck-key wide special" onclick="ckToggleSpecial()" id="ck-special-btn" style="min-width:44px;max-width:52px;font-size:13px">★</div>
+          <div class="ck-key" onclick="ckKey('-')" style="min-width:28px;max-width:36px">-</div>
+          <div class="ck-key space" onclick="ckKey(' ')">spacja</div>
+          <div class="ck-key" onclick="ckKey('.')" style="min-width:28px;max-width:36px">.</div>
+          <div class="ck-key wide special" onclick="ckSubmit()" style="min-width:44px;max-width:52px">✓</div>
+        </div>
       </div>
     </div>
     <div class="la" id="ses-front"><button class="lb bs" onclick="sesSkip()" style="background:var(--bg4);color:var(--text2)">→ Pomiń</button></div>
@@ -2555,6 +2594,67 @@ function _fuzzyMatch(input,answer){
   if(_levenshtein(a,b)<=maxDist)return 'typo';
   return 'wrong';
 }
+// ── CUSTOM KEYBOARD ──────────────────────────────────────────────
+let _ckValue='';
+let _ckLocked=false;
+
+const CK_SPECIAL={
+  'nl-NL':['ij','IJ','é','è','ë','ê','ï','ö','ü','ó','á'],
+  'pl-PL':['ą','ę','ó','ś','ł','ż','ź','ć','ń','Ą','Ę','Ó','Ś','Ł','Ż','Ź','Ć','Ń'],
+};
+
+function ckSetLang(lang){
+  const grid=document.getElementById('ck-special-grid');
+  if(!grid)return;
+  const chars=CK_SPECIAL[lang]||[];
+  grid.innerHTML=chars.map(c=>`<div class="ck-special-key" onclick="ckSpecialKey('${c}')">${c}</div>`).join('');
+  // Ascundem pagina specialelor la schimbarea limbii
+  document.getElementById('ck-special-page').style.display='none';
+  const btn=document.getElementById('ck-special-btn');
+  if(btn)btn.classList.remove('active');
+}
+
+function ckToggleSpecial(){
+  const page=document.getElementById('ck-special-page');
+  const btn=document.getElementById('ck-special-btn');
+  if(!page)return;
+  const isOpen=page.style.display!=='none';
+  page.style.display=isOpen?'none':'flex';
+  if(btn)btn.classList.toggle('active',!isOpen);
+}
+
+function ckSpecialKey(ch){
+  ckKey(ch);
+  // Închidem pagina specialelor după selecție
+  const page=document.getElementById('ck-special-page');
+  const btn=document.getElementById('ck-special-btn');
+  if(page)page.style.display='none';
+  if(btn)btn.classList.remove('active');
+}
+
+function ckKey(ch){
+  if(_ckLocked)return;
+  _ckValue+=ch;
+  _ckRefresh();
+  if(_normAnswer(_ckValue)===_normAnswer(SES.writeAnswer))_writeSubmit();
+}
+
+function ckBackspace(){
+  if(_ckLocked)return;
+  _ckValue=_ckValue.slice(0,-1);
+  _ckRefresh();
+}
+
+function ckSubmit(){
+  if(_ckLocked)return;
+  if(_ckValue.trim())_writeSubmit();
+}
+
+function _ckRefresh(){
+  const el=document.getElementById('ck-display');
+  if(el)el.textContent=_ckValue;
+}
+
 function renderWriteCard(){
   const q=SES.isRetry?SES.retryQueue:SES.queue;
   const it=q[SES.idx];if(!it)return;
@@ -2564,57 +2664,51 @@ function renderWriteCard(){
   document.getElementById('write-lang').style.color=showNl?'var(--blue)':'#f59e0b';
   document.getElementById('write-question').textContent=showNl?it.nl:it.pl;
   document.getElementById('write-sub').textContent=showNl?'Wpisz po polsku':'Wpisz po niderlandzku';
-  const inp=document.getElementById('write-input');
-  inp.value='';inp.className='write-input';inp.disabled=false;
+  _ckValue='';_ckLocked=false;_ckRefresh();
+  const disp=document.getElementById('ck-display');
+  if(disp)disp.className='ck-display';
   document.getElementById('write-feedback').textContent='';
   document.getElementById('write-correct-ans').textContent='';
   document.getElementById('write-actions').style.display='none';
   SES.writeAnswer=showNl?it.pl:it.nl;
   SES.writeAnswerAlt=showNl?it.nl:it.pl;
-  setTimeout(()=>inp.focus(),100);
+  // Limba în care utilizatorul scrie = limba răspunsului
+  SES.writeLang=showNl?'pl-PL':'nl-NL';
+  ckSetLang(SES.writeLang);
 }
-function writeOnInput(){
-  const inp=document.getElementById('write-input');
-  if(inp.disabled)return;
-  if(_normAnswer(inp.value)===_normAnswer(SES.writeAnswer))_writeSubmit();
-}
-function writeOnKey(e){
-  if(e.key==='Enter'){
-    const inp=document.getElementById('write-input');
-    if(inp.disabled){writeNext(true);return;}
-    if(inp.value.trim())_writeSubmit();
-  }
-}
+
 function _writeSubmit(){
-  const inp=document.getElementById('write-input');
-  if(inp.disabled)return;
-  inp.disabled=true;
-  const val=inp.value.trim();
+  if(_ckLocked)return;
+  _ckLocked=true;
+  const val=_ckValue.trim();
   const match=_fuzzyMatch(val,SES.writeAnswer);
+  const disp=document.getElementById('ck-display');
   const fb=document.getElementById('write-feedback');
   const ca=document.getElementById('write-correct-ans');
   const acts=document.getElementById('write-actions');
   if(match==='exact'){
-    inp.classList.add('correct');
+    if(disp)disp.className='ck-display correct';
     fb.innerHTML='<span style="color:var(--green);font-size:20px">✓ Dobrze!</span>';
     ca.textContent='';
     acts.style.display='flex';
     acts.innerHTML='<button class="lb bg2" onclick="writeNext(true)" style="flex:1">→ Dalej</button>';
   } else if(match==='typo'){
-    inp.classList.add('correct');
+    if(disp)disp.className='ck-display correct';
     fb.innerHTML='<span style="color:var(--green)">✓ Prawie! (literówka)</span>';
     ca.innerHTML=`<span style="color:var(--text2)">Poprawnie: </span><strong style="color:var(--green)">${esc(SES.writeAnswer)}</strong>`;
-    speak(SES.writeAnswerAlt, SES.dir==='nl'?'pl-PL':'nl-NL');
+    speak(SES.writeAnswer,SES.writeLang);
     acts.style.display='flex';
     acts.innerHTML='<button class="lb bg2" onclick="writeNext(true)" style="flex:1">→ Dalej</button>';
   } else {
-    inp.classList.add('wrong');
+    if(disp)disp.className='ck-display wrong';
     fb.innerHTML='<span style="color:var(--red)">✗ Błędna odpowiedź</span>';
     ca.innerHTML=`<span style="color:var(--text2)">Poprawnie: </span><strong style="color:var(--gold)">${esc(SES.writeAnswer)}</strong>`;
-    speak(SES.writeAnswer, SES.dir==='nl'?'pl-PL':'nl-NL');
+    speak(SES.writeAnswer,SES.writeLang);
     acts.style.display='flex';
+    acts.innerHTML='<button class="lb br" onclick="writeNext(false)" style="flex:1">✗ Nie znam</button><button class="lb bg2" onclick="writeNext(true)" style="flex:1">→ Dalej</button>';
   }
 }
+
 function writeNext(correct){
   const q=SES.isRetry?SES.retryQueue:SES.queue;
   const it=q[SES.idx];
