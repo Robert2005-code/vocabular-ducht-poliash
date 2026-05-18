@@ -665,7 +665,17 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
           <div class="ck-key" onclick="ckKey('a')">a</div><div class="ck-key" onclick="ckKey('s')">s</div><div class="ck-key" onclick="ckKey('d')">d</div><div class="ck-key" onclick="ckKey('f')">f</div><div class="ck-key" onclick="ckKey('g')">g</div><div class="ck-key" onclick="ckKey('h')">h</div><div class="ck-key" onclick="ckKey('j')">j</div><div class="ck-key" onclick="ckKey('k')">k</div><div class="ck-key" onclick="ckKey('l')">l</div>
         </div>
         <div class="ck-row">
-          <div class="ck-key" onclick="ckKey('z')">z</div><div class="ck-key" onclick="ckKey('x')">x</div><div class="ck-key" onclick="ckKey('c')">c</div><div class="ck-key" onclick="ckKey('v')">v</div><div class="ck-key" onclick="ckKey('b')">b</div><div class="ck-key" onclick="ckKey('n')">n</div><div class="ck-key" onclick="ckKey('m')">m</div><div class="ck-key wide special" onclick="ckBackspace()">⌫</div>
+          <div class="ck-key" onclick="ckKey('z')">z</div><div class="ck-key" onclick="ckKey('x')">x</div><div class="ck-key" onclick="ckKey('c')">c</div><div class="ck-key" onclick="ckKey('v')">v</div><div class="ck-key" onclick="ckKey('b')">b</div><div class="ck-key" onclick="ckKey('n')">n</div><div class="ck-key" onclick="ckKey('m')">m</div>
+        </div>
+        <!-- Symbols row -->
+        <div class="ck-row">
+          <div class="ck-key" onclick="ckKey('+')">+</div>
+          <div class="ck-key" onclick="ckKey('-')">-</div>
+          <div class="ck-key" onclick="ckKey('&')">&amp;</div>
+          <div class="ck-key" onclick="ckKey('!')">!</div>
+          <div class="ck-key" onclick="ckKey('?')">?</div>
+          <div class="ck-key" onclick="ckKey('.')">.</div>
+          <div class="ck-key wide special" onclick="ckBackspace()">⌫</div>
         </div>
         <!-- Special chars page -->
         <div id="ck-special-page" style="display:none;flex-wrap:wrap;gap:6px;justify-content:center;padding:6px 0">
@@ -673,9 +683,7 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
         </div>
         <div class="ck-row">
           <div class="ck-key wide special" onclick="ckToggleSpecial()" id="ck-special-btn" style="min-width:44px;max-width:52px;font-size:13px">★</div>
-          <div class="ck-key" onclick="ckKey('-')" style="min-width:28px;max-width:36px">-</div>
           <div class="ck-key space" onclick="ckKey(' ')">spacja</div>
-          <div class="ck-key" onclick="ckKey('.')" style="min-width:28px;max-width:36px">.</div>
           <div class="ck-key wide special" onclick="ckSubmit()" style="min-width:44px;max-width:52px">✓</div>
         </div>
       </div>
