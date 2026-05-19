@@ -1959,7 +1959,19 @@ function rWL(append=false){
     const idStr=String(it.id);
     const irregularBadge=it.irregular?`<span class="type-badge" style="background:#f9731622;color:#f97316">⚡ niereg.</span>`:it.voltooid?`<span class="type-badge" style="background:#22c55e22;color:#22c55e">✅ reg.</span>`:'';
     const hzDisplay=it.hebben_zijn?({'hebben':'Hebben','zijn':'Zijn','hebben/zijn':'Hebben/Zijn'}[it.hebben_zijn.toLowerCase()]||it.hebben_zijn):'';
-    const voltooideInfo=(it.voltooid)?`<div style="font-size:10px;color:${it.irregular?'var(--orange)':'var(--green)'};margin-top:2px">▶ ${esc(it.voltooid)}${hzDisplay?' · '+esc(hzDisplay):''}</div>`:'';
+    // Regulate: afișăm rădăcina+sufix (werk+t). Neregulate: afișăm hebben/zijn
+    let voltooideInfo='';
+    if(it.voltooid){
+      if(it.irregular){
+        // Neregulat: voltooid · Hebben/Zijn
+        voltooideInfo=`<div style="font-size:10px;color:var(--orange);margin-top:2px">▶ ${esc(it.voltooid)}${hzDisplay?' · '+esc(hzDisplay):''}</div>`;
+      } else {
+        // Regulat: voltooid · rădăcină+sufix
+        const bd=getVoltooideBreakdown(it.nl);
+        const breakdownStr=bd?`${esc(bd.root)}+${bd.suffix}`:'';
+        voltooideInfo=`<div style="font-size:10px;color:var(--green);margin-top:2px">▶ ${esc(it.voltooid)}${breakdownStr?' · '+breakdownStr:''}</div>`;
+      }
+    }
     div.innerHTML=`<div style="flex:1;min-width:0;cursor:pointer" onclick="openEditItem('${idStr}')"><div style="font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">${nlHtml}<span class="type-badge ${it.type==='phrase'?'tp2':'tw'}">${it.type==='phrase'?'fraza':'słowo'}</span>${irregularBadge}</div><div style="color:var(--text2);font-size:12px;margin-top:2px">${plHtml}</div>${voltooideInfo}${cat?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${cat.icon} ${cat.name}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px"><span class="tag" style="background:${LC[l]}22;color:${LC[l]}">poz.${l}</span>${isDue(it)?'<span class="tag tg" style="font-size:9px">nauka</span>':''}<div style="display:flex;gap:4px;margin-top:2px"><button onclick="event.stopPropagation();speak('${escJ(it.nl)}','nl-NL')" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🔊</button><button onclick="openMoveModal('${idStr}')" style="background:var(--blue-dim);border:1px solid var(--blue)44;color:var(--blue);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">↗</button><button onclick="delItem('${idStr}')" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🗑</button></div></div>`;
     frag.appendChild(div);
   });
@@ -2533,6 +2545,49 @@ function computeVoltooid(nl){
   const suffix=(['t','k','f','s','p','x'].includes(lastOriginal)||isCh)?'t':'d';
   const final=root.endsWith(suffix)?root:root+suffix;
   return prefix?`${prefix}ge${final}`:`ge${final}`;
+}
+
+// Returnează {root, suffix} pentru afișare: werk+t, woon+d
+function getVoltooideBreakdown(nl){
+  const vowels=new Set(['a','e','i','o','u']);
+  const consonants=new Set(['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','y','z']);
+  let verb=nl.trim().toLowerCase();
+  ['de ','het ','een '].forEach(art=>{if(verb.startsWith(art))verb=verb.slice(art.length);});
+  const prefixesSep=['aan','af','bij','door','in','mee','na','om','op','out','over','samen','tegen','terug','toe','uit','weg'];
+  let stem=verb,prefix='';
+  for(const p of prefixesSep){
+    if(verb.startsWith(p)&&verb.length>p.length+1){
+      const rest=verb.slice(p.length);
+      if(!rest.startsWith(' ')&&rest.length>1){stem=rest;prefix=p;break;}
+    }
+  }
+  let root=stem;
+  if(root.endsWith('en'))root=root.slice(0,-2);
+  else if(root.endsWith('n'))root=root.slice(0,-1);
+  if(!root||root.length<1)return null;
+  // Marcăm dacă consoana dublă a fost eliminată (zetten→zet, pakken→pak)
+  let doubledConsonantRemoved=false;
+  if(root.length>=2&&root[root.length-1]===root[root.length-2]&&consonants.has(root[root.length-1])){
+    root=root.slice(0,-1);
+    doubledConsonantRemoved=true;
+  } else if(root.length>=3){
+    const last=root[root.length-1],vowel=root[root.length-2],before=root[root.length-3];
+    if(consonants.has(last)&&vowels.has(vowel)&&consonants.has(before)){
+      const alreadyLong=root.length>=4&&root[root.length-4]===vowel;
+      const tooLong=root.length>5;
+      if(!alreadyLong&&!tooLong)root=root.slice(0,-2)+vowel+vowel+last;
+    }
+  }
+  const lastOriginal=root[root.length-1];
+  if(root.endsWith('z'))root=root.slice(0,-1)+'s';
+  else if(root.endsWith('v'))root=root.slice(0,-1)+'f';
+  const isCh=root.length>=2&&root.slice(-2)==='ch';
+  const suffix=(['t','k','f','s','p','x'].includes(lastOriginal)||isCh)?'t':'d';
+  // Dacă rădăcina se termină cu sufixul DAR nu din cauza consoanei duble → ∅ (wacht, praat)
+  // Dacă consoana dublă a fost eliminată (zet din zetten) → arătăm sufixul normal
+  const alreadyHasSuffix=!doubledConsonantRemoved&&root.endsWith(suffix);
+  const displayRoot=prefix?prefix+root:root;
+  return{root:displayRoot,suffix:alreadyHasSuffix?'∅':suffix};
 }
 
 // ════════════════════════════════════════════════════════════════
