@@ -580,6 +580,7 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
     <div class="ft" onclick="wlF('het',this)">het …</div>
     <div class="ft" onclick="wlF('de',this)">de …</div>
     <div class="ft" onclick="wlF('irregular',this)">⚡ Nieregularne</div>
+    <div class="ft" onclick="wlF('regular',this)">✅ Regularne</div>
   </div>
   <div style="display:flex;gap:8px;margin-bottom:6px">
     <select id="wl-cat-filter" style="flex:1;padding:8px 10px;font-size:12px" onchange="onWlCatChange()"><option value="">Wszystkie kategorie</option></select>
@@ -673,7 +674,7 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
       </div>
       <div class="ss-row">
         <div><div class="ss-label">Typ</div></div>
-        <select id="ses-type" style="width:auto;padding:7px 10px" onchange="updateSesAvail()"><option value="all">Słowa + Frazy</option><option value="word">Tylko słowa</option><option value="phrase">Tylko frazy</option></select>
+        <select id="ses-type" style="width:auto;padding:7px 10px" onchange="updateSesAvail()"><option value="all">Słowa + Frazy</option><option value="word">Tylko słowa</option><option value="phrase">Tylko frazy</option><option value="irregular">⚡ Nieregularne</option><option value="regular">✅ Regularne</option></select>
       </div>
       <div class="ss-row" style="border:none">
         <div><div class="ss-label">Kategoria</div></div>
@@ -1047,6 +1048,11 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
     <button class="btn bs" onclick="document.getElementById('imp-inp').click()" style="border-color:#4a9eff44;color:var(--blue)">📥 Importuj słownik (JSON)</button>
     <input type="file" id="imp-inp" accept=".json,application/json" style="display:none" onchange="importJSON(this.files[0]);this.value=''">
     <div style="height:1px;background:var(--border);margin:8px 0"></div>
+    <div style="height:1px;background:var(--border);margin:8px 0"></div>
+    <button onclick="aiAnalyzeVerbs()" class="btn" style="margin-bottom:6px;background:linear-gradient(135deg,#1e1260,#0d0c20);border:1px solid #3b2fa0;color:var(--purple)">🤖 Analizuj czasowniki z AI</button>
+    <div style="font-size:10px;color:var(--text3);margin-bottom:8px">AI wykryje które słowa są czasownikami, czy nieregularne, i doda voltooid + hebben/zijn</div>
+    <div id="ai-verb-status" style="font-size:12px;text-align:center;color:var(--text3);margin-bottom:8px;display:none"></div>
+    <div style="height:1px;background:var(--border);margin:8px 0"></div>
     <button onclick="if(confirm('Usunąć WSZYSTKIE dane?'))clrAll()" class="btn br" style="margin-bottom:0">🗑 Usuń wszystkie dane</button>
   </div>
   <div style="text-align:center;padding:18px 0 6px;color:var(--text3);font-size:11px;letter-spacing:0.5px">
@@ -1140,7 +1146,41 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
     <label class="edit-label">Kategoria</label>
     <select id="edit-cat" style="margin-bottom:4px" onchange="populateEditSub()"></select>
     <label class="edit-label">Podkategoria (opcjonalnie)</label>
-    <select id="edit-sub" style="margin-bottom:14px"></select>
+    <select id="edit-sub" style="margin-bottom:10px"></select>
+    <!-- SEKCJA CZASOWNIK — ukryta domyślnie -->
+    <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;cursor:pointer">
+      <input type="checkbox" id="edit-is-verb" onchange="onEditIsVerbChange()" style="accent-color:var(--orange);width:16px;height:16px">
+      <span style="font-size:13px;font-weight:600;color:var(--text2)">⚡ To jest czasownik</span>
+    </label>
+    <div id="edit-verb-section" style="display:none;background:var(--bg4);border:1px solid var(--border2);border-radius:var(--r2);padding:10px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+          <input type="checkbox" id="edit-irregular" onchange="onEditIrregularChange()" style="accent-color:var(--orange)">
+          <span style="color:var(--text2)">nieregularny</span>
+        </label>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <div style="flex:1">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:3px">Voltooid deelwoord</div>
+          <div style="display:flex;gap:5px">
+            <input type="text" id="edit-voltooid" placeholder="np. gewerkt" style="flex:1;font-size:13px;padding:7px 10px">
+            <button onclick="calcVoltooid()" id="btn-calc-voltooid" title="Oblicz automatycznie" style="background:var(--orange-dim);border:1px solid var(--orange);color:var(--orange);border-radius:var(--r3);padding:7px 10px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">⚙ Oblicz</button>
+          </div>
+        </div>
+        <div style="flex:0 0 auto">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:3px">Hebben / Zijn</div>
+          <div style="display:flex;gap:5px">
+            <select id="edit-hebben-zijn" style="padding:7px 10px;font-size:13px">
+              <option value="Hebben">Hebben</option>
+              <option value="Zijn">Zijn</option>
+              <option value="Hebben/Zijn">Hebben/Zijn</option>
+            </select>
+            <button onclick="calcHebbenZijn()" id="btn-calc-hz" title="Oblicz hebben/zijn automatycznie" style="background:var(--green-dim);border:1px solid var(--green);color:var(--green);border-radius:var(--r3);padding:7px 10px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">⚙</button>
+          </div>
+        </div>
+      </div>
+      <div id="calc-result-hint" style="font-size:11px;color:var(--text3);min-height:16px"></div>
+    </div>
     <div style="display:flex;gap:8px">
       <button class="btn bp" style="margin:0;flex:1" onclick="saveItem()">💾 Zapisz</button>
       <button class="btn bs" style="margin:0" onclick="closeModal('modal-item')">Anuluj</button>
@@ -1470,7 +1510,11 @@ function save(){try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){toast('
 function saveLK(){try{localStorage.setItem(LK,JSON.stringify(LS));}catch(e){console.warn('saveLK failed:',e);}}
 function load(){
   if(DEFAULT_KEY&&DEFAULT_KEY!=='WPROWADZ_NOWY_KLUCZ_API'&&!localStorage.getItem(KK))localStorage.setItem(KK,DEFAULT_KEY);
-  try{const d=localStorage.getItem(SK);if(d){const p=JSON.parse(d);if(p.items)S.items=p.items;if(p.categories)S.categories=p.categories;}}catch(e){console.error('load() parse error:',e);}
+  try{const d=localStorage.getItem(SK);if(d){const p=JSON.parse(d);if(p.items){S.items=p.items;
+    // Normalizăm hebben_zijn lowercase → Capitalize
+    const hzMap={'hebben':'Hebben','zijn':'Zijn','hebben/zijn':'Hebben/Zijn'};
+    S.items.forEach(it=>{if(it.hebben_zijn&&it.hebben_zijn[0]===it.hebben_zijn[0].toLowerCase())it.hebben_zijn=hzMap[it.hebben_zijn.toLowerCase()]||it.hebben_zijn;});
+  }if(p.categories)S.categories=p.categories;}}catch(e){console.error('load() parse error:',e);}
   // Garantează că 'inne' există întotdeauna
   if(!S.categories.find(c=>c.id==='inne'))S.categories.push({id:'inne',name:'Inne',icon:'📦',subs:[]});
   try{const d=localStorage.getItem(LK);if(d){const p=JSON.parse(d);LS={...LS,...p};}}catch(e){}
@@ -1655,6 +1699,11 @@ function importJSON(file){
       // Fix categoryId case sensitivity (e.g. 'Inne' -> 'inne')
       if(d.items)d.items.forEach(it=>{
         if(it.categoryId)it.categoryId=it.categoryId.toLowerCase()==='inne'?'inne':it.categoryId;
+        // Fix hebben_zijn lowercase → Capitalize
+        if(it.hebben_zijn){
+          const hzMap={'hebben':'Hebben','zijn':'Zijn','hebben/zijn':'Hebben/Zijn'};
+          it.hebben_zijn=hzMap[it.hebben_zijn.toLowerCase()]||it.hebben_zijn;
+        }
       });
       // Fix orphan categoryIds — reassign to 'inne' if category missing
       const knownCatIds=new Set(S.categories.map(c=>c.id));
@@ -1891,6 +1940,7 @@ function rWL(append=false){
   else if(WLF==='het')items=items.filter(i=>/^het\s/i.test(i.nl));
   else if(WLF==='de')items=items.filter(i=>/^de\s/i.test(i.nl));
   else if(WLF==='irregular')items=items.filter(i=>i.irregular);
+  else if(WLF==='regular')items=items.filter(i=>i.voltooid&&!i.irregular);
   if(catFilter)items=items.filter(i=>i.categoryId===catFilter);
   if(subFilter)items=items.filter(i=>i.subcategoryId===subFilter);
   if(WL_SEARCH){const q=WL_SEARCH.toLowerCase();items=items.filter(i=>i.nl.toLowerCase().includes(q)||i.pl.toLowerCase().includes(q));}
@@ -1907,8 +1957,9 @@ function rWL(append=false){
     let nlHtml=esc(it.nl),plHtml=esc(it.pl);
     if(re_esc_pat){nlHtml=nlHtml.replace(re_esc_pat,'<mark style="background:#e8a83844;color:var(--gold);border-radius:3px">$1</mark>');plHtml=plHtml.replace(re_esc_pat,'<mark style="background:#e8a83844;color:var(--gold);border-radius:3px">$1</mark>');}
     const idStr=String(it.id);
-    const irregularBadge=it.irregular?`<span class="type-badge" style="background:#f9731622;color:#f97316">⚡ niereg.</span>`:'';
-    const voltooideInfo=it.irregular&&it.voltooid?`<div style="font-size:10px;color:var(--orange);margin-top:2px">▶ ${esc(it.voltooid)}${it.hebben_zijn?' · '+esc(it.hebben_zijn):''}</div>`:'';
+    const irregularBadge=it.irregular?`<span class="type-badge" style="background:#f9731622;color:#f97316">⚡ niereg.</span>`:it.voltooid?`<span class="type-badge" style="background:#22c55e22;color:#22c55e">✅ reg.</span>`:'';
+    const hzDisplay=it.hebben_zijn?({'hebben':'Hebben','zijn':'Zijn','hebben/zijn':'Hebben/Zijn'}[it.hebben_zijn.toLowerCase()]||it.hebben_zijn):'';
+    const voltooideInfo=(it.voltooid)?`<div style="font-size:10px;color:${it.irregular?'var(--orange)':'var(--green)'};margin-top:2px">▶ ${esc(it.voltooid)}${hzDisplay?' · '+esc(hzDisplay):''}</div>`:'';
     div.innerHTML=`<div style="flex:1;min-width:0;cursor:pointer" onclick="openEditItem('${idStr}')"><div style="font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">${nlHtml}<span class="type-badge ${it.type==='phrase'?'tp2':'tw'}">${it.type==='phrase'?'fraza':'słowo'}</span>${irregularBadge}</div><div style="color:var(--text2);font-size:12px;margin-top:2px">${plHtml}</div>${voltooideInfo}${cat?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${cat.icon} ${cat.name}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px"><span class="tag" style="background:${LC[l]}22;color:${LC[l]}">poz.${l}</span>${isDue(it)?'<span class="tag tg" style="font-size:9px">nauka</span>':''}<div style="display:flex;gap:4px;margin-top:2px"><button onclick="event.stopPropagation();speak('${escJ(it.nl)}','nl-NL')" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🔊</button><button onclick="openMoveModal('${idStr}')" style="background:var(--blue-dim);border:1px solid var(--blue)44;color:var(--blue);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">↗</button><button onclick="delItem('${idStr}')" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🗑</button></div></div>`;
     frag.appendChild(div);
   });
@@ -1934,7 +1985,17 @@ function setEditType(t){EDIT_TYPE=t;document.getElementById('edit-type-word').cl
 function openAddItem(){
   document.getElementById('modal-item-title').textContent='Dodaj słowo / frazę';
   document.getElementById('edit-id').value='';document.getElementById('edit-nl').value='';document.getElementById('edit-pl').value='';
-  setEditType('word');populateEditCats('inne');openModal('modal-item');
+  setEditType('word');populateEditCats('inne');
+  // Reset verb fields
+  document.getElementById('edit-is-verb').checked=false;
+  document.getElementById('edit-verb-section').style.display='none';
+  document.getElementById('edit-irregular').checked=false;
+  document.getElementById('edit-voltooid').value='';
+  document.getElementById('edit-hebben-zijn').value='Hebben';
+  document.getElementById('calc-result-hint').textContent='';
+  document.getElementById('btn-calc-voltooid').style.display='inline-flex';
+  document.getElementById('btn-calc-hz').style.display='inline-flex';
+  openModal('modal-item');
   setTimeout(()=>document.getElementById('edit-nl').focus(),200);
 }
 function openEditItem(id){
@@ -1943,28 +2004,52 @@ function openEditItem(id){
   document.getElementById('edit-id').value=id;document.getElementById('edit-nl').value=it.nl;document.getElementById('edit-pl').value=it.pl;
   setEditType(it.type||'word');populateEditCats(it.categoryId||'inne');
   if(it.subcategoryId)document.getElementById('edit-sub').value=it.subcategoryId;
+  // Verb fields — afișăm secțiunea doar dacă are voltooid sau e marcat irregular
+  const isVerb=!!(it.voltooid||it.irregular);
+  document.getElementById('edit-is-verb').checked=isVerb;
+  document.getElementById('edit-verb-section').style.display=isVerb?'block':'none';
+  document.getElementById('edit-irregular').checked=it.irregular||false;
+  document.getElementById('edit-voltooid').value=it.voltooid||'';
+  // Fix case: "hebben" → "Hebben", "zijn" → "Zijn"
+  const hzRaw=it.hebben_zijn||'Hebben';
+  const hzMap={'hebben':'Hebben','zijn':'Zijn','hebben/zijn':'Hebben/Zijn'};
+  document.getElementById('edit-hebben-zijn').value=hzMap[hzRaw.toLowerCase()]||hzRaw;
+  document.getElementById('calc-result-hint').textContent='';
+  document.getElementById('btn-calc-voltooid').style.display=it.irregular?'none':'inline-flex';
+  document.getElementById('btn-calc-hz').style.display=it.irregular?'none':'inline-flex';
   openModal('modal-item');setTimeout(()=>document.getElementById('edit-nl').focus(),200);
 }
 function saveItem(){
   const id=document.getElementById('edit-id').value;const nl=document.getElementById('edit-nl').value.trim();const pl=document.getElementById('edit-pl').value.trim();
   const cat=document.getElementById('edit-cat').value;const sub=document.getElementById('edit-sub').value||null;
   if(!nl||!pl){toast('⚠ Wypełnij oba pola!');return;}
+  // Verb fields
+  const isVerb=document.getElementById('edit-is-verb').checked;
+  const voltooid=isVerb?document.getElementById('edit-voltooid').value.trim()||null:null;
+  const hebben_zijn=isVerb?document.getElementById('edit-hebben-zijn').value||'Hebben':null;
+  const irregular=isVerb?document.getElementById('edit-irregular').checked:false;
+  const verbFields=isVerb&&voltooid?{voltooid,hebben_zijn,irregular}:isVerb?{irregular}:{};
   const now=new Date().toISOString();
   if(!id){
-    // Duplicate check: same NL text + same type
     const nk=normKey(nl);
     const dup=S.items.find(ex=>normKey(ex.nl)===nk&&(ex.type||'word')===EDIT_TYPE);
     if(dup){
-      _dupNew={nl,pl,type:EDIT_TYPE,categoryId:cat,subcategoryId:sub||null};
+      _dupNew={nl,pl,type:EDIT_TYPE,categoryId:cat,subcategoryId:sub||null,...verbFields};
       _dupExisting=dup;
       closeModal('modal-item');
       openDupModal();
       return;
     }
-    S.items.push({id:_newId(),nl,pl,type:EDIT_TYPE,categoryId:cat,subcategoryId:sub,level:0,nextReview:now,addedAt:now});
+    S.items.push({id:_newId(),nl,pl,type:EDIT_TYPE,categoryId:cat,subcategoryId:sub,level:0,nextReview:now,addedAt:now,...verbFields});
     toast('✓ Dodano!');
   } else {
-    S.items=S.items.map(i=>String(i.id)===String(id)?{...i,nl,pl,type:EDIT_TYPE,categoryId:cat,subcategoryId:sub}:i);
+    S.items=S.items.map(i=>{
+      if(String(i.id)!==String(id))return i;
+      const updated={...i,nl,pl,type:EDIT_TYPE,categoryId:cat,subcategoryId:sub,...verbFields};
+      // Dacă nu mai e verb, ștergem explicit câmpurile verb
+      if(!isVerb){delete updated.voltooid;delete updated.hebben_zijn;delete updated.irregular;}
+      return updated;
+    });
     toast('✓ Zapisano!');
   }
   save();closeModal('modal-item');WL_PAGE=0;rWL();rHome();
@@ -2318,7 +2403,194 @@ async function aiScan(b64){
 }
 
 // ════════════════════════════════════════════════════════════════
-// SCAN VERBE NEREGULATE
+// CALCULATOR VOLTOOID DEELWOORD (verbe regulate neerlandeze)
+// ════════════════════════════════════════════════════════════════
+function calcVoltooid(){
+  const nl=document.getElementById('edit-nl').value.trim().toLowerCase();
+  const hint=document.getElementById('calc-result-hint');
+  if(!nl){hint.textContent='⚠ Wprowadź najpierw słowo niderlandzkie';hint.style.color='var(--red)';return;}
+  const result=computeVoltooid(nl);
+  if(!result){hint.textContent='⚠ Nie można obliczyć — sprawdź formę bezokolicznika';hint.style.color='var(--red)';return;}
+  document.getElementById('edit-voltooid').value=result;
+  hint.textContent=`✓ Obliczono: ${nl} → ${result}`;
+  hint.style.color='var(--green)';
+}
+function calcHebbenZijn(){
+  const nl=document.getElementById('edit-nl').value.trim().toLowerCase();
+  const hint=document.getElementById('calc-result-hint');
+  if(!nl){hint.textContent='⚠ Wprowadź najpierw słowo niderlandzkie';hint.style.color='var(--red)';return;}
+  // Verbele infinitive (fără articol, fără prefix de frază)
+  // Eliminăm articole dacă există
+  let verb=nl;
+  ['de ','het ','een '].forEach(art=>{if(verb.startsWith(art))verb=verb.slice(art.length);});
+  // Lista de verbe cu ZIJN (mișcare, schimbare de stare, existență)
+  const zijnVerbs=[
+    'gaan','komen','rijden','fietsen','lopen','rennen','vliegen','zwemmen','varen',
+    'reizen','vertrekken','aankomen','arriveren','terugkomen','thuiskomen','weggaan',
+    'binnenkomen','uitgaan','opkomen','neerkomen','omkomen','doorgaan',
+    'worden','zijn','blijven','lijken','schijnen','heten','dunken',
+    'vallen','stijgen','dalen','zakken','groeien','krimpen','smelten','bevriezen',
+    'sterven','overlijden','geboren worden','trouwen','scheiden',
+    'beginnen','stoppen','eindigen','ophouden',
+    'slagen','mislukken','lukken','falen',
+    'verdwijnen','verschijnen','ontstaan','vergaan','verlopen',
+    'instappen','uitstappen','opstaan','gaan zitten','gaan liggen',
+    'vluchten','ontsnappen','vertrekken'
+  ];
+  // Verificăm dacă verbul sau rădăcina lui e în lista Zijn
+  let result='Hebben';
+  if(zijnVerbs.some(z=>verb===z||verb.endsWith(' '+z)||verb.startsWith(z+' '))){
+    result='Zijn';
+  } else {
+    // Verificăm și rădăcina (fără prefix separabil)
+    const prefixesSep=['aan','af','bij','door','in','mee','na','om','op','out','over','samen','tegen','terug','toe','uit','weg'];
+    for(const p of prefixesSep){
+      if(verb.startsWith(p)){
+        const rest=verb.slice(p.length);
+        if(zijnVerbs.includes(rest)){result='Zijn';break;}
+      }
+    }
+  }
+  document.getElementById('edit-hebben-zijn').value=result;
+  hint.textContent=`✓ ${result === 'Zijn' ? '🔵 Zijn — czasownik ruchu/zmiany stanu' : '🟡 Hebben — czasownik standardowy'}`;
+  hint.style.color=result==='Zijn'?'var(--blue)':'var(--gold)';
+}
+function onEditIsVerbChange(){
+  const isVerb=document.getElementById('edit-is-verb').checked;
+  document.getElementById('edit-verb-section').style.display=isVerb?'block':'none';
+  if(!isVerb){
+    document.getElementById('edit-irregular').checked=false;
+    document.getElementById('edit-voltooid').value='';
+    document.getElementById('calc-result-hint').textContent='';
+  }
+}
+function onEditIrregularChange(){
+  const isIrr=document.getElementById('edit-irregular').checked;
+  document.getElementById('btn-calc-voltooid').style.display=isIrr?'none':'inline-flex';
+  document.getElementById('btn-calc-hz').style.display=isIrr?'none':'inline-flex';
+  document.getElementById('calc-result-hint').textContent='';
+}
+
+// ════════════════════════════════════════════════════════════════
+// MIGRARE DATE EXISTENTE — aplică voltooid pe cuvinte deja salvate
+// ════════════════════════════════════════════════════════════════
+function migrateExistingVerbs(){
+  // Găsim toate cuvintele care se termină în -en sau -n și nu au voltooid setat
+  // și care nu sunt neregulate — calculăm automat
+  let migrated=0;
+  S.items.forEach(it=>{
+    if(it.voltooid||it.irregular)return; // deja are sau e neregulat
+    if(it.type!=='word')return; // doar cuvinte
+    const nl=(it.nl||'').toLowerCase().trim();
+    // Verificăm dacă pare verb: se termină în -en sau -n și nu e articol de/het/een
+    if(nl.startsWith('de ')||nl.startsWith('het ')||nl.startsWith('een '))return;
+    if(!nl.endsWith('en')&&!nl.endsWith('n'))return;
+    // Calculăm voltooid
+    const v=computeVoltooid(nl);
+    if(v){it.voltooid=v;it.hebben_zijn='Hebben';migrated++;}
+  });
+  if(migrated>0){save();rWL();toast(`✓ Zaktualizowano ${migrated} słów (voltooid obliczono automatycznie)`);}
+  else{toast('Nie znaleziono słów do aktualizacji');}
+}
+function computeVoltooid(nl){
+  const vowels=new Set(['a','e','i','o','u']);
+  const consonants=new Set(['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','y','z']);
+  let verb=nl.trim().toLowerCase();
+  ['de ','het ','een '].forEach(art=>{if(verb.startsWith(art))verb=verb.slice(art.length);});
+  const prefixesSep=['aan','af','bij','door','in','mee','na','om','op','out','over','samen','tegen','terug','toe','uit','weg'];
+  let stem=verb,prefix='';
+  for(const p of prefixesSep){
+    if(verb.startsWith(p)&&verb.length>p.length+1){
+      const rest=verb.slice(p.length);
+      if(!rest.startsWith(' ')&&rest.length>1){stem=rest;prefix=p;break;}
+    }
+  }
+  // Ik-form
+  let root=stem;
+  if(root.endsWith('en'))root=root.slice(0,-2);
+  else if(root.endsWith('n'))root=root.slice(0,-1);
+  if(!root||root.length<1)return null;
+  // Consoană dublă → una (pakken→pak, zetten→zet, bellen→bel)
+  if(root.length>=2&&root[root.length-1]===root[root.length-2]&&consonants.has(root[root.length-1])){
+    root=root.slice(0,-1);
+  } else if(root.length>=3){
+    // Lungire vocală scurtă: CVC la final, DOAR dacă stem e scurt (≤5 litere)
+    // wandelen(6)/luisteren(7) nu se lungesc; spelen(4)/maken(4)/wonen(3) da
+    const last=root[root.length-1],vowel=root[root.length-2],before=root[root.length-3];
+    if(consonants.has(last)&&vowels.has(vowel)&&consonants.has(before)){
+      const alreadyLong=root.length>=4&&root[root.length-4]===vowel;
+      const tooLong=root.length>5;
+      if(!alreadyLong&&!tooLong)root=root.slice(0,-2)+vowel+vowel+last;
+    }
+  }
+  // Salvăm litera originală pentru 't kofschip
+  const lastOriginal=root[root.length-1];
+  // z→s, v→f
+  if(root.endsWith('z'))root=root.slice(0,-1)+'s';
+  else if(root.endsWith('v'))root=root.slice(0,-1)+'f';
+  // Suffix
+  const isCh=root.length>=2&&root.slice(-2)==='ch';
+  const suffix=(['t','k','f','s','p','x'].includes(lastOriginal)||isCh)?'t':'d';
+  const final=root.endsWith(suffix)?root:root+suffix;
+  return prefix?`${prefix}ge${final}`:`ge${final}`;
+}
+
+// ════════════════════════════════════════════════════════════════
+// ANALIZĂ AI VERBE — batch pe toate cuvintele existente
+// ════════════════════════════════════════════════════════════════
+async function aiAnalyzeVerbs(){
+  const key=gk();
+  if(!key||key==='WPROWADZ_NOWY_KLUCZ_API'){toast('\u26a0 Dodaj klucz API w Ustawieniach!');return;}
+  const candidates=S.items.filter(it=>it.type==='word'&&!it.voltooid&&!it.irregular);
+  if(!candidates.length){toast('Wszystkie s\u0142owa maj\u0105 ju\u017c voltooid!');return;}
+  const statusEl=document.getElementById('ai-verb-status');
+  statusEl.style.display='block';
+  const BATCH=50;
+  let totalUpdated=0,totalSkipped=0;
+  const batches=[];
+  for(let i=0;i<candidates.length;i+=BATCH)batches.push(candidates.slice(i,i+BATCH));
+  statusEl.style.color='var(--purple)';
+  for(let b=0;b<batches.length;b++){
+    const batch=batches[b];
+    statusEl.textContent=`\ud83e\udd16 Analizuj\u0119... ${b*BATCH+1}\u2013${Math.min((b+1)*BATCH,candidates.length)} z ${candidates.length}`;
+    const wordList=batch.map((it,i)=>`${i+1}. nl="${it.nl}" pl="${it.pl}"`).join('\n');
+    const prompt=`Jeste\u015b ekspertem j\u0119zyka niderlandzkiego. Przeanalizuj list\u0119 s\u0142\u00f3w niderlandzkich.\n\nDla ka\u017cdego elementu zdecyduj:\n1. Czy to CZASOWNIK w bezokoliczniku? (tak/nie) \u2014 rzeczowniki, przymiotniki, przys\u0142\u00f3wki, wyra\u017cenia nieverbalne = NIE\n2. Je\u015bli tak \u2014 czy NIEREGULARNY? (tak/nie)\n3. Je\u015bli czasownik \u2014 podaj voltooid deelwoord (participium)\n4. Je\u015bli czasownik \u2014 hebben czy zijn?\n\nZASADY TWORZENIA VOLTOOID:\n- U\u017cyj TYLKO formy participium g\u0142\u00f3wnego czasownika\n- Dla wyra\u017ce\u0144 wielos\u0142ownych (np. "wakker worden", "naar huis gaan") \u2014 voltooid to forma TYLKO g\u0142\u00f3wnego czasownika w odpowiednim miejscu: "wakker geworden", "naar huis gegaan"\n- Czasowniki z prefiksem NIEROZL\u0104CZNYM (be-, ver-, ont-, her-, er-, ge-) \u2014 BEZ przedrostka "ge-": berekend, gebruikt, verloofd\n- Czasowniki z prefiksem ROZL\u0104CZNYM (aan-, af-, op-, uit-, mee- itp.) \u2014 ge- wstawione PO prefiksie: aangemeld, opgebeld\n- NIE dodawaj "ge-" do ca\u0142ego wyra\u017cenia wielos\u0142ownego!\n- hebben_zijn: WY\u0141\u0104CZNIE "Hebben", "Zijn" lub "Hebben/Zijn" (z DU\u017bEJ litery!)\n- Je\u015bli nie jeste\u015b pewien/pewna \u2014 zwr\u00f3\u0107 is_verb: false\n\nLISTA:\n${wordList}\n\nOdpowiedz TYLKO JSON (bez backticks, bez komentarzy):\n{"results":[{"i":1,"is_verb":true,"irregular":false,"voltooid":"gewerkt","hebben_zijn":"Hebben"},{"i":2,"is_verb":false},...]}`;
+    try{
+      const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:2048,messages:[{role:'user',content:[{type:'text',text:prompt}]}]})});
+      if(!resp.ok){const e=await resp.json();throw new Error(e.error?.message||'API '+resp.status);}
+      const data=await resp.json();
+      const text=data.content?.find(x=>x.type==='text')?.text||'{"results":[]}';
+      const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
+      const hzMap={'hebben':'Hebben','zijn':'Zijn','hebben/zijn':'Hebben/Zijn'};
+      (parsed.results||[]).forEach(r=>{
+        if(!r.is_verb)return;
+        const item=batch[r.i-1];if(!item)return;
+        const idx=S.items.findIndex(x=>String(x.id)===String(item.id));
+        if(idx===-1)return;
+        if(!r.voltooid)return;
+        const v=r.voltooid.trim();
+        if(/^ge[^a-zA-Z]/.test(v.toLowerCase()))return;
+        const hz=r.hebben_zijn||'Hebben';
+        const hzNorm=hzMap[hz.toLowerCase()]||hz;
+        S.items[idx].voltooid=v;
+        S.items[idx].hebben_zijn=hzNorm;
+        S.items[idx].irregular=r.irregular||false;
+        totalUpdated++;
+      });
+      save();
+    }catch(e){
+      statusEl.style.color='var(--red)';
+      statusEl.textContent='\u26a0 B\u0142\u0105d: '+e.message;
+      return;
+    }
+    if(b<batches.length-1)await new Promise(r=>setTimeout(r,500));
+  }
+  statusEl.style.color='var(--green)';
+  statusEl.textContent=`\u2713 Gotowe! Zaktualizowano: ${totalUpdated} \u00b7 Pomini\u0119to: ${totalSkipped}`;
+  rWL();rHome();
+  autoExport();
+  toast(`\u2713 AI zaktualizowa\u0142 ${totalUpdated} czasownik\u00f3w!`);
+}
 // ════════════════════════════════════════════════════════════════
 function triggerCamIrr(src){
   if(!gk()||gk()==='WPROWADZ_NOWY_KLUCZ_API'){toast('⚠ Dodaj klucz API!');goTo('settings');return;}
@@ -2393,7 +2665,11 @@ function irrToggle(idx){
 }
 function irrSelectAll(val){_srIrrItems.forEach(i=>i._selected=val);srRenderIrr();}
 function irrConfirmImport(){
-  const toImport=_srIrrItems.filter(i=>i._selected);
+  const toImport=_srIrrItems.filter(i=>i._selected).map(i=>{
+    const{_selected,_dupOf,...clean}=i;
+    if(!clean.hebben_zijn)clean.hebben_zijn='Hebben';
+    return clean;
+  });
   if(!toImport.length){toast('⚠ Nic nie zaznaczono!');return;}
   const{added,skipped}=mergeItems(toImport);
   save();autoExport();
@@ -2522,7 +2798,9 @@ function updateSesAvail(){
   const sid=document.getElementById('ses-sub')?.value||'';
   const lvl=document.getElementById('ses-level')?.value;
   let pool=S.items;
-  if(tp!=='all')pool=pool.filter(i=>i.type===tp);
+  if(tp==='irregular')pool=pool.filter(i=>i.irregular);
+  else if(tp==='regular')pool=pool.filter(i=>i.voltooid&&!i.irregular);
+  else if(tp!=='all')pool=pool.filter(i=>i.type===tp);
   if(cid)pool=pool.filter(i=>i.categoryId===cid);
   if(sid)pool=pool.filter(i=>i.subcategoryId===sid);
   if(lvl!==''&&lvl!=null)pool=pool.filter(i=>(i.level||0)===parseInt(lvl));
@@ -2539,7 +2817,9 @@ function startSession(){
   SES.dir=document.getElementById('dir-nl').classList.contains('active')?'nl':'pl';
   SES.lastTp=tp;SES.lastCid=cid;SES.lastSid=sid;SES.lastLvl=lvl;SES.lastDir=SES.dir;SES.lastCount=SES.count;
   let pool=S.items;
-  if(tp!=='all')pool=pool.filter(i=>i.type===tp);
+  if(tp==='irregular')pool=pool.filter(i=>i.irregular);
+  else if(tp==='regular')pool=pool.filter(i=>i.voltooid&&!i.irregular);
+  else if(tp!=='all')pool=pool.filter(i=>i.type===tp);
   if(cid)pool=pool.filter(i=>i.categoryId===cid);
   if(sid)pool=pool.filter(i=>i.subcategoryId===sid);
   if(lvl!==''&&lvl!=null)pool=pool.filter(i=>(i.level||0)===parseInt(lvl));
@@ -2561,7 +2841,9 @@ function repeatSessionNewWords(){
   const tp=SES.lastTp||'all';const cid=SES.lastCid||'';const sid=SES.lastSid||'';const lvl=SES.lastLvl;
   SES.dir=SES.lastDir||'nl';SES.count=SES.lastCount||30;
   let pool=S.items;
-  if(tp!=='all')pool=pool.filter(i=>i.type===tp);
+  if(tp==='irregular')pool=pool.filter(i=>i.irregular);
+  else if(tp==='regular')pool=pool.filter(i=>i.voltooid&&!i.irregular);
+  else if(tp!=='all')pool=pool.filter(i=>i.type===tp);
   if(cid)pool=pool.filter(i=>i.categoryId===cid);
   if(sid)pool=pool.filter(i=>i.subcategoryId===sid);
   if(lvl!==''&&lvl!=null)pool=pool.filter(i=>(i.level||0)===parseInt(lvl));
