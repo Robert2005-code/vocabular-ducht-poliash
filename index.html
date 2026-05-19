@@ -579,6 +579,7 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
     <div class="ft" onclick="wlF('known',this)">Znane</div>
     <div class="ft" onclick="wlF('het',this)">het …</div>
     <div class="ft" onclick="wlF('de',this)">de …</div>
+    <div class="ft" onclick="wlF('irregular',this)">⚡ Nieregularne</div>
   </div>
   <div style="display:flex;gap:8px;margin-bottom:6px">
     <select id="wl-cat-filter" style="flex:1;padding:8px 10px;font-size:12px" onchange="onWlCatChange()"><option value="">Wszystkie kategorie</option></select>
@@ -630,6 +631,20 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
     <img id="preview-img" alt="">
   </div>
   <div id="sres"></div>
+  <!-- SCAN VERBE NEREGULATE -->
+  <div class="card" style="margin-top:10px;border:2px dashed var(--orange)44;background:var(--orange-dim)">
+    <div style="font-size:28px;margin-bottom:6px">⚡</div>
+    <div style="font-weight:700;font-size:14px;margin-bottom:4px;color:var(--orange)">Skanuj czasowniki nieregularne</div>
+    <div style="color:var(--text3);font-size:12px;margin-bottom:12px">AI wyodrębni: werkwoord, tłumaczenie, hebben/zijn i voltooid deelwoord</div>
+    <div id="sp-irr" class="spin" style="color:var(--orange)">⏳ Analizuję czasowniki...</div>
+    <div id="sbtn-irr" style="display:inline-flex;gap:10px;margin:0 auto">
+      <button class="btn" style="background:var(--orange-dim);border:1px solid var(--orange);color:var(--orange);width:auto;padding:13px 22px;margin:0" onclick="triggerCamIrr('camera')">📷 Aparat</button>
+      <button class="btn" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);width:auto;padding:13px 22px;margin:0" onclick="triggerCamIrr('gallery')">🖼️ Galeria</button>
+    </div>
+    <input type="file" id="cinp-irr-camera" accept="image/*" capture="environment" style="display:none" onchange="doScanIrr(this)">
+    <input type="file" id="cinp-irr-gallery" accept="image/*" style="display:none" onchange="doScanIrr(this)">
+    <div id="sres-irr"></div>
+  </div>
 </div>
 
 <!-- ═══ SESSION ═══ -->
@@ -1282,6 +1297,27 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
   </div>
 </div>
 
+<!-- MODAL: REVIEW CZASOWNIKI NIEREGULARNE -->
+<div class="modal" id="modal-irr-review">
+  <div class="modal-box">
+    <div class="modal-title">
+      <span>⚡ Czasowniki nieregularne</span>
+      <button class="modal-close" onclick="document.getElementById('modal-irr-review').classList.remove('open')">✕</button>
+    </div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:8px" id="irr-summary"></div>
+    <div style="display:flex;gap:6px;margin-bottom:10px">
+      <button onclick="irrSelectAll(true)" style="background:var(--green-dim);border:1px solid var(--green)44;color:var(--green);border-radius:var(--r3);padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">✓ Wszystkie</button>
+      <button onclick="irrSelectAll(false)" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:var(--r3);padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">✗ Żadne</button>
+      <span id="irr-sel-count" style="font-size:11px;color:var(--text3);align-self:center;margin-left:auto"></span>
+    </div>
+    <div id="irr-item-list" style="max-height:55vh;overflow-y:auto;margin-bottom:12px"></div>
+    <div style="position:sticky;bottom:0;background:#0f0f22;padding:12px 0 4px;border-top:1px solid var(--border)">
+      <button class="btn bp" style="margin-bottom:8px" onclick="irrConfirmImport()">💾 Dodaj zaznaczone</button>
+      <button class="btn bs" style="margin:0" onclick="document.getElementById('modal-irr-review').classList.remove('open')">Anuluj</button>
+    </div>
+  </div>
+</div>
+
 <script>
 'use strict';
 // ════════════════════════════════════════════════════════════════
@@ -1854,6 +1890,7 @@ function rWL(append=false){
   else if(WLF==='known')items=items.filter(i=>(i.level||0)>=3);
   else if(WLF==='het')items=items.filter(i=>/^het\s/i.test(i.nl));
   else if(WLF==='de')items=items.filter(i=>/^de\s/i.test(i.nl));
+  else if(WLF==='irregular')items=items.filter(i=>i.irregular);
   if(catFilter)items=items.filter(i=>i.categoryId===catFilter);
   if(subFilter)items=items.filter(i=>i.subcategoryId===subFilter);
   if(WL_SEARCH){const q=WL_SEARCH.toLowerCase();items=items.filter(i=>i.nl.toLowerCase().includes(q)||i.pl.toLowerCase().includes(q));}
@@ -1870,7 +1907,9 @@ function rWL(append=false){
     let nlHtml=esc(it.nl),plHtml=esc(it.pl);
     if(re_esc_pat){nlHtml=nlHtml.replace(re_esc_pat,'<mark style="background:#e8a83844;color:var(--gold);border-radius:3px">$1</mark>');plHtml=plHtml.replace(re_esc_pat,'<mark style="background:#e8a83844;color:var(--gold);border-radius:3px">$1</mark>');}
     const idStr=String(it.id);
-    div.innerHTML=`<div style="flex:1;min-width:0;cursor:pointer" onclick="openEditItem('${idStr}')"><div style="font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">${nlHtml}<span class="type-badge ${it.type==='phrase'?'tp2':'tw'}">${it.type==='phrase'?'fraza':'słowo'}</span></div><div style="color:var(--text2);font-size:12px;margin-top:2px">${plHtml}</div>${cat?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${cat.icon} ${cat.name}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px"><span class="tag" style="background:${LC[l]}22;color:${LC[l]}">poz.${l}</span>${isDue(it)?'<span class="tag tg" style="font-size:9px">nauka</span>':''}<div style="display:flex;gap:4px;margin-top:2px"><button onclick="event.stopPropagation();speak('${escJ(it.nl)}','nl-NL')" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🔊</button><button onclick="openMoveModal('${idStr}')" style="background:var(--blue-dim);border:1px solid var(--blue)44;color:var(--blue);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">↗</button><button onclick="delItem('${idStr}')" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🗑</button></div></div>`;
+    const irregularBadge=it.irregular?`<span class="type-badge" style="background:#f9731622;color:#f97316">⚡ niereg.</span>`:'';
+    const voltooideInfo=it.irregular&&it.voltooid?`<div style="font-size:10px;color:var(--orange);margin-top:2px">▶ ${esc(it.voltooid)}${it.hebben_zijn?' · '+esc(it.hebben_zijn):''}</div>`:'';
+    div.innerHTML=`<div style="flex:1;min-width:0;cursor:pointer" onclick="openEditItem('${idStr}')"><div style="font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">${nlHtml}<span class="type-badge ${it.type==='phrase'?'tp2':'tw'}">${it.type==='phrase'?'fraza':'słowo'}</span>${irregularBadge}</div><div style="color:var(--text2);font-size:12px;margin-top:2px">${plHtml}</div>${voltooideInfo}${cat?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${cat.icon} ${cat.name}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px"><span class="tag" style="background:${LC[l]}22;color:${LC[l]}">poz.${l}</span>${isDue(it)?'<span class="tag tg" style="font-size:9px">nauka</span>':''}<div style="display:flex;gap:4px;margin-top:2px"><button onclick="event.stopPropagation();speak('${escJ(it.nl)}','nl-NL')" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🔊</button><button onclick="openMoveModal('${idStr}')" style="background:var(--blue-dim);border:1px solid var(--blue)44;color:var(--blue);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">↗</button><button onclick="delItem('${idStr}')" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🗑</button></div></div>`;
     frag.appendChild(div);
   });
   list.appendChild(frag);
@@ -2276,6 +2315,92 @@ async function aiScan(b64){
     return item;
   }
   return{words:(p.words||[]).map(fixCatIds),phrases:(p.phrases||[]).map(fixCatIds)};
+}
+
+// ════════════════════════════════════════════════════════════════
+// SCAN VERBE NEREGULATE
+// ════════════════════════════════════════════════════════════════
+function triggerCamIrr(src){
+  if(!gk()||gk()==='WPROWADZ_NOWY_KLUCZ_API'){toast('⚠ Dodaj klucz API!');goTo('settings');return;}
+  document.getElementById(src==='camera'?'cinp-irr-camera':'cinp-irr-gallery').click();
+}
+async function doScanIrr(inp){
+  const file=inp.files[0];if(!file)return;
+  document.getElementById('sres-irr').innerHTML='';
+  document.getElementById('sp-irr').style.display='block';
+  document.getElementById('sbtn-irr').style.display='none';
+  try{
+    const b64=await i2b64(file);const r=await aiScanIrregular(b64);
+    if(!r.verbs||!r.verbs.length){
+      document.getElementById('sres-irr').innerHTML='<div class="aerr">⚠ Nie znaleziono czasowników nieregularnych.</div>';
+    } else {
+      openScanReviewIrr(r.verbs);
+    }
+  }catch(e){document.getElementById('sres-irr').innerHTML='<div class="aerr">⚠ Błąd: '+e.message+'</div>';}
+  document.getElementById('sp-irr').style.display='none';
+  document.getElementById('sbtn-irr').style.display='inline-flex';
+  inp.value='';
+}
+async function aiScanIrregular(b64){
+  const key=gk();if(!key||key==='WPROWADZ_NOWY_KLUCZ_API')throw new Error('Brak klucza API');
+  const cl=S.categories.map(c=>`${c.id}:${c.name}`).join(' | ');
+  const prompt=`Jesteś ekspertem języka niderlandzkiego. Na tym obrazku jest tabela z NIEREGULARNYMI CZASOWNIKAMI niderlandzkimi.\n\nZADANIE: Wyodrębnij WSZYSTKIE wiersze z tabeli. Każdy wiersz zawiera:\n- werkwoord: bezokolicznik (np. "gaan")\n- vertaling: tłumaczenie polskie (np. "iść, jechać")\n- hebben_zijn: słowo pomocnicze — WYŁĄCZNIE "Hebben" lub "Zijn" lub "Hebben/Zijn"\n- voltooid: voltooid deelwoord (np. "gegaan")\n\nPrzypisz kategorię z listy: ${cl}\n\nKRYTYCZNE ZASADY:\n- werkwoord WYŁĄCZNIE po niderlandzku (bezokolicznik)\n- vertaling WYŁĄCZNIE po polsku\n- hebben_zijn: TYLKO "Hebben", "Zijn" lub "Hebben/Zijn"\n- voltooid: TYLKO forma participium (np. "gegaan", "gegeten")\n\nOdpowiedz TYLKO JSON (bez backticks, bez komentarzy):\n{"verbs":[{"werkwoord":"...","vertaling":"...","hebben_zijn":"Hebben","voltooid":"...","cat":"id"}]}`;
+  const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:4096,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:prompt}]}]})});
+  if(!resp.ok){const e=await resp.json();throw new Error(e.error?.message||'API '+resp.status);}
+  const data=await resp.json();const text=data.content?.find(b=>b.type==='text')?.text||'{"verbs":[]}';
+  const p=JSON.parse(text.replace(/```json|```/g,'').trim());
+  const validCatIds=new Set(S.categories.map(c=>c.id));
+  (p.verbs||[]).forEach(v=>{if(!v.cat||!validCatIds.has(v.cat))v.cat='inne';});
+  return p;
+}
+let _srIrrItems=[];
+function openScanReviewIrr(verbs){
+  const now=new Date().toISOString();
+  _srIrrItems=verbs.map(v=>{
+    const nk=normKey(v.werkwoord),tp='word';
+    const dup=S.items.find(ex=>normKey(ex.nl)===nk&&(ex.type||'word')===tp);
+    return{
+      id:_newId(),nl:v.werkwoord,pl:v.vertaling,type:'word',
+      categoryId:v.cat||'inne',subcategoryId:null,
+      level:0,nextReview:now,addedAt:now,
+      irregular:true,hebben_zijn:v.hebben_zijn||'',voltooid:v.voltooid||'',
+      _selected:!dup,_dupOf:dup?dup.id:null
+    };
+  });
+  srRenderIrr();
+  document.getElementById('sres-irr').innerHTML='';
+  document.getElementById('modal-irr-review').classList.add('open');
+}
+function srRenderIrr(){
+  const total=_srIrrItems.length,dups=_srIrrItems.filter(i=>i._dupOf).length,sel=_srIrrItems.filter(i=>i._selected).length;
+  document.getElementById('irr-summary').innerHTML=`AI znalazło: <strong>${total}</strong> czasowników${dups>0?` · <span style="color:var(--red)">${dups} duplikatów</span>`:''}`;
+  document.getElementById('irr-sel-count').textContent=`Zaznaczono: ${sel} / ${total}`;
+  const list=document.getElementById('irr-item-list');
+  list.innerHTML=_srIrrItems.map((it,idx)=>`
+    <div class="sr-item${it._selected?'':' excluded'}" id="irr-row-${idx}">
+      <div class="sr-chk${it._selected?' on':''}" onclick="irrToggle(${idx})">${it._selected?'✓':''}</div>
+      <div class="sr-item-texts">
+        <div class="sr-item-nl">${esc(it.nl)}${it._dupOf?'<span style="color:var(--red);font-size:10px;margin-left:4px">⚠ dup</span>':''}</div>
+        <div class="sr-item-pl">${esc(it.pl)}</div>
+        <div style="font-size:10px;color:var(--orange);margin-top:2px">▶ ${esc(it.voltooid)} · ${esc(it.hebben_zijn)}</div>
+      </div>
+      <span class="sr-type-tag" style="background:var(--orange-dim);color:var(--orange)">⚡ niereg.</span>
+    </div>`).join('');
+}
+function irrToggle(idx){
+  _srIrrItems[idx]._selected=!_srIrrItems[idx]._selected;
+  srRenderIrr();
+}
+function irrSelectAll(val){_srIrrItems.forEach(i=>i._selected=val);srRenderIrr();}
+function irrConfirmImport(){
+  const toImport=_srIrrItems.filter(i=>i._selected);
+  if(!toImport.length){toast('⚠ Nic nie zaznaczono!');return;}
+  const{added,skipped}=mergeItems(toImport);
+  save();autoExport();
+  document.getElementById('modal-irr-review').classList.remove('open');
+  document.getElementById('sres-irr').innerHTML=`<div class="aok">✓ Dodano: <strong>${added}</strong> czasowników · Pominięto: <strong>${skipped}</strong><br><span style="font-size:11px;opacity:.8">💾 Plik JSON pobrany automatycznie</span></div>`;
+  rHome();
+  toast('✓ Dodano '+added+' czasowników nieregularnych!');
 }
 
 // ════════════════════════════════════════════════════════════════
