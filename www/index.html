@@ -23,7 +23,7 @@
   --red:#ef4444;--red-dim:#ef444422;
   --purple:#a78bfa;--purple-dim:#a78bfa22;
   --orange:#f97316;--orange-dim:#f9731622;
-  --text:#e8e8f0;--text2:#aaa;--text3:#666;
+  --text:#e8e8f0;--text1:#e8e8f0;--text2:#aaa;--text3:#666;
   --r:16px;--r2:12px;--r3:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -517,6 +517,18 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
 
   </div><!-- /home-grid -->
 
+  <!-- CZASOWNIKI CARD -->
+  <button class="home-card" style="width:100%;margin-bottom:10px;display:flex;align-items:center;gap:14px;padding:14px 16px;text-align:left" onclick="goTo('czasowniki')">
+    <div class="hc-ico" style="flex-shrink:0">
+      <span style="font-size:36px">🔤</span>
+    </div>
+    <div>
+      <div style="font-size:14px;font-weight:800;color:var(--text1)">Czasowniki</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px">+t czy +d · Hebben/Zijn · Odgadnij · Zdanie</div>
+    </div>
+    <span style="margin-left:auto;color:var(--text3);font-size:20px">›</span>
+  </button>
+
   <!-- GRAFIC PROGRES 30 ZILE -->
   <div class="chart-wrap">
     <div class="chart-title">Postęp — ostatnie 30 dni</div>
@@ -823,6 +835,78 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
 </div>
 
 <!-- ═══ GAMES ═══ -->
+<!-- ═══ CZASOWNIKI ═══ -->
+<div class="scr" id="scr-czasowniki">
+  <div class="sec">🔤 Czasowniki — ćwiczenia</div>
+  <div style="display:flex;flex-direction:column;gap:10px;padding:0 0 20px">
+
+    <!-- +t czy +d -->
+    <button class="home-card" style="width:100%;display:flex;align-items:center;gap:14px;padding:14px 16px;text-align:left" onclick="startCzasownikiSesja('td')">
+      <div style="font-size:36px;flex-shrink:0">➕</div>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:var(--text1)">+t czy +d?</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">Wybierz sufiks na podstawie rdzenia</div>
+      </div>
+      <span style="margin-left:auto;color:var(--text3);font-size:20px">›</span>
+    </button>
+
+    <!-- Hebben czy Zijn -->
+    <button class="home-card" style="width:100%;display:flex;align-items:center;gap:14px;padding:14px 16px;text-align:left" onclick="startCzasownikiSesja('hz')">
+      <div style="font-size:36px;flex-shrink:0">🔄</div>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:var(--text1)">Hebben czy Zijn?</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">Wybierz czasownik posiłkowy</div>
+      </div>
+      <span style="margin-left:auto;color:var(--text3);font-size:20px">›</span>
+    </button>
+
+    <!-- Odgadnij bezokolicznik -->
+    <button class="home-card" style="width:100%;display:flex;align-items:center;gap:14px;padding:14px 16px;text-align:left" onclick="startCzasownikiSesja('inf')">
+      <div style="font-size:36px;flex-shrink:0">🔁</div>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:var(--text1)">Odgadnij bezokolicznik</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">Z participium → infinityw</div>
+      </div>
+      <span style="margin-left:auto;color:var(--text3);font-size:20px">›</span>
+    </button>
+
+    <!-- Uzupełnij zdanie -->
+    <button class="home-card" style="width:100%;display:flex;align-items:center;gap:14px;padding:14px 16px;text-align:left" onclick="startCzasownikiSesja('zdanie')">
+      <div style="font-size:36px;flex-shrink:0">📝</div>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:var(--text1)">Uzupełnij zdanie</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">Wpisz participium w kontekście</div>
+      </div>
+      <span style="margin-left:auto;color:var(--text3);font-size:20px">›</span>
+    </button>
+
+  </div>
+</div>
+
+<!-- ═══ CZASOWNIKI SESJA ═══ -->
+<div class="scr" id="scr-cz-sesja">
+  <!-- Progress bar -->
+  <div style="height:4px;background:var(--bg3);border-radius:2px;margin-bottom:12px;overflow:hidden">
+    <div id="cz-progress" style="height:100%;background:var(--orange);border-radius:2px;width:0%;transition:width .3s"></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:16px">
+    <span id="cz-counter">1 / 20</span>
+    <span id="cz-score">✓0 ✗0</span>
+  </div>
+
+  <!-- Pytanie -->
+  <div id="cz-pytanie" style="min-height:120px;margin-bottom:20px"></div>
+
+  <!-- Przyciski odpowiedzi -->
+  <div id="cz-buttons" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"></div>
+
+  <!-- Feedback -->
+  <div id="cz-feedback" style="display:none;padding:10px 14px;border-radius:var(--r3);border:1px solid;margin-bottom:10px;font-size:13px"></div>
+
+  <!-- Następne -->
+  <button id="cz-next-btn" class="btn bp" style="display:none;width:100%" onclick="czNastepne()">Następne →</button>
+</div>
+
 <div class="scr" id="scr-games">
   <div class="sec">Gry językowe</div>
   <!-- Ekran wyboru trybu -->
@@ -1345,6 +1429,13 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
       <button class="modal-close" onclick="document.getElementById('modal-irr-review').classList.remove('open')">✕</button>
     </div>
     <div style="font-size:12px;color:var(--text3);margin-bottom:8px" id="irr-summary"></div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px">📁 Zastosuj kategorię do wszystkich:</label>
+      <div style="display:flex;gap:6px">
+        <select id="irr-cat-sel" style="flex:1;font-size:13px;padding:7px 10px;background:var(--bg3);color:var(--text1);border:1px solid var(--border2);border-radius:var(--r3)"></select>
+        <button onclick="irrApplyAllCat()" style="background:var(--orange);color:#fff;border:none;border-radius:var(--r3);padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">→ Wszystkie</button>
+      </div>
+    </div>
     <div style="display:flex;gap:6px;margin-bottom:10px">
       <button onclick="irrSelectAll(true)" style="background:var(--green-dim);border:1px solid var(--green)44;color:var(--green);border-radius:var(--r3);padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">✓ Wszystkie</button>
       <button onclick="irrSelectAll(false)" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:var(--r3);padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">✗ Żadne</button>
@@ -1766,8 +1857,8 @@ function autoExport(){
 // ════════════════════════════════════════════════════════════════
 // NAVIGATION
 // ════════════════════════════════════════════════════════════════
-const SCRS=['home','wordlist','categories','scan','learn','session','games','settings','lekcje','exercise','lkcomplete','gramatyka'];
-const TTLS={home:'Nauka',wordlist:'Słownik',categories:'Kategorie',scan:'Skanuj',learn:'Powtórka',session:'Fiszki',games:'Gry',settings:'Ustawienia',lekcje:'Lekcje',exercise:'Ćwiczenie',lkcomplete:'Wynik',gramatyka:'Gramatyka'};
+const SCRS=['home','wordlist','categories','scan','learn','session','games','settings','lekcje','exercise','lkcomplete','gramatyka','czasowniki','cz-sesja'];
+const TTLS={home:'Nauka',wordlist:'Słownik',categories:'Kategorie',scan:'Skanuj',learn:'Powtórka',session:'Fiszki',games:'Gry',settings:'Ustawienia',lekcje:'Lekcje',exercise:'Ćwiczenie',lkcomplete:'Wynik',gramatyka:'Gramatyka',czasowniki:'Czasowniki','cz-sesja':'Ćwiczenie'};
 const NAVS=['home','scan','categories','wordlist','gramatyka','settings'];
 
 function goTo(id){
@@ -1875,9 +1966,17 @@ function rHeatmap(){
   const today=new Date();
   const start=new Date(today);
   start.setDate(today.getDate()-today.getDay()-52*7+1);
-  const vals=Object.values(log).map(d=>(d.added||0)+(d.advanced||0));
-  const maxVal=Math.max(...vals,1);
-  function getLevel(v){if(!v)return 0;const r=v/maxVal;return r<0.15?1:r<0.40?2:r<0.70?3:4;}
+  // maxVal separat pentru added și advanced — importul masiv nu striveşte activitatea zilnică
+  const maxAdded=Math.max(...Object.values(log).map(d=>d.added||0),1);
+  const maxAdvanced=Math.max(...Object.values(log).map(d=>d.advanced||0),1);
+  function getLevel(dayData){
+    if(!dayData)return 0;
+    const rA=(dayData.added||0)/maxAdded;
+    const rB=(dayData.advanced||0)/maxAdvanced;
+    const r=Math.max(rA,rB);
+    if(!r)return 0;
+    return r<0.15?1:r<0.40?2:r<0.70?3:4;
+  }
   grid.innerHTML='';monthLabels.innerHTML='';
   const MONTHS=['Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz','Paź','Lis','Gru'];
   let prevMonth=-1;
@@ -1891,8 +1990,8 @@ function rHeatmap(){
         const key=d.toISOString().slice(0,10);
         const dayData=log[key]||{};
         const total=(dayData.added||0)+(dayData.advanced||0);
-        cell.className=`hm-cell l${getLevel(total)}`;
-        cell.title=`${key}: ${total} aktywności`;
+        cell.className=`hm-cell l${getLevel(dayData)}`;
+        cell.title=`${key}: ${dayData.advanced||0} powtórzeń · ${dayData.added||0} dodanych`;
       }
       col.appendChild(cell);
       // Month label on first day of week (dow=0)
@@ -2565,11 +2664,8 @@ function getVoltooideBreakdown(nl){
   if(root.endsWith('en'))root=root.slice(0,-2);
   else if(root.endsWith('n'))root=root.slice(0,-1);
   if(!root||root.length<1)return null;
-  // Marcăm dacă consoana dublă a fost eliminată (zetten→zet, pakken→pak)
-  let doubledConsonantRemoved=false;
   if(root.length>=2&&root[root.length-1]===root[root.length-2]&&consonants.has(root[root.length-1])){
     root=root.slice(0,-1);
-    doubledConsonantRemoved=true;
   } else if(root.length>=3){
     const last=root[root.length-1],vowel=root[root.length-2],before=root[root.length-3];
     if(consonants.has(last)&&vowels.has(vowel)&&consonants.has(before)){
@@ -2583,9 +2679,7 @@ function getVoltooideBreakdown(nl){
   else if(root.endsWith('v'))root=root.slice(0,-1)+'f';
   const isCh=root.length>=2&&root.slice(-2)==='ch';
   const suffix=(['t','k','f','s','p','x'].includes(lastOriginal)||isCh)?'t':'d';
-  // Dacă rădăcina se termină cu sufixul DAR nu din cauza consoanei duble → ∅ (wacht, praat)
-  // Dacă consoana dublă a fost eliminată (zet din zetten) → arătăm sufixul normal
-  const alreadyHasSuffix=!doubledConsonantRemoved&&root.endsWith(suffix);
+  const alreadyHasSuffix=root.endsWith(suffix);
   const displayRoot=prefix?prefix+root:root;
   return{root:displayRoot,suffix:alreadyHasSuffix?'∅':suffix};
 }
@@ -2695,8 +2789,32 @@ function openScanReviewIrr(verbs){
     };
   });
   srRenderIrr();
+  // Populează selectorul de categorie
+  const catSel=document.getElementById('irr-cat-sel');
+  catSel.innerHTML='';
+  S.categories.forEach(c=>{
+    const opt=document.createElement('option');
+    opt.value=c.id;opt.textContent=c.icon+' '+c.name;
+    catSel.appendChild(opt);
+  });
+  catSel.value='inne';
   document.getElementById('sres-irr').innerHTML='';
   document.getElementById('modal-irr-review').classList.add('open');
+}
+function irrCatOpts(selectedId){
+  return S.categories.map(c=>`<option value="${c.id}"${c.id===selectedId?' selected':''}>${esc(c.icon+' '+c.name)}</option>`).join('');
+}
+function irrApplyAllCat(){
+  const cat=document.getElementById('irr-cat-sel').value||'inne';
+  _srIrrItems.forEach((_,idx)=>{
+    const sel=document.getElementById('irr-item-cat-'+idx);
+    if(sel)sel.value=cat;
+    _srIrrItems[idx].categoryId=cat;
+  });
+  toast('✓ Kategoria zastosowana do wszystkich');
+}
+function irrItemCatChange(idx){
+  _srIrrItems[idx].categoryId=document.getElementById('irr-item-cat-'+idx).value;
 }
 function srRenderIrr(){
   const total=_srIrrItems.length,dups=_srIrrItems.filter(i=>i._dupOf).length,sel=_srIrrItems.filter(i=>i._selected).length;
@@ -2710,6 +2828,7 @@ function srRenderIrr(){
         <div class="sr-item-nl">${esc(it.nl)}${it._dupOf?'<span style="color:var(--red);font-size:10px;margin-left:4px">⚠ dup</span>':''}</div>
         <div class="sr-item-pl">${esc(it.pl)}</div>
         <div style="font-size:10px;color:var(--orange);margin-top:2px">▶ ${esc(it.voltooid)} · ${esc(it.hebben_zijn)}</div>
+        <select id="irr-item-cat-${idx}" onchange="irrItemCatChange(${idx})" onclick="event.stopPropagation()" style="margin-top:5px;width:100%;font-size:11px;padding:4px 6px;background:var(--bg3);color:var(--text1);border:1px solid var(--border2);border-radius:var(--r3)">${irrCatOpts(it.categoryId||'inne')}</select>
       </div>
       <span class="sr-type-tag" style="background:var(--orange-dim);color:var(--orange)">⚡ niereg.</span>
     </div>`).join('');
@@ -2720,9 +2839,12 @@ function irrToggle(idx){
 }
 function irrSelectAll(val){_srIrrItems.forEach(i=>i._selected=val);srRenderIrr();}
 function irrConfirmImport(){
-  const toImport=_srIrrItems.filter(i=>i._selected).map(i=>{
+  const toImport=_srIrrItems.filter(i=>i._selected).map((i,idx)=>{
     const{_selected,_dupOf,...clean}=i;
     if(!clean.hebben_zijn)clean.hebben_zijn='Hebben';
+    // Ia categoria din selectorul per-item (cel mai recent)
+    const itemSel=document.getElementById('irr-item-cat-'+_srIrrItems.indexOf(i));
+    if(itemSel)clean.categoryId=itemSel.value||'inne';
     return clean;
   });
   if(!toImport.length){toast('⚠ Nic nie zaznaczono!');return;}
@@ -2732,6 +2854,422 @@ function irrConfirmImport(){
   document.getElementById('sres-irr').innerHTML=`<div class="aok">✓ Dodano: <strong>${added}</strong> czasowników · Pominięto: <strong>${skipped}</strong><br><span style="font-size:11px;opacity:.8">💾 Plik JSON pobrany automatycznie</span></div>`;
   rHome();
   toast('✓ Dodano '+added+' czasowników nieregularnych!');
+}
+
+// ════════════════════════════════════════════════════════════════
+// CZASOWNIKI — exerciții verbe
+// ════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
+// CZASOWNIKI — sesja ćwiczeń
+// ════════════════════════════════════════════════════════════════
+let _czSesja=null; // {tip, queue, idx, correct, wrong}
+
+function czEchilibraTD(pool,n){
+  // Împarte pool-ul în 3 grupuri după sufix și ia proporțional
+  const grupeT=pool.filter(i=>{const bd=getVoltooideBreakdown(i.nl);return bd&&bd.suffix==='t';});
+  const grupeD=pool.filter(i=>{const bd=getVoltooideBreakdown(i.nl);return bd&&bd.suffix==='d';});
+  const grupeO=pool.filter(i=>{const bd=getVoltooideBreakdown(i.nl);return bd&&bd.suffix==='∅';});
+  // Câte din fiecare: max n/3 rotunjit, cel puțin 1 dacă există
+  const perGrup=Math.max(1,Math.floor(n/3));
+  const luat=[
+    ...grupeT.sort(()=>Math.random()-0.5).slice(0,perGrup),
+    ...grupeD.sort(()=>Math.random()-0.5).slice(0,perGrup),
+    ...grupeO.sort(()=>Math.random()-0.5).slice(0,perGrup),
+  ];
+  // Dacă mai sunt locuri, completăm aleator
+  const restPool=pool.filter(i=>!luat.includes(i));
+  const extra=restPool.sort(()=>Math.random()-0.5).slice(0,n-luat.length);
+  return [...luat,...extra].sort(()=>Math.random()-0.5).slice(0,n);
+}
+
+function czEchilibraHZ(pool,n){
+  // Împarte în Hebben / Zijn / Hebben/Zijn
+  const h=pool.filter(i=>i.hebben_zijn==='Hebben');
+  const z=pool.filter(i=>i.hebben_zijn==='Zijn');
+  const hz=pool.filter(i=>i.hebben_zijn==='Hebben/Zijn');
+  const perGrup=Math.max(1,Math.floor(n/3));
+  const luat=[
+    ...h.sort(()=>Math.random()-0.5).slice(0,perGrup),
+    ...z.sort(()=>Math.random()-0.5).slice(0,perGrup),
+    ...hz.sort(()=>Math.random()-0.5).slice(0,perGrup),
+  ];
+  const restPool=pool.filter(i=>!luat.includes(i));
+  const extra=restPool.sort(()=>Math.random()-0.5).slice(0,n-luat.length);
+  return [...luat,...extra].sort(()=>Math.random()-0.5).slice(0,n);
+}
+
+function startCzasownikiSesja(tip){
+  // zdanie are propriul flux cu stoc AI — dirijăm direct
+  if(tip==='zdanie'){goTo('cz-sesja');startCzasownikiZdanie();return;}
+  const regulate=S.items.filter(i=>i.type==='word'&&i.voltooid&&!i.irregular);
+  const neregulate=S.items.filter(i=>i.type==='word'&&i.voltooid&&i.irregular&&i.hebben_zijn);
+  let pool=[];
+  if(tip==='td'||tip==='inf') pool=regulate;
+  else if(tip==='hz') pool=neregulate;
+  if(!pool.length){toast('⚠ Brak czasowników do ćwiczeń!');return;}
+  const N=Math.min(20,pool.length);
+  let queue=[];
+  if(tip==='td') queue=czEchilibraTD(pool,N);
+  else if(tip==='hz') queue=czEchilibraHZ(pool,N);
+  else queue=[...pool].sort(()=>Math.random()-0.5).slice(0,N);
+  _czSesja={tip,queue,idx:0,correct:0,wrong:0};
+  goTo('cz-sesja');
+  czRenderPytanie();
+}
+
+function czRenderPytanie(){
+  if(!_czSesja)return;
+  const {tip,queue,idx,correct,wrong}=_czSesja;
+  const total=queue.length;
+  if(idx>=total){czPokazWynik();return;}
+  const it=queue[idx];
+  const nl=it.nl.replace(/^(de |het |een )/i,'').trim();
+
+  // Progress bar
+  document.getElementById('cz-progress').style.width=((idx/total)*100)+'%';
+  document.getElementById('cz-counter').textContent=(idx+1)+' / '+total;
+  document.getElementById('cz-score').textContent='✓'+correct+' ✗'+wrong;
+
+  // Treścią pytania
+  let html='';
+  if(tip==='td'){
+    // Pytanie: jaki sufiks? Pokazujemy rdzeń po usunięciu -en
+    const bd=getVoltooideBreakdown(it.nl);
+    const root=bd?bd.root:nl.replace(/en$/,'');
+    html=`<div style="font-size:13px;color:var(--text3);margin-bottom:6px">Jaki sufiks dodać do rdzenia?</div>
+    <div style="font-size:28px;font-weight:800;color:var(--text1);margin-bottom:4px">${esc(root)}+?</div>
+    <div style="font-size:12px;color:var(--text3)">(${esc(it.nl)} — ${esc(it.pl)})</div>`;
+    document.getElementById('cz-pytanie').innerHTML=html;
+    czRenderBtnsTD(it,bd);
+  } else if(tip==='hz'){
+    html=`<div style="font-size:13px;color:var(--text3);margin-bottom:6px">Który czasownik posiłkowy?</div>
+    <div style="font-size:28px;font-weight:800;color:var(--text1);margin-bottom:4px">${esc(it.nl)}</div>
+    <div style="font-size:13px;color:var(--orange);margin-bottom:4px">▶ ${esc(it.voltooid)}</div>
+    <div style="font-size:12px;color:var(--text3)">${esc(it.pl)}</div>`;
+    document.getElementById('cz-pytanie').innerHTML=html;
+    czRenderBtnsHZ(it);
+  } else if(tip==='inf'){
+    html=`<div style="font-size:13px;color:var(--text3);margin-bottom:6px">Jaki bezokolicznik?</div>
+    <div style="font-size:28px;font-weight:800;color:var(--text1);margin-bottom:4px">${esc(it.voltooid)}</div>
+    <div style="font-size:12px;color:var(--text3)">${esc(it.pl)}</div>`;
+    document.getElementById('cz-pytanie').innerHTML=html;
+    czRenderBtnsINF(it,queue);
+  }
+  document.getElementById('cz-feedback').style.display='none';
+  document.getElementById('cz-next-btn').style.display='none';
+}
+
+function czRenderBtnsTD(it,bd){
+  if(!bd){czNastepne();return;} // skip dacă nu se poate calcula sufixul
+  const correct=bd.suffix;
+  const btns=document.getElementById('cz-buttons');
+  btns.innerHTML=`
+    <button class="btn" style="flex:1;font-size:18px;font-weight:800" onclick="czOdpowiedzTD('+t','${esc(correct)}')">+t</button>
+    <button class="btn" style="flex:1;font-size:18px;font-weight:800" onclick="czOdpowiedzTD('+d','${esc(correct)}')">+d</button>
+    <button class="btn" style="flex:1;font-size:18px;font-weight:800" onclick="czOdpowiedzTD('+∅','${esc(correct)}')">+∅</button>`;
+}
+
+function czOdpowiedzTD(wybor,correct){
+  // wybor e '+t', '+d', sau '+∅'; correct e 't', 'd', sau '∅'
+  const ok=wybor==='+'+correct;
+  czPokazFeedback(ok, '+'+correct, _czSesja.queue[_czSesja.idx].voltooid);
+}
+
+function czRenderBtnsHZ(it){
+  const correct=it.hebben_zijn;
+  const options=['Hebben','Zijn','Hebben/Zijn'];
+  const btns=document.getElementById('cz-buttons');
+  btns.innerHTML=options.map(o=>
+    `<button class="btn" style="flex:1;font-size:13px;font-weight:700" onclick="czOdpowiedzHZ('${esc(o)}','${esc(correct)}')">${esc(o)}</button>`
+  ).join('');
+}
+
+function czOdpowiedzHZ(wybor,correct){
+  const ok=wybor===correct;
+  czPokazFeedback(ok, correct, _czSesja.queue[_czSesja.idx].voltooid);
+}
+
+function czRenderBtnsINF(it,queue){
+  // 4 opcje: poprawna + 3 losowe z puli
+  const correct=it.nl;
+  const others=queue.filter(x=>x.nl!==correct).sort(()=>Math.random()-0.5).slice(0,3);
+  const opcje=[correct,...others.map(x=>x.nl)].sort(()=>Math.random()-0.5);
+  const btns=document.getElementById('cz-buttons');
+  btns.style.flexDirection='column';
+  btns.innerHTML=opcje.map(o=>
+    `<button class="btn" style="width:100%;font-size:13px;text-align:left;padding:10px 14px" onclick="czOdpowiedzINF('${esc(o)}','${esc(correct)}')">${esc(o)}</button>`
+  ).join('');
+}
+
+function czOdpowiedzINF(wybor,correct){
+  const ok=wybor===correct;
+  czPokazFeedback(ok, correct, null);
+}
+
+function czPokazFeedback(ok, correctLabel, voltooid){
+  if(ok) _czSesja.correct++; else _czSesja.wrong++;
+  document.getElementById('cz-score').textContent='✓'+_czSesja.correct+' ✗'+_czSesja.wrong;
+  // Zablokuj przyciski
+  const btns=document.getElementById('cz-buttons');
+  btns.querySelectorAll('button').forEach(b=>b.disabled=true);
+  // Pokaż feedback
+  const fb=document.getElementById('cz-feedback');
+  fb.style.display='block';
+  fb.style.background=ok?'var(--green-dim)':'var(--red-dim)';
+  fb.style.borderColor=ok?'var(--green)44':'var(--red)44';
+  // Prefixul '+' doar pentru exercițiul td
+  const prefix=_czSesja.tip==='td'?'+':'';
+  fb.innerHTML=ok
+    ? `<span style="color:var(--green);font-weight:700">✓ Dobrze!</span>${voltooid?' <span style="color:var(--text3);font-size:12px">→ '+esc(voltooid)+'</span>':''}`
+    : `<span style="color:var(--red);font-weight:700">✗ Błąd</span> <span style="color:var(--text3);font-size:12px">→ ${prefix}${esc(correctLabel)}${voltooid?' ('+esc(voltooid)+')':''}</span>`;
+  document.getElementById('cz-next-btn').style.display='block';
+}
+
+function czNastepne(){
+  _czSesja.idx++;
+  document.getElementById('cz-buttons').style.flexDirection='';
+  if(_czSesja.tip==='zdanie') czRenderZdanie();
+  else czRenderPytanie();
+}
+
+function czPokazWynik(){
+  const {correct,wrong,tip,queue}=_czSesja;
+  const total=queue.length;
+  const pct=Math.round((correct/total)*100);
+  // Blacklist zilnică: salvăm propozițiile văzute în sesiunea zdanie
+  if(tip==='zdanie'){
+    czZdanieMarkSeen(queue.map(x=>x.nl+x.zdanie));
+  }
+  document.getElementById('cz-pytanie').innerHTML=`
+    <div style="text-align:center;padding:20px 0">
+      <div style="font-size:48px;margin-bottom:8px">${pct>=80?'🏆':pct>=60?'👍':'💪'}</div>
+      <div style="font-size:28px;font-weight:900;color:var(--text1)">${pct}%</div>
+      <div style="font-size:13px;color:var(--text3);margin-top:4px">${correct} z ${total} poprawnie</div>
+    </div>`;
+  const jeszczeRaz=tip==='zdanie'
+    ? `onclick="startCzasownikiZdanie()"`
+    : `onclick="startCzasownikiSesja('${tip}')"`;
+  document.getElementById('cz-buttons').innerHTML=`
+    <button class="btn bp" style="flex:1" ${jeszczeRaz}>🔄 Jeszcze raz</button>
+    <button class="btn bs" style="flex:1" onclick="goTo('czasowniki')">← Wróć</button>`;
+  document.getElementById('cz-feedback').style.display='none';
+  document.getElementById('cz-next-btn').style.display='none';
+  document.getElementById('cz-progress').style.width='100%';
+  document.getElementById('cz-counter').textContent=total+' / '+total;
+  document.getElementById('cz-score').textContent='✓'+correct+' ✗'+wrong;
+}
+
+// ════════════════════════════════════════════════════════════════
+// CZASOWNIKI — Uzupełnij zdanie (AI)
+// ════════════════════════════════════════════════════════════════
+const CZ_ZDANIE_KEY='cz_zdania_v1';
+const CZ_ZDANIE_DATE_KEY='cz_zdania_date_v1';
+const CZ_ZDANIE_SEEN_KEY='cz_zdania_seen_v1';
+
+function czZdanieGetStock(){
+  try{const s=localStorage.getItem(CZ_ZDANIE_KEY);return s?JSON.parse(s):[];}catch(e){return [];}
+}
+function czZdanieSaveStock(arr){
+  try{localStorage.setItem(CZ_ZDANIE_KEY,JSON.stringify(arr));}catch(e){}
+}
+function czZdanieGetDate(){return localStorage.getItem(CZ_ZDANIE_DATE_KEY)||'';}
+function czZdanieSaveDate(d){localStorage.setItem(CZ_ZDANIE_DATE_KEY,d);}
+function czZdanieGetSeen(){
+  // Returnează {date, ids[]} — propozițiile văzute azi
+  try{
+    const s=localStorage.getItem(CZ_ZDANIE_SEEN_KEY);
+    if(!s)return{date:'',ids:[]};
+    const obj=JSON.parse(s);
+    const today=czZdanieTodayKey();
+    // Dacă e altă zi, resetăm
+    if(obj.date!==today)return{date:today,ids:[]};
+    return obj;
+  }catch(e){return{date:'',ids:[]};}
+}
+function czZdanieMarkSeen(ids){
+  try{
+    const today=czZdanieTodayKey();
+    const existing=czZdanieGetSeen();
+    const merged=[...new Set([...existing.ids,...ids])];
+    localStorage.setItem(CZ_ZDANIE_SEEN_KEY,JSON.stringify({date:today,ids:merged}));
+  }catch(e){}
+}
+function czZdanieTodayKey(){
+  const n=new Date();
+  return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+}
+
+// Afișăm ecranul de start pentru zdanie
+function startCzasownikiZdanie(){
+  const stock=czZdanieGetStock();
+  const today=czZdanieTodayKey();
+  const lastDate=czZdanieGetDate();
+  const needRefresh=lastDate!==today&&stock.length<10;
+  const seen=czZdanieGetSeen();
+  const seenSet=new Set(seen.ids);
+  const unseen=stock.filter(x=>!seenSet.has(x.nl+x.zdanie));
+  document.getElementById('cz-pytanie').innerHTML=`
+    <div style="font-size:14px;font-weight:800;color:var(--text1);margin-bottom:16px">📝 Uzupełnij zdanie</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:16px">
+      Stok: <strong style="color:${stock.length>10?'var(--green)':'var(--orange)'}">${stock.length}</strong> zdań
+      · Niewidziane dziś: <strong style="color:${unseen.length>0?'var(--green)':'var(--text3)'}">${unseen.length}</strong>
+      ${needRefresh?' <span style="color:var(--orange)">(niski stok — warto wygenerować)</span>':''}
+    </div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:8px">Tryb wpisywania:</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+      <button class="btn" style="width:100%;text-align:left;padding:12px 14px" onclick="czZdanieStartMode('free')">
+        ✏️ <strong>Scrie liber</strong><br>
+        <span style="font-size:11px;color:var(--text3)">Wpisz participium samodzielnie</span>
+      </button>
+      <button class="btn" style="width:100%;text-align:left;padding:12px 14px" onclick="czZdanieStartMode('mc')">
+        🔘 <strong>Multiple choice</strong><br>
+        <span style="font-size:11px;color:var(--text3)">Wybierz z 4 opcji</span>
+      </button>
+    </div>
+    <button class="btn" style="width:100%;background:linear-gradient(135deg,#1e1260,#0d0c20);border:1px solid #3b2fa0;color:var(--purple)" onclick="czZdanieGenerate()">
+      🤖 Generuj nowe zdania (AI)
+    </button>`;
+  document.getElementById('cz-buttons').innerHTML='';
+  document.getElementById('cz-feedback').style.display='none';
+  document.getElementById('cz-next-btn').style.display='none';
+  document.getElementById('cz-progress').style.width='0%';
+  document.getElementById('cz-counter').textContent='';
+  document.getElementById('cz-score').textContent='';
+}
+
+async function czZdanieGenerate(){
+  const pool=S.items.filter(i=>i.type==='word'&&i.voltooid);
+  if(!pool.length){toast('⚠ Brak czasowników z participium!');return;}
+  const apiKey=localStorage.getItem('nl_api_key')||'';
+  if(!apiKey){toast('⚠ Brak klucza API! Dodaj w Ustawieniach.');return;}
+
+  // Bierzemy max 50 losowych verbów
+  const sample=[...pool].sort(()=>Math.random()-0.5).slice(0,50);
+  const verbList=sample.map(i=>`${i.nl} (${i.pl}, participium: ${i.voltooid})`).join('\n');
+
+  const btn=document.getElementById('cz-pytanie').querySelector('button[onclick="czZdanieGenerate()"]');
+  if(btn){btn.disabled=true;btn.textContent='⏳ Generuję...';}
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:4000,
+        messages:[{role:'user',content:`Jesteś pomocnikiem do nauki języka niderlandzkiego.
+
+Wygeneruj zdania po niderlandzku dla każdego z poniższych czasowników. Każde zdanie musi:
+- Być krótkie i proste (max 10 słów)
+- Używać czasu Voltooid Deelwoord (perfectum) z hebben lub zijn
+- Mieć BLANK w miejscu participium (użyj _____)
+- Być realistyczne i naturalne
+
+Lista czasowników:
+${verbList}
+
+Odpowiedz TYLKO w formacie JSON (bez markdown, bez komentarzy):
+[
+  {"nl": "infinityw", "zdanie": "Ik heb gisteren veel _____.", "voltooid": "participium", "pl": "polskie tłumaczenie czasownika"},
+  ...
+]
+
+Wygeneruj zdanie dla każdego czasownika z listy.`}]
+      })
+    });
+    const data=await resp.json();
+    const text=data.content?.[0]?.text||'';
+    const clean=text.replace(/```json|```/g,'').trim();
+    const arr=JSON.parse(clean);
+    if(!Array.isArray(arr)||!arr.length)throw new Error('Brak danych');
+
+    // Łączymy ze starym stockiem, usuwamy duplikaty
+    const existing=czZdanieGetStock();
+    const existingNl=new Set(existing.map(x=>x.nl+x.zdanie));
+    const newItems=arr.filter(x=>x.zdanie&&x.voltooid&&!existingNl.has(x.nl+x.zdanie));
+    const merged=[...existing,...newItems].slice(-200); // max 200
+    czZdanieSaveStock(merged);
+    czZdanieSaveDate(czZdanieTodayKey());
+    toast('✓ Wygenerowano '+newItems.length+' nowych zdań!');
+    startCzasownikiZdanie();
+  }catch(e){
+    toast('⚠ Błąd generowania: '+String(e).slice(0,60));
+    if(btn){btn.disabled=false;btn.textContent='🤖 Generuj nowe zdania (AI)';}
+  }
+}
+
+function czZdanieStartMode(mode){
+  const stock=czZdanieGetStock();
+  if(!stock.length){toast('⚠ Brak zdań! Kliknij "Generuj nowe zdania".');return;}
+  // Excludem propozițiile văzute azi (blacklist zilnică)
+  const seen=czZdanieGetSeen();
+  const seenSet=new Set(seen.ids);
+  let unseen=stock.filter(x=>!seenSet.has(x.nl+x.zdanie));
+  // Dacă nu mai sunt nevăzute, resetăm blacklist-ul și luăm tot
+  if(!unseen.length){
+    unseen=stock;
+    toast('🔄 Wszystkie zdania dziś widziane — resetuję!');
+  }
+  const N=Math.min(20,unseen.length);
+  const queue=[...unseen].sort(()=>Math.random()-0.5).slice(0,N);
+  _czSesja={tip:'zdanie',mode,queue,idx:0,correct:0,wrong:0};
+  czRenderZdanie();
+}
+
+function czRenderZdanie(){
+  if(!_czSesja)return;
+  const {queue,idx,correct,wrong,mode}=_czSesja;
+  const total=queue.length;
+  if(idx>=total){czPokazWynik();return;}
+  const it=queue[idx];
+
+  document.getElementById('cz-progress').style.width=((idx/total)*100)+'%';
+  document.getElementById('cz-counter').textContent=(idx+1)+' / '+total;
+  document.getElementById('cz-score').textContent='✓'+correct+' ✗'+wrong;
+  document.getElementById('cz-feedback').style.display='none';
+  document.getElementById('cz-next-btn').style.display='none';
+
+  // Zdanie z podkreśleniem w miejscu blank
+  const zdanie=esc(it.zdanie).replace('_____','<span style="color:var(--orange);font-weight:800">_____</span>');
+  document.getElementById('cz-pytanie').innerHTML=`
+    <div style="font-size:13px;color:var(--text3);margin-bottom:8px">Uzupełnij participium:</div>
+    <div style="font-size:20px;font-weight:700;color:var(--text1);line-height:1.4;margin-bottom:12px">${zdanie}</div>
+    <div style="font-size:12px;color:var(--text3)">💡 ${esc(it.pl)}</div>`;
+
+  const btns=document.getElementById('cz-buttons');
+  btns.style.flexDirection='';
+  if(mode==='free'){
+    btns.innerHTML=`
+      <input id="cz-zdanie-inp" type="text" placeholder="Wpisz participium..." autocomplete="off" autocorrect="off" autocapitalize="off"
+        style="flex:1;padding:10px 14px;font-size:15px;background:var(--bg3);color:var(--text1);border:1px solid var(--border2);border-radius:var(--r3);outline:none"
+        onkeydown="if(event.key==='Enter')czOdpowiedzZdanie()">
+      <button class="btn bp" style="flex-shrink:0" onclick="czOdpowiedzZdanie()">✓</button>`;
+    setTimeout(()=>{const inp=document.getElementById('cz-zdanie-inp');if(inp)inp.focus();},100);
+  } else {
+    // Multiple choice: poprawna + 3 inne z stocku
+    const correct=it.voltooid;
+    const others=queue.filter(x=>x.voltooid!==correct).sort(()=>Math.random()-0.5).slice(0,3);
+    const opcje=[it,...others].sort(()=>Math.random()-0.5);
+    btns.style.flexDirection='column';
+    btns.innerHTML=opcje.map(o=>
+      `<button class="btn" style="width:100%;text-align:left;padding:10px 14px;font-size:14px" onclick="czOdpowiedzZdanieMC('${esc(o.voltooid)}','${esc(correct)}')">${esc(o.voltooid)}</button>`
+    ).join('');
+  }
+}
+
+function czOdpowiedzZdanie(){
+  const inp=document.getElementById('cz-zdanie-inp');
+  if(!inp)return;
+  const val=inp.value.trim().toLowerCase();
+  const correct=(_czSesja.queue[_czSesja.idx].voltooid||'').toLowerCase().trim();
+  const ok=val===correct;
+  inp.disabled=true;
+  czPokazFeedback(ok, _czSesja.queue[_czSesja.idx].voltooid, null);
+}
+
+function czOdpowiedzZdanieMC(wybor,correct){
+  const ok=wybor===correct;
+  czPokazFeedback(ok, correct, null);
 }
 
 // ════════════════════════════════════════════════════════════════
