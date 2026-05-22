@@ -6005,8 +6005,9 @@ window.addEventListener('unhandledrejection',function(e){console.error('[unhandl
   const _ACTIONS={
     // Navigation
     'goTo':          (a)=>goTo(a),
+    'closeModal':    (a)=>closeModal(a),
     // Session
-    'sesLvlPick':    (_,el)=>sesLvlPick(_,el),
+    'sesLvlPick':    (_,el)=>sesLvlPick(el),
     'sesSkip':       ()=>sesSkip(),
     'sesFlip':       ()=>sesFlip(),
     'sesYes':        ()=>sesYes(),
