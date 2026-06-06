@@ -584,7 +584,7 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
 <div class="scr" id="scr-wordlist">
   <div class="srch">
     <span class="srch-icon">🔍</span>
-    <input type="text" id="wl-search" placeholder="Szukaj słowa lub frazy..." oninput="onSearch(this.value)" autocomplete="off">
+    <input type="text" id="wl-search" placeholder="Szukaj słowa lub frazy..." oninput="onSearch(this.value)" autocomplete="off" aria-label="Szukaj słowa lub frazy...">
     <button type="button" class="srch-clr" id="srch-clr" data-action="clearSearch">✕</button>
   </div>
   <div class="ftabs">
@@ -619,8 +619,8 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
   <div id="cat-list"></div>
   <div id="acf" style="display:none" class="card">
     <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--gold)">Nowa kategoria</div>
-    <input type="text" id="ncn" placeholder="Nazwa kategorii..." style="margin-bottom:8px" onkeydown="if(event.key==='Enter')addCat()">
-    <input type="text" id="ncicon" placeholder="Emoji (np. 🌿)" style="margin-bottom:10px" onkeydown="if(event.key==='Enter')addCat()">
+    <input type="text" id="ncn" placeholder="Nazwa kategorii..." style="margin-bottom:8px" onkeydown="if(event.key==='Enter')addCat()" aria-label="Nazwa kategorii...">
+    <input type="text" id="ncicon" placeholder="Emoji (np. 🌿)" style="margin-bottom:10px" onkeydown="if(event.key==='Enter')addCat()" aria-label="Emoji (np. 🌿)">
     <div style="display:flex;gap:8px">
       <button type="button" data-action="addCat" style="background:var(--gold);color:#1a1a2e;border:none;border-radius:8px;padding:10px 18px;font-weight:700;flex:1">Dodaj</button>
       <button type="button" data-action="cancelCat" style="background:var(--bg4);color:var(--text3);border:none;border-radius:8px;padding:10px 14px">Anuluj</button>
@@ -1035,7 +1035,7 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
       <img id="gr-preview" style="width:100%;border-radius:var(--r2);max-height:220px;object-fit:contain;background:var(--bg4)" alt="">
     </div>
     <label class="edit-label">Tytuł / opis</label>
-    <input type="text" id="gr-inp-title" placeholder="np. Rodzajniki de/het, Liczba mnoga..." style="margin-bottom:8px">
+    <input type="text" id="gr-inp-title" placeholder="np. Rodzajniki de/het, Liczba mnoga..." style="margin-bottom:8px" aria-label="np. Rodzajniki de/het, Liczba mnoga...">
     <label class="edit-label">Kategoria</label>
     <select id="gr-inp-cat" style="margin-bottom:14px"></select>
     <input type="hidden" id="gr-inp-id">
@@ -1077,9 +1077,9 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
     </div>
     <input type="hidden" id="gr-cat-edit-id">
     <label class="edit-label">Nazwa kategorii</label>
-    <input type="text" id="gr-cat-edit-name" placeholder="np. Czasowniki, Rodzajniki..." style="margin-bottom:8px">
+    <input type="text" id="gr-cat-edit-name" placeholder="np. Czasowniki, Rodzajniki..." style="margin-bottom:8px" aria-label="np. Czasowniki, Rodzajniki...">
     <label class="edit-label">Emoji</label>
-    <input type="text" id="gr-cat-edit-icon" placeholder="np. 📝" style="margin-bottom:14px">
+    <input type="text" id="gr-cat-edit-icon" placeholder="np. 📝" style="margin-bottom:14px" aria-label="np. 📝">
     <div style="display:flex;gap:8px;margin-bottom:8px">
       <button type="button" class="btn bp" style="margin:0;flex:1" data-action="gr-saveCat">💾 Zapisz</button>
       <button type="button" class="btn bs" style="margin:0" data-action="closeModal" data-args="modal-gr-cat">Anuluj</button>
@@ -1101,7 +1101,7 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
       <li style="font-size:12px;color:var(--text2)">Skopiuj i wklej poniżej</li>
     </ol>
     <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:5px">Klucz API (sk-ant-...)</label>
-    <input type="password" id="api-inp" placeholder="sk-ant-api03-..." style="margin-bottom:9px">
+    <input type="password" id="api-inp" placeholder="sk-ant-api03-..." style="margin-bottom:9px" aria-label="sk-ant-api03-...">
     <button type="button" class="btn bp" data-action="saveKey" style="margin-bottom:6px">💾 Zapisz klucz</button>
     <button type="button" class="btn bs" data-action="clearKey" id="ckey" style="display:none">🗑 Usuń klucz</button>
     <div id="kst" style="font-size:12px;text-align:center;margin-top:6px"></div>
@@ -1207,9 +1207,9 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
     <div class="modal-title"><span id="modal-item-title">Dodaj słowo / frazę</span><button type="button" class="modal-close" data-action="closeModal" data-args="modal-item">✕</button></div>
     <input type="hidden" id="edit-id">
     <label class="edit-label">🇳🇱 Niderlandzki</label>
-    <input type="text" id="edit-nl" placeholder="np. de hond" style="margin-bottom:4px">
+    <input type="text" id="edit-nl" placeholder="np. de hond" style="margin-bottom:4px" aria-label="np. de hond">
     <label class="edit-label">🇵🇱 Polskie tłumaczenie</label>
-    <input type="text" id="edit-pl" placeholder="np. pies" style="margin-bottom:4px">
+    <input type="text" id="edit-pl" placeholder="np. pies" style="margin-bottom:4px" aria-label="np. pies">
     <label class="edit-label">Typ</label>
     <div class="dir-toggle" style="margin-bottom:10px">
       <button type="button" class="dir-btn active" id="edit-type-word" data-action="setEditType" data-args="word">📝 Słowo</button>
@@ -1221,13 +1221,13 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
     <select id="edit-sub" style="margin-bottom:10px"></select>
     <!-- SEKCJA CZASOWNIK — ukryta domyślnie -->
     <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;cursor:pointer">
-      <input type="checkbox" id="edit-is-verb" onchange="onEditIsVerbChange()" style="accent-color:var(--orange);width:16px;height:16px">
+      <input type="checkbox" id="edit-is-verb" aria-label="Czy to czasownik?" onchange="onEditIsVerbChange()" style="accent-color:var(--orange);width:16px;height:16px">
       <span style="font-size:13px;font-weight:600;color:var(--text2)">⚡ To jest czasownik</span>
     </label>
     <div id="edit-verb-section" style="display:none;background:var(--bg4);border:1px solid var(--border2);border-radius:var(--r2);padding:10px;margin-bottom:10px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
-          <input type="checkbox" id="edit-irregular" onchange="onEditIrregularChange()" style="accent-color:var(--orange)">
+          <input type="checkbox" id="edit-irregular" aria-label="Czy nieregularny?" onchange="onEditIrregularChange()" style="accent-color:var(--orange)">
           <span style="color:var(--text2)">nieregularny</span>
         </label>
       </div>
@@ -1235,7 +1235,7 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
         <div style="flex:1">
           <div style="font-size:10px;color:var(--text3);margin-bottom:3px">Voltooid deelwoord</div>
           <div style="display:flex;gap:5px">
-            <input type="text" id="edit-voltooid" placeholder="np. gewerkt" style="flex:1;font-size:13px;padding:7px 10px">
+            <input type="text" id="edit-voltooid" placeholder="np. gewerkt" style="flex:1;font-size:13px;padding:7px 10px" aria-label="np. gewerkt">
             <button type="button" data-action="calcVoltooid" id="btn-calc-voltooid" title="Oblicz automatycznie" style="background:var(--orange-dim);border:1px solid var(--orange);color:var(--orange);border-radius:var(--r3);padding:7px 10px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">⚙ Oblicz</button>
           </div>
         </div>
@@ -1365,17 +1365,36 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
       <div style="font-size:12px;color:var(--text3);margin-bottom:14px" id="co-info"></div>
       <button type="button" data-action="catOptsDirPicker" style="width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a2e;border:none;border-radius:var(--r2);padding:14px;font-size:14px;font-weight:700;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:10px;justify-content:center">▶ Ucz się z tej kategorii</button>
       <button type="button" data-action="showCatEdit" style="width:100%;background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:var(--r2);padding:12px;font-size:14px;font-weight:700;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:10px;justify-content:center">✏️ Edytuj nazwę / emoji</button>
+      <button type="button" data-action="showCatWords" style="width:100%;background:var(--blue-dim);border:1px solid var(--blue)44;color:var(--blue);border-radius:var(--r2);padding:12px;font-size:14px;font-weight:700;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:10px;justify-content:center">📖 Przeglądaj słowa</button>
       <button type="button" id="co-del-btn" data-action="deleteCatFromModal" style="width:100%;background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:var(--r2);padding:12px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:10px;justify-content:center">🗑 Usuń kategorię</button>
     </div>
     <div id="co-edit" style="display:none">
       <label class="edit-label">Nazwa kategorii</label>
-      <input type="text" id="co-edit-name" style="margin-bottom:8px">
+      <input type="text" id="co-edit-name" aria-label="Nazwa kategorii" style="margin-bottom:8px">
       <label class="edit-label">Emoji</label>
-      <input type="text" id="co-edit-icon" placeholder="np. 🏠" style="margin-bottom:14px">
+      <input type="text" id="co-edit-icon" placeholder="np. 🏠" style="margin-bottom:14px" aria-label="np. 🏠">
       <div style="display:flex;gap:8px">
         <button type="button" data-action="saveCatEdit" style="flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a2e;border:none;border-radius:var(--r2);padding:12px;font-size:14px;font-weight:700;cursor:pointer">💾 Zapisz</button>
         <button type="button" data-action="showCatView" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:var(--r2);padding:12px 16px;font-size:14px;cursor:pointer">Anuluj</button>
       </div>
+    </div>
+    <div id="co-words" style="display:none">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div class="srch" style="flex:1;margin-bottom:0"><span class="srch-icon">🔍</span><input type="text" id="co-search" placeholder="Szukaj..." oninput="renderCatWords()" autocomplete="off" aria-label="Szukaj..."></div>
+        <button type="button" id="co-select-toggle" onclick="toggleCatSelect()" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;white-space:nowrap">☐ Wybierz</button>
+      </div>
+      <div id="co-multi-bar" style="display:none;margin-bottom:10px;padding:10px;background:var(--bg4);border-radius:10px;border:1px solid var(--border2)">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px">Przenieś zaznaczone (<span id="co-sel-cnt">0</span>) do:</div>
+        <select id="co-move-cat" style="width:100%;margin-bottom:6px;padding:8px;border-radius:8px;background:var(--bg3);border:1px solid var(--border2);color:var(--text1);font-size:13px"></select>
+        <select id="co-move-sub" style="width:100%;margin-bottom:8px;padding:8px;border-radius:8px;background:var(--bg3);border:1px solid var(--border2);color:var(--text1);font-size:13px"><option value="">— bez podkategorii —</option></select>
+        <div style="display:flex;gap:8px">
+          <button type="button" onclick="moveSelectedItems()" style="flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a2e;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer">✓ Przenieś</button>
+          <button type="button" onclick="selectAllCatWords()" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text2);border-radius:8px;padding:10px 12px;font-size:12px;cursor:pointer">Wszystkie</button>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:8px">Elementów: <span id="co-wcnt">0</span></div>
+      <div id="co-wlist" style="max-height:280px;overflow-y:auto"></div>
+      <button type="button" data-action="showCatView" style="margin-top:12px;width:100%;background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:var(--r2);padding:10px;font-size:13px;cursor:pointer">← Wróć</button>
     </div>
   </div>
 </div>
@@ -1394,14 +1413,14 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
     </div>
     <div id="so-edit" style="display:none">
       <label class="edit-label">Nazwa podkategorii</label>
-      <input type="text" id="so-edit-name" style="margin-bottom:14px">
+      <input type="text" id="so-edit-name" aria-label="Nazwa podkategorii" style="margin-bottom:14px">
       <div style="display:flex;gap:8px">
         <button type="button" data-action="saveSubEdit" style="flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a2e;border:none;border-radius:var(--r2);padding:12px;font-size:14px;font-weight:700;cursor:pointer">💾 Zapisz</button>
         <button type="button" data-action="showSubView" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:var(--r2);padding:12px 16px;font-size:14px;cursor:pointer">Anuluj</button>
       </div>
     </div>
     <div id="so-words" style="display:none">
-      <div class="srch" style="margin-bottom:10px"><span class="srch-icon">🔍</span><input type="text" id="so-search" placeholder="Szukaj..." oninput="renderSubWords()" autocomplete="off"></div>
+      <div class="srch" style="margin-bottom:10px"><span class="srch-icon">🔍</span><input type="text" id="so-search" placeholder="Szukaj..." oninput="renderSubWords()" autocomplete="off" aria-label="Szukaj..."></div>
       <div style="font-size:11px;color:var(--text3);margin-bottom:8px">Elementów: <span id="so-wcnt">0</span></div>
       <div id="so-wlist" style="max-height:320px;overflow-y:auto"></div>
       <button type="button" data-action="showSubView" style="width:100%;background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:var(--r2);padding:10px;font-size:13px;font-weight:700;margin-top:10px;cursor:pointer">← Wróć</button>
@@ -1560,6 +1579,8 @@ const LEKCJE_DATA = [
 // ════════════════════════════════════════════════════════════════
 const SK='nl_pl_v5', KK='nl_pl_key', LK='nl_lk_v1', AIK='nl_ai_inst_v1';
 const DEFAULT_KEY='WPROWADZ_NOWY_KLUCZ_API';
+const LANG_SPEAK='nl-NL';
+const LANG_NATIVE='pl-PL';
 const MAX_ITEMS=5000;
 const MAX_CATEGORIES=200;
 const DEBUG=false;
@@ -1606,7 +1627,7 @@ function load(){
   }if(p&&p.categories)S.categories=p.categories;}catch(e){console.error('load() parse error:',e);}
   // Garantează că 'inne' există întotdeauna
   if(!S.categories.find(c=>c.id==='inne'))S.categories.push({id:'inne',name:'Inne',icon:'📦',subs:[]});
-  try{const p=safeGetJSON(LK,null);if(p)LS={...LS,...p};}catch(e){}
+  try{const p=safeGetJSON(LK,null);if(p)LS={...LS,...p};}catch(e){debugLog(e)}
   // Instrucțiuni default AI dacă nu există deja
   if(!localStorage.getItem(AIK)){
     safeSetItem(AIK,`- Dodawaj rodzajnik (de/het) przed każdym rzeczownikiem niderlandzkim
@@ -1708,7 +1729,7 @@ document.addEventListener('click', _unlockTTS, {passive:true});
 
 function speak(text, lang){
   if(!text)return;
-  lang = lang || 'nl-NL';
+  lang = lang || LANG_SPEAK;
 
   // Metoda 1: Capacitor NativeTTS plugin
   try {
@@ -1734,11 +1755,11 @@ function speak(text, lang){
       const voices = window.speechSynthesis.getVoices();
       let v;
       if(lang.startsWith('pl')){
-        v = voices.find(x=>x.lang==='pl-PL')
+        v = voices.find(x=>x.lang===LANG_NATIVE)
          || voices.find(x=>x.lang.startsWith('pl'))
          || (voices.length ? voices[0] : null);
       } else {
-        v = voices.find(x=>x.lang==='nl-NL')
+        v = voices.find(x=>x.lang===LANG_SPEAK)
          || voices.find(x=>x.lang==='nl-BE')
          || voices.find(x=>x.lang.startsWith('nl'))
          || voices.find(x=>x.lang.startsWith('en'))
@@ -1748,7 +1769,7 @@ function speak(text, lang){
       u.onstart = ()=>{
         if(_ttsResumeTimer) clearInterval(_ttsResumeTimer);
         _ttsResumeTimer = setInterval(()=>{
-          try{ window.speechSynthesis.resume(); }catch(e){}
+          try{ window.speechSynthesis.resume(); }catch(e){debugLog(e)}
         }, 100);
       };
       u.onend = u.onerror = ()=>{
@@ -1870,7 +1891,7 @@ function autoExport(){
     const a=document.createElement('a');const ts=now.slice(0,10);
     a.href=URL.createObjectURL(blob);a.download='holenderski-'+ts+'.json';
     a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000);
-  }catch(e){}
+  }catch(e){debugLog(e)}
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1929,7 +1950,7 @@ function rHome(){
   document.getElementById('st-w').textContent=w;document.getElementById('st-p').textContent=p;
   document.getElementById('st-d').textContent=d;document.getElementById('st-m').textContent=m;
   document.getElementById('hdr-due').textContent=d;document.getElementById('hdc').textContent=d;
-  document.getElementById('key-warn').style.display=gk()&&gk()!=='WPROWADZ_NOWY_KLUCZ_API'?'none':'block';
+  const _gkHome=gk();document.getElementById('key-warn').style.display=_gkHome&&_gkHome!=='WPROWADZ_NOWY_KLUCZ_API'?'none':'block';
   const sw=document.getElementById('home-streak-wrap');
   const sv=document.getElementById('home-streak-val');
   if(sw&&sv){const s=LS.streak||0;sv.textContent=s;sw.style.display=s>0?'flex':'none';}
@@ -2091,7 +2112,7 @@ function rWL(append=false){
         voltooideInfo=`<div style="font-size:10px;color:var(--green);margin-top:2px">▶ ${esc(it.voltooid)}${breakdownStr?' · '+breakdownStr:''}</div>`;
       }
     }
-    div.innerHTML=`<div style="flex:1;min-width:0;cursor:pointer" onclick="openEditItem('${idStr}')"><div style="font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">${nlHtml}<span class="type-badge ${it.type==='phrase'?'tp2':'tw'}">${it.type==='phrase'?'fraza':'słowo'}</span>${irregularBadge}</div><div style="color:var(--text2);font-size:12px;margin-top:2px">${plHtml}</div>${voltooideInfo}${cat?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${cat.icon} ${cat.name}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px"><span class="tag" style="background:${LC[l]}22;color:${LC[l]}">poz.${l}</span>${isDue(it)?'<span class="tag tg" style="font-size:9px">nauka</span>':''}<div style="display:flex;gap:4px;margin-top:2px"><button type="button" onclick="event.stopPropagation();speak('${escJ(it.nl)}','nl-NL')" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🔊</button><button type="button" onclick="openMoveModal('${idStr}')" style="background:var(--blue-dim);border:1px solid var(--blue)44;color:var(--blue);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">↗</button><button type="button" onclick="delItem('${idStr}')" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🗑</button></div></div>`;
+    div.innerHTML=`<div style="flex:1;min-width:0;cursor:pointer" onclick="openEditItem('${idStr}')"><div style="font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">${nlHtml}<span class="type-badge ${it.type==='phrase'?'tp2':'tw'}">${it.type==='phrase'?'fraza':'słowo'}</span>${irregularBadge}</div><div style="color:var(--text2);font-size:12px;margin-top:2px">${plHtml}</div>${voltooideInfo}${cat?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${cat.icon} ${cat.name}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px"><span class="tag" style="background:${LC[l]}22;color:${LC[l]}">poz.${l}</span>${isDue(it)?'<span class="tag tg" style="font-size:9px">nauka</span>':''}<div style="display:flex;gap:4px;margin-top:2px"><button type="button" onclick="event.stopPropagation();speak('${escJ(it.nl)}',LANG_SPEAK)" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🔊</button><button type="button" onclick="openMoveModal('${idStr}')" style="background:var(--blue-dim);border:1px solid var(--blue)44;color:var(--blue);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">↗</button><button type="button" onclick="delItem('${idStr}')" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🗑</button></div></div>`;
     frag.appendChild(div);
   });
   list.appendChild(frag);
@@ -2222,7 +2243,7 @@ function rCats(){
   S.categories.forEach(cat=>{
     const cw=S.items.filter(i=>i.categoryId===cat.id),cd=cw.filter(isDue).length;
     const div=document.createElement('div');div.className='card';
-    div.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:center;gap:10px;flex:1;cursor:pointer" onclick="openCatModal('${cat.id}')"><span style="font-size:22px">${esc(cat.icon)}</span><div style="flex:1"><div style="font-weight:700;font-size:14px">${esc(cat.name)}</div><div style="font-size:11px;color:var(--text3)">${cw.length} elementów${cd>0?' · <span style="color:var(--gold)">'+cd+' do nauki</span>':''}</div></div><span style="font-size:16px;color:var(--text3)">›</span></div><button type="button" onclick="openDirPicker('${cat.id}',null)" style="background:var(--gold-dim);color:var(--gold);border:2px solid var(--gold)66;border-radius:10px;padding:8px 14px;font-size:14px;font-weight:800;cursor:pointer;flex-shrink:0;margin-left:10px">▶</button></div><div id="subs-${cat.id}"></div><div id="asf-${cat.id}" style="display:none;margin-top:10px"><div style="display:flex;gap:8px"><input type="text" id="ns-${cat.id}" placeholder="Nazwa podkategorii..."><button type="button" onclick="addSub('${cat.id}')" style="background:var(--gold);color:#1a1a2e;border:none;border-radius:8px;padding:0 12px;font-weight:700;flex-shrink:0">+</button><button type="button" onclick="document.getElementById('asf-${cat.id}').style.display='none'" style="background:var(--bg4);color:var(--text3);border:none;border-radius:8px;padding:0 9px;flex-shrink:0">✕</button></div></div><button type="button" onclick="document.getElementById('asf-${cat.id}').style.display='block'" style="margin-top:10px;background:none;border:1px dashed var(--border2);color:var(--text3);border-radius:7px;padding:5px 12px;font-size:11px;width:100%">+ dodaj podkategorię</button>`;
+    div.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:center;gap:10px;flex:1;cursor:pointer" onclick="openCatModal('${cat.id}')"><span style="font-size:22px">${esc(cat.icon)}</span><div style="flex:1"><div style="font-weight:700;font-size:14px">${esc(cat.name)}</div><div style="font-size:11px;color:var(--text3)">${cw.length} elementów${cd>0?' · <span style="color:var(--gold)">'+cd+' do nauki</span>':''}</div></div><span style="font-size:16px;color:var(--text3)">›</span></div><button type="button" onclick="openDirPicker('${cat.id}',null)" style="background:var(--gold-dim);color:var(--gold);border:2px solid var(--gold)66;border-radius:10px;padding:8px 14px;font-size:14px;font-weight:800;cursor:pointer;flex-shrink:0;margin-left:10px">▶</button></div><div id="subs-${cat.id}"></div><div id="asf-${cat.id}" style="display:none;margin-top:10px"><div style="display:flex;gap:8px"><input type="text" id="ns-${cat.id}" placeholder="Nazwa podkategorii..." aria-label="Nazwa podkategorii..."><button type="button" onclick="addSub('${cat.id}')" style="background:var(--gold);color:#1a1a2e;border:none;border-radius:8px;padding:0 12px;font-weight:700;flex-shrink:0">+</button><button type="button" onclick="document.getElementById('asf-${cat.id}').style.display='none'" style="background:var(--bg4);color:var(--text3);border:none;border-radius:8px;padding:0 9px;flex-shrink:0">✕</button></div></div><button type="button" onclick="document.getElementById('asf-${cat.id}').style.display='block'" style="margin-top:10px;background:none;border:1px dashed var(--border2);color:var(--text3);border-radius:7px;padding:5px 12px;font-size:11px;width:100%">+ dodaj podkategorię</button>`;
     list.appendChild(div);rSubs(cat);
   });
 }
@@ -2244,7 +2265,7 @@ function openCatModal(catId){
   document.getElementById('co-del-btn').style.display=catId==='inne'?'none':'flex';
   showCatView();openModal('modal-cat-opts');
 }
-function showCatView(){document.getElementById('co-view').style.display='block';document.getElementById('co-edit').style.display='none';}
+function showCatView(){document.getElementById('co-view').style.display='block';document.getElementById('co-edit').style.display='none';document.getElementById('co-words').style.display='none';}
 function showCatEdit(){
   const catId=document.getElementById('co-id').value;const cat=S.categories.find(c=>c.id===catId);if(!cat)return;
   document.getElementById('co-edit-name').value=cat.name;document.getElementById('co-edit-icon').value=cat.icon;
@@ -2307,6 +2328,98 @@ function deleteCat(catId){
   S.items=S.items.map(i=>i.categoryId===catId?{...i,categoryId:'inne',subcategoryId:null}:i);
   S.categories=S.categories.filter(c=>c.id!==catId);save();rCats();toast('✓ Kategoria usunięta'+(cnt>0?` · ${cnt} elementów → Inne`:''));
 }
+function showCatWords(){
+  document.getElementById('co-view').style.display='none';
+  document.getElementById('co-edit').style.display='none';
+  document.getElementById('co-words').style.display='block';
+  document.getElementById('co-search').value='';
+  _catSelectMode=false;
+  document.getElementById('co-multi-bar').style.display='none';
+  document.getElementById('co-select-toggle').textContent='☐ Wybierz';
+  populateMoveSelects();
+  renderCatWords();
+}
+var _catSelectMode=false;
+var _catSelected=new Set();
+function toggleCatSelect(){
+  _catSelectMode=!_catSelectMode;
+  _catSelected.clear();
+  document.getElementById('co-select-toggle').textContent=_catSelectMode?'✕ Anuluj':'☐ Wybierz';
+  document.getElementById('co-multi-bar').style.display=_catSelectMode?'block':'none';
+  document.getElementById('co-sel-cnt').textContent='0';
+  renderCatWords();
+}
+function selectAllCatWords(){
+  const catId=document.getElementById('co-id').value;
+  const q=(document.getElementById('co-search').value||'').toLowerCase().trim();
+  let items=S.items.filter(i=>i.categoryId===catId);
+  if(q)items=items.filter(i=>i.nl.toLowerCase().includes(q)||i.pl.toLowerCase().includes(q));
+  items.forEach(it=>_catSelected.add(String(it.id)));
+  document.getElementById('co-sel-cnt').textContent=_catSelected.size;
+  renderCatWords();
+}
+function populateMoveSelects(){
+  const sel=document.getElementById('co-move-cat');sel.innerHTML='';
+  S.categories.forEach(c=>sel.innerHTML+=`<option value="${c.id}">${esc(c.icon)} ${esc(c.name)}</option>`);
+  updateMoveSubSelect();
+  sel.onchange=updateMoveSubSelect;
+}
+function updateMoveSubSelect(){
+  const catId=document.getElementById('co-move-cat').value;
+  const cat=S.categories.find(c=>c.id===catId);
+  const sel=document.getElementById('co-move-sub');sel.innerHTML='<option value="">— bez podkategorii —</option>';
+  (cat?.subs||[]).forEach(s=>sel.innerHTML+=`<option value="${s.id}">${esc(s.n)}</option>`);
+}
+function moveSelectedItems(){
+  if(!_catSelected.size){toast('⚠ Zaznacz elementy!');return;}
+  const toCat=document.getElementById('co-move-cat').value;
+  const toSub=document.getElementById('co-move-sub').value||null;
+  S.items=S.items.map(it=>{
+    if(_catSelected.has(String(it.id))){
+      return {...it,categoryId:toCat,subcategoryId:toSub};
+    }
+    return it;
+  });
+  save();_catSelectMode=false;
+  document.getElementById('co-multi-bar').style.display='none';
+  document.getElementById('co-select-toggle').textContent='☐ Wybierz';
+  const movedCnt=_catSelected.size;_catSelected.clear();
+  toast('✓ Przeniesiono '+movedCnt+' elementów!');
+  renderCatWords();rCats();
+}
+function renderCatWords(){
+  const catId=document.getElementById('co-id').value;
+  const q=(document.getElementById('co-search').value||'').toLowerCase().trim();
+  let items=S.items.filter(i=>i.categoryId===catId);
+  if(q)items=items.filter(i=>i.nl.toLowerCase().includes(q)||i.pl.toLowerCase().includes(q));
+  document.getElementById('co-wcnt').textContent=items.length;
+  const list=document.getElementById('co-wlist');list.innerHTML='';
+  if(!items.length){list.innerHTML='<div style="color:var(--text3);font-size:12px;padding:12px 0;text-align:center">Brak wyników</div>';return;}
+  const frag=document.createDocumentFragment();
+  const cat=S.categories.find(c=>c.id===catId);
+  items.forEach(it=>{
+    const l=Math.min(it.level||0,6);const d=document.createElement('div');
+    const id=String(it.id);const checked=_catSelected.has(id);
+    d.style.cssText='display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);gap:8px';
+    const sub=it.subcategoryId?cat?.subs?.find(s=>s.id===it.subcategoryId):null;
+    const subLabel=sub?`<span style="font-size:9px;color:var(--text3)"> · ${esc(sub.n)}</span>`:'<span style="font-size:9px;color:var(--orange)"> · bez podkat.</span>';
+    const checkHtml=_catSelectMode?`<input type="checkbox" ${checked?'checked':''} onchange="toggleItemSelect('${id}',this.checked)" style="width:18px;height:18px;flex-shrink:0;accent-color:var(--gold);cursor:pointer">`:'';
+    d.innerHTML=`${checkHtml}<div style="flex:1;min-width:0;cursor:pointer" onclick="${_catSelectMode?`toggleItemSelectClick('${id}')`:`closeModal('modal-cat-opts');openEditItem('${id}')`}"><div style="font-weight:600;font-size:13px">${esc(it.nl)}${subLabel}</div><div style="color:var(--text2);font-size:11px">${esc(it.pl)}</div></div>${_catSelectMode?'':`<div style="display:flex;align-items:center;gap:5px;flex-shrink:0"><span class="tag" style="background:${LC[l]}22;color:${LC[l]};font-size:9px">poz.${l}</span><button type="button" onclick="delItemFromCat('${id}')" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:6px;padding:3px 7px;font-size:12px;cursor:pointer">🗑</button></div>`}`;
+    frag.appendChild(d);
+  });
+  list.appendChild(frag);
+}
+function toggleItemSelect(id,checked){
+  if(checked)_catSelected.add(id);else _catSelected.delete(id);
+  document.getElementById('co-sel-cnt').textContent=_catSelected.size;
+}
+function toggleItemSelectClick(id){
+  if(_catSelected.has(id))_catSelected.delete(id);else _catSelected.add(id);
+  document.getElementById('co-sel-cnt').textContent=_catSelected.size;
+  renderCatWords();
+}
+function delItemFromCat(id){if(!confirm('Usunąć ten element?'))return;S.items=S.items.filter(i=>String(i.id)!==String(id));save();renderCatWords();}
+
 function deleteSub(catId,subId){
   const cat=S.categories.find(c=>c.id===catId);const sub=cat?.subs?.find(s=>s.id===subId);if(!sub)return;
   const cnt=S.items.filter(i=>i.subcategoryId===subId).length;
@@ -2331,9 +2444,9 @@ function addSub(cid){
 // ════════════════════════════════════════════════════════════════
 // SCAN
 // ════════════════════════════════════════════════════════════════
-function rScan(){document.getElementById('sn-key').style.display=(gk()&&gk()!=='WPROWADZ_NOWY_KLUCZ_API')?'none':'block';}
+function rScan(){const _gkScan=gk();document.getElementById('sn-key').style.display=(_gkScan&&_gkScan!=='WPROWADZ_NOWY_KLUCZ_API')?'none':'block';}
 function triggerCam(src){
-  if(!gk()||gk()==='WPROWADZ_NOWY_KLUCZ_API'){toast('⚠ Dodaj klucz API!');goTo('settings');return;}
+  const _gkDs=gk();if(!_gkDs||_gkDs==='WPROWADZ_NOWY_KLUCZ_API'){toast('⚠ Dodaj klucz API!');goTo('settings');return;}
   document.getElementById(src==='camera'?'cinp-camera':'cinp-gallery').click();
 }
 async function doScan(inp){
@@ -2427,8 +2540,8 @@ function srItemHtml(item,idx){
   // Zona de editare cu stopPropagation pe fiecare element interactiv
   const editHtml=`<div class="sr-edit-inline${item._editOpen?' open':''}" id="sr-edit-${idx}" onclick="event.stopPropagation()">
     <div class="sr-edit-row">
-      <input id="sr-nl-${idx}" type="text" value="${esc(item.nl)}" placeholder="🇳🇱 Niderlandzki" onclick="event.stopPropagation()" oninput="event.stopPropagation()" onfocus="srScrollToRow(${idx})">
-      <input id="sr-pl-${idx}" type="text" value="${esc(item.pl)}" placeholder="🇵🇱 Polski" onclick="event.stopPropagation()" oninput="event.stopPropagation()" onfocus="srScrollToRow(${idx})">
+      <input id="sr-nl-${idx}" type="text" value="${esc(item.nl)}" placeholder="🇳🇱 Niderlandzki" onclick="event.stopPropagation()" oninput="event.stopPropagation()" onfocus="srScrollToRow(${idx})" aria-label="🇳🇱 Niderlandzki">
+      <input id="sr-pl-${idx}" type="text" value="${esc(item.pl)}" placeholder="🇵🇱 Polski" onclick="event.stopPropagation()" oninput="event.stopPropagation()" onfocus="srScrollToRow(${idx})" aria-label="🇵🇱 Polski">
     </div>
     <div class="sr-edit-row">
       <select id="sr-type-${idx}" style="width:auto;font-size:12px;padding:6px 8px" onclick="event.stopPropagation()" onchange="event.stopPropagation()" onfocus="srScrollToRow(${idx})">
@@ -2762,7 +2875,7 @@ async function aiAnalyzeVerbs(){
 }
 // ════════════════════════════════════════════════════════════════
 function triggerCamIrr(src){
-  if(!gk()||gk()==='WPROWADZ_NOWY_KLUCZ_API'){toast('⚠ Dodaj klucz API!');goTo('settings');return;}
+  const _gkDsi=gk();if(!_gkDsi||_gkDsi==='WPROWADZ_NOWY_KLUCZ_API'){toast('⚠ Dodaj klucz API!');goTo('settings');return;}
   document.getElementById(src==='camera'?'cinp-irr-camera':'cinp-irr-gallery').click();
 }
 async function doScanIrr(inp){
@@ -3102,7 +3215,7 @@ function czZdanieGetStock(){
   try{const s=localStorage.getItem(CZ_ZDANIE_KEY);return s?safeGetJSON(CZ_ZDANIE_KEY,[]):[];}catch(e){return [];}
 }
 function czZdanieSaveStock(arr){
-  try{safeSetItem(CZ_ZDANIE_KEY,JSON.stringify(arr));}catch(e){}
+  try{safeSetItem(CZ_ZDANIE_KEY,JSON.stringify(arr));}catch(e){debugLog(e)}
 }
 function czZdanieGetDate(){return localStorage.getItem(CZ_ZDANIE_DATE_KEY)||'';}
 function czZdanieSaveDate(d){safeSetItem(CZ_ZDANIE_DATE_KEY,d);}
@@ -3124,7 +3237,7 @@ function czZdanieMarkSeen(ids){
     const existing=czZdanieGetSeen();
     const merged=[...new Set([...existing.ids,...ids])];
     safeSetItem(CZ_ZDANIE_SEEN_KEY,JSON.stringify({date:today,ids:merged}));
-  }catch(e){}
+  }catch(e){debugLog(e)}
 }
 function czZdanieTodayKey(){
   const n=new Date();
@@ -3275,7 +3388,7 @@ function czRenderZdanie(){
     btns.innerHTML=`
       <input id="cz-zdanie-inp" type="text" placeholder="Wpisz participium..." autocomplete="off" autocorrect="off" autocapitalize="off"
         style="flex:1;padding:10px 14px;font-size:15px;background:var(--bg3);color:var(--text1);border:1px solid var(--border2);border-radius:var(--r3);outline:none"
-        onkeydown="if(event.key==='Enter')czOdpowiedzZdanie()">
+        onkeydown="if(event.key==='Enter')czOdpowiedzZdanie()" aria-label="Wpisz participium...">
       <button type="button" class="btn bp" style="flex-shrink:0" data-action="czOdpowiedzZdanie">✓</button>`;
     setTimeout(()=>{const inp=document.getElementById('cz-zdanie-inp');if(inp)inp.focus();},100);
   } else {
@@ -3348,11 +3461,11 @@ function fcSpeak(){
   if(LRN.flipped){
     // Cardul e intors - pronunta traducerea (pl sau nl in functie de directie)
     const showNl = (LRN.dir||'nl') === 'nl';
-    speak(showNl ? it.pl : it.nl, showNl ? 'pl-PL' : 'nl-NL');
+    speak(showNl ? it.pl : it.nl, showNl ? LANG_NATIVE : LANG_SPEAK);
   } else {
     // Cardul nu e intors - pronunta cuvantul afisat
     const showNl = (LRN.dir||'nl') === 'nl';
-    speak(showNl ? it.nl : it.pl, showNl ? 'nl-NL' : 'pl-PL');
+    speak(showNl ? it.nl : it.pl, showNl ? LANG_SPEAK : LANG_NATIVE);
   }
 }
 function flipCard(){
@@ -3520,9 +3633,9 @@ function sesSpeak(side){
   const showNl=SES.dir==='nl';
   // front = limba afișată inițial, back = traducerea
   if(side==='back'){
-    speak(showNl?it.pl:it.nl, showNl?'pl-PL':'nl-NL');
+    speak(showNl?it.pl:it.nl, showNl?LANG_NATIVE:LANG_SPEAK);
   } else {
-    speak(showNl?it.nl:it.pl, showNl?'nl-NL':'pl-PL');
+    speak(showNl?it.nl:it.pl, showNl?LANG_SPEAK:LANG_NATIVE);
   }
 }
 function sesFlip(){
@@ -3589,7 +3702,7 @@ let _fuzzyDone=false;
 let _fuzzyTrash=[]; // undo stack — max 10 items
 
 function _getFuzzyOk(){try{return new Set(safeGetJSON(FUZZY_OK_KEY,[]));}catch(e){return new Set();}}
-function _saveFuzzyOk(set){try{safeSetItem(FUZZY_OK_KEY,JSON.stringify([...set]));}catch(e){}}
+function _saveFuzzyOk(set){try{safeSetItem(FUZZY_OK_KEY,JSON.stringify([...set]));}catch(e){debugLog(e)}}
 function _pairKey(a,b){
   if(!a?.id||!b?.id)return '';
   return [String(a.id),String(b.id)].sort().join('|');
@@ -3821,8 +3934,8 @@ let _ckValue='';
 let _ckLocked=false;
 
 const CK_SPECIAL={
-  'nl-NL':['ij','IJ','é','è','ë','ê','ï','ö','ü','ó','á'],
-  'pl-PL':['ą','ę','ó','ś','ł','ż','ź','ć','ń','Ą','Ę','Ó','Ś','Ł','Ż','Ź','Ć','Ń'],
+  LANG_SPEAK:['ij','IJ','é','è','ë','ê','ï','ö','ü','ó','á'],
+  LANG_NATIVE:['ą','ę','ó','ś','ł','ż','ź','ć','ń','Ą','Ę','Ó','Ś','Ł','Ż','Ź','Ć','Ń'],
 };
 
 function ckSetLang(lang){
@@ -3895,7 +4008,7 @@ function renderWriteCard(){
   SES.writeAnswer=showNl?it.pl:it.nl;
   SES.writeAnswerAlt=showNl?it.nl:it.pl;
   // Limba în care utilizatorul scrie = limba răspunsului
-  SES.writeLang=showNl?'pl-PL':'nl-NL';
+  SES.writeLang=showNl?LANG_NATIVE:LANG_SPEAK;
   ckSetLang(SES.writeLang);
 }
 
@@ -4132,7 +4245,7 @@ function endGame(won){
   document.getElementById('gres-errors').textContent=G.errors;
   // Save to leaderboard
   const entry={ts:Date.now(),pairs:G.pairs,matched:G.score,errors:G.errors,time:G.elapsed,won};
-  try{const lb=safeGetJSON('nl_lb_v1',[]);lb.push(entry);lb.sort((a,b)=>{if(b.matched!==a.matched)return b.matched-a.matched;if(a.errors!==b.errors)return a.errors-b.errors;return a.time-b.time;});lb.splice(10);safeSetItem('nl_lb_v1',JSON.stringify(lb));}catch(e){}
+  try{const lb=safeGetJSON('nl_lb_v1',[]);lb.push(entry);lb.sort((a,b)=>{if(b.matched!==a.matched)return b.matched-a.matched;if(a.errors!==b.errors)return a.errors-b.errors;return a.time-b.time;});lb.splice(10);safeSetItem('nl_lb_v1',JSON.stringify(lb));}catch(e){debugLog(e)}
   renderLeaderboard();
   if(won) markActivityDone();
 }
@@ -4596,11 +4709,11 @@ function renderExCard(ex, container){
     const _qMatch = (ex.question || '').match(/["\u201c\u201d](.*?)["\u201c\u201d]/);
     const _plWord = ex.pl || (_qMatch && _qMatch[1]) || '';
     if(_plWord){
-      audioHtml = `<button type="button" onclick="speak('${escJ(_plWord)}','pl-PL')" style="background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue);border-radius:var(--r3);padding:8px 14px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;margin-bottom:16px;cursor:pointer">🔊 Wymowa</button>`;
+      audioHtml = `<button type="button" onclick="speak('${escJ(_plWord)}',LANG_NATIVE)" style="background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue);border-radius:var(--r3);padding:8px 14px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;margin-bottom:16px;cursor:pointer">🔊 Wymowa</button>`;
     }
   } else if(ex.audio){
     // nl->pl: pronunta cuvantul NL (ex.audio)
-    audioHtml = `<button type="button" onclick="speak('${escJ(ex.audio)}','nl-NL')" style="background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue);border-radius:var(--r3);padding:8px 14px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;margin-bottom:16px;cursor:pointer">🔊 Wymowa</button>`;
+    audioHtml = `<button type="button" onclick="speak('${escJ(ex.audio)}',LANG_SPEAK)" style="background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue);border-radius:var(--r3);padding:8px 14px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;margin-bottom:16px;cursor:pointer">🔊 Wymowa</button>`;
   }
 
   let inputHtml = '';
@@ -4618,7 +4731,7 @@ function renderExCard(ex, container){
     inputHtml = `<input class="ex-input" id="ex-inp" type="text"
       placeholder="Wpisz odpowiedź po niderlandzku..."
       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-      style="margin-bottom:90px">`;
+      style="margin-bottom:90px" aria-label="Wpisz odpowiedź po niderlandzku...">`;
   }
 
   container.innerHTML = `
@@ -4652,7 +4765,7 @@ function exSelectMC(idx){
       const isPlNl = dir.includes('pl') && dir.includes('nl') && dir.indexOf('pl') < dir.indexOf('nl');
       // pl->nl: optiunile sunt NL -> pronunta in olandeza
       // nl->pl: optiunile sunt PL -> pronunta in poloneza
-      const lang = isPlNl ? 'nl-NL' : 'pl-PL';
+      const lang = isPlNl ? LANG_SPEAK : LANG_NATIVE;
       setTimeout(()=>speak(opt, lang), 150);
     }
   }
@@ -5113,7 +5226,7 @@ function endEndless() {
   document.getElementById('gres-pairs').textContent=EM.matched;
   document.getElementById('gres-errors').textContent=EM.errors;
   const entry={ts:Date.now(),pairs:EM.matched,matched:EM.matched,errors:EM.errors,time:EM.countdownMax,won:true,mode:'endless'};
-  try{const lb=safeGetJSON('nl_lb_v1',[]);lb.push(entry);lb.sort((a,b)=>b.matched-a.matched||a.errors-b.errors);lb.splice(10);safeSetItem('nl_lb_v1',JSON.stringify(lb));}catch(e){}
+  try{const lb=safeGetJSON('nl_lb_v1',[]);lb.push(entry);lb.sort((a,b)=>b.matched-a.matched||a.errors-b.errors);lb.splice(10);safeSetItem('nl_lb_v1',JSON.stringify(lb));}catch(e){debugLog(e)}
   renderLeaderboard();
   if(EM.matched>0)markActivityDone();
 }
@@ -6054,6 +6167,7 @@ window.addEventListener('unhandledrejection',function(e){console.error('[unhandl
     'showCatView':   ()=>showCatView(),
     'showSubEdit':   ()=>showSubEdit(),
     'showSubWords':  ()=>showSubWords(),
+    'showCatWords':  ()=>showCatWords(),
     'cancelCat':     ()=>cancelCat(),
     'deleteCatFromModal':()=>deleteCatFromModal(),
     'deleteSubFromModal':()=>deleteSubFromModal(),
