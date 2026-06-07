@@ -879,49 +879,128 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
 
 <!-- ═══ VTT FISZKI SCREEN ═══ -->
 <div class="scr" id="scr-vtt-fiszki">
-  <!-- Header -->
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-    <button type="button" data-action="goTo" data-args="czasowniki" style="background:none;border:none;color:var(--text3);font-size:22px;cursor:pointer;padding:0;line-height:1">←</button>
-    <div style="text-align:center">
+
+  <!-- SETUP -->
+  <div id="vtt-setup">
+    <div class="hero" style="margin-bottom:12px">
+      <div style="font-size:11px;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">🃏 Fiszki czasownikowe</div>
+      <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:900">Wybierz zakres 🎯</div>
+    </div>
+
+    <div class="card">
+      <!-- Kategoria -->
+      <div class="set-row">
+        <div style="font-size:13px;font-weight:600">Kategoria</div>
+        <select id="vtt-cat" style="width:auto;padding:7px 10px" onchange="vttOnCatChange()">
+          <option value="">Wszystkie</option>
+        </select>
+      </div>
+      <!-- Podkategoria -->
+      <div class="set-row" id="vtt-sub-row" style="display:none;border:none">
+        <div style="font-size:13px;font-weight:600">Podkategoria</div>
+        <select id="vtt-sub" style="width:auto;padding:7px 10px">
+          <option value="">Wszystkie</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:10px">
+      <!-- Typ -->
+      <div class="set-row">
+        <div style="font-size:13px;font-weight:600">Typ</div>
+        <select id="vtt-type" style="width:auto;padding:7px 10px">
+          <option value="all">Wszystkie</option>
+          <option value="regular">✅ Regularne</option>
+          <option value="irregular">⚡ Nieregularne</option>
+        </select>
+      </div>
+      <!-- Poziom -->
+      <div class="set-row" style="flex-direction:column;align-items:flex-start;gap:8px">
+        <div style="font-size:13px;font-weight:600">Poziom</div>
+        <div id="vtt-level-picker" style="display:flex;flex-wrap:wrap;gap:6px">
+          <button type="button" class="lvl-btn active" data-lvl="" onclick="vttLvlPick(this)">Wszystkie</button>
+          <button type="button" class="lvl-btn" data-lvl="0" onclick="vttLvlPick(this)" style="background:#FFFFFF22;color:#FFFFFF">● 0 nowe</button>
+          <button type="button" class="lvl-btn" data-lvl="1" onclick="vttLvlPick(this)" style="background:#4A8DFF22;color:#4A8DFF">● 1</button>
+          <button type="button" class="lvl-btn" data-lvl="2" onclick="vttLvlPick(this)" style="background:#7A5CFF22;color:#7A5CFF">● 2</button>
+          <button type="button" class="lvl-btn" data-lvl="3" onclick="vttLvlPick(this)" style="background:#FF1A1A22;color:#FF1A1A">● 3</button>
+          <button type="button" class="lvl-btn" data-lvl="4" onclick="vttLvlPick(this)" style="background:#F29A3822;color:#F29A38">● 4</button>
+          <button type="button" class="lvl-btn" data-lvl="5" onclick="vttLvlPick(this)" style="background:#D9B24C22;color:#D9B24C">● 5</button>
+          <button type="button" class="lvl-btn" data-lvl="6" onclick="vttLvlPick(this)" style="background:#45C66A22;color:#45C66A">● 6 opanowane</button>
+        </div>
+        <input type="hidden" id="vtt-level" value="">
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:10px">
+      <!-- Liczba -->
+      <div class="set-row">
+        <div><div style="font-size:13px;font-weight:600">Liczba fiszek</div></div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <button type="button" class="gsb" onclick="vttAdjCount(-5)">−</button>
+          <span id="vtt-cnt" style="font-size:20px;font-weight:800;color:var(--gold);min-width:32px;text-align:center">20</span>
+          <button type="button" class="gsb" onclick="vttAdjCount(5)">+</button>
+        </div>
+      </div>
+      <div style="padding:8px 0 4px">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button type="button" class="gsb" onclick="vttSetCount(5)">5</button>
+          <button type="button" class="gsb" onclick="vttSetCount(10)">10</button>
+          <button type="button" class="gsb" onclick="vttSetCount(20)">20</button>
+          <button type="button" class="gsb" onclick="vttSetCount(50)">50</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="vtt-avail" style="font-size:12px;color:var(--text3);text-align:center;margin:10px 0"></div>
+    <button type="button" id="vtt-start-btn" class="btn bp" onclick="vttStartSesja()" style="margin-top:4px">🃏 Zacznij fiszki</button>
+    <div id="vtt-noitems" style="display:none" class="aerr">⚠ Brak czasowników z participium w tym filtrze!</div>
+  </div>
+
+  <!-- SESJA -->
+  <div id="vtt-sesja" style="display:none">
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <button type="button" onclick="vttBackSetup()" style="background:none;border:none;color:var(--text3);font-size:22px;cursor:pointer;padding:0;line-height:1">←</button>
       <span id="vtt-counter" style="font-size:12px;color:var(--text3)">1 / 20</span>
+      <div style="font-size:12px">✓<span id="vtt-known" style="color:var(--green);font-weight:700">0</span> ✗<span id="vtt-unknown" style="color:var(--red);font-weight:700">0</span></div>
     </div>
-    <div style="font-size:12px;color:var(--text3)">✓<span id="vtt-known">0</span> ✗<span id="vtt-unknown">0</span></div>
-  </div>
-  <!-- Progress bar -->
-  <div style="height:4px;background:var(--bg3);border-radius:2px;margin-bottom:18px;overflow:hidden">
-    <div id="vtt-progress" style="height:100%;background:var(--green);border-radius:2px;width:0%;transition:width .3s"></div>
+    <!-- Progress bar -->
+    <div style="height:4px;background:var(--bg3);border-radius:2px;margin-bottom:16px;overflow:hidden">
+      <div id="vtt-progress" style="height:100%;background:var(--green);border-radius:2px;width:0%;transition:width .3s"></div>
+    </div>
+
+    <!-- Flip card -->
+    <div id="vtt-card" onclick="vttFlip()" style="min-height:220px;background:linear-gradient(135deg,#12123a,#0c0c28);border:1px solid #2a2a5a;border-radius:var(--r);padding:24px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;margin-bottom:14px;transition:transform .1s;user-select:none;active:transform:scale(.97)">
+      <div id="vtt-front">
+        <div style="font-size:11px;color:var(--purple);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">🇳🇱 Czasownik</div>
+        <div id="vtt-word" style="font-size:30px;font-weight:900;color:var(--text1);margin-bottom:6px"></div>
+        <div id="vtt-pl" style="font-size:13px;color:var(--text3)"></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:20px;opacity:.5">↓ kliknij aby odkryć</div>
+      </div>
+      <div id="vtt-back" style="display:none">
+        <div id="vtt-type-badge" style="font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;font-weight:700"></div>
+        <div id="vtt-voltooid" style="font-size:36px;font-weight:900;margin-bottom:10px"></div>
+        <div id="vtt-hz-display" style="font-size:15px;font-weight:700;padding:6px 14px;border-radius:20px;display:inline-block;margin-bottom:8px"></div>
+        <div id="vtt-suffix-display" style="font-size:12px;color:var(--text3)"></div>
+      </div>
+    </div>
+
+    <!-- Buttons (shown after flip) -->
+    <div id="vtt-buttons" style="display:none;gap:10px">
+      <button type="button" onclick="vttAnswer(false)" style="flex:1;background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:var(--r2);padding:14px;font-size:15px;font-weight:700;cursor:pointer">✗ Nie znam</button>
+      <button type="button" onclick="vttAnswer(true)" style="flex:1;background:var(--green-dim);border:1px solid var(--green)44;color:var(--green);border-radius:var(--r2);padding:14px;font-size:15px;font-weight:700;cursor:pointer">✓ Znam</button>
+    </div>
   </div>
 
-  <!-- Flip card -->
-  <div id="vtt-card" onclick="vttFlip()" style="min-height:200px;background:linear-gradient(135deg,#1a2a1a,#0d1a0d);border:1px solid #2a5a2a;border-radius:var(--r);padding:24px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;margin-bottom:16px;transition:transform .1s;user-select:none">
-    <div id="vtt-front" style="display:block">
-      <div style="font-size:11px;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">🇳🇱 Czasownik</div>
-      <div id="vtt-word" style="font-size:32px;font-weight:900;color:var(--text1);margin-bottom:8px"></div>
-      <div id="vtt-pl" style="font-size:14px;color:var(--text3)"></div>
-      <div style="font-size:11px;color:var(--text3);margin-top:20px;opacity:.6">Kliknij aby odkryć →</div>
-    </div>
-    <div id="vtt-back" style="display:none">
-      <div id="vtt-type-badge" style="font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px"></div>
-      <div id="vtt-voltooid" style="font-size:36px;font-weight:900;margin-bottom:10px"></div>
-      <div id="vtt-hz-display" style="font-size:16px;font-weight:700;margin-bottom:8px"></div>
-      <div id="vtt-suffix-display" style="font-size:13px;color:var(--text3)"></div>
-    </div>
-  </div>
-
-  <!-- Buttons (hidden until flip) -->
-  <div id="vtt-buttons" style="display:none;gap:10px;display:none">
-    <button type="button" onclick="vttAnswer(false)" style="flex:1;background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:var(--r2);padding:14px;font-size:15px;font-weight:700;cursor:pointer">✗ Nie znam</button>
-    <button type="button" onclick="vttAnswer(true)" style="flex:1;background:var(--green-dim);border:1px solid var(--green)44;color:var(--green);border-radius:var(--r2);padding:14px;font-size:15px;font-weight:700;cursor:pointer">✓ Znam</button>
-  </div>
-
-  <!-- Result screen -->
+  <!-- WYNIK -->
   <div id="vtt-result" style="display:none;text-align:center;padding:20px 0">
     <div id="vtt-result-emoji" style="font-size:52px;margin-bottom:10px"></div>
-    <div id="vtt-result-pct" style="font-size:36px;font-weight:900;color:var(--text1)"></div>
-    <div id="vtt-result-sub" style="font-size:13px;color:var(--text3);margin:8px 0 20px"></div>
-    <button type="button" onclick="startFiszkiCzasownikowe()" style="width:100%;background:var(--green-dim);border:1px solid var(--green)44;color:var(--green);border-radius:var(--r2);padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px">🔄 Jeszcze raz</button>
-    <button type="button" data-action="goTo" data-args="czasowniki" style="width:100%;background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:var(--r2);padding:12px;font-size:14px;cursor:pointer">← Wróć</button>
+    <div id="vtt-result-pct" style="font-size:40px;font-weight:900;color:var(--gold)"></div>
+    <div id="vtt-result-sub" style="font-size:13px;color:var(--text3);margin:8px 0 24px"></div>
+    <button type="button" onclick="vttStartSesja()" class="btn bp" style="margin-bottom:8px">🔄 Jeszcze raz</button>
+    <button type="button" data-action="goTo" data-args="czasowniki" class="btn bs">← Wróć do ćwiczeń</button>
   </div>
+
 </div>
 
 <!-- ═══ CZASOWNIKI SESJA ═══ -->
@@ -1734,6 +1813,31 @@ function markActivityDone(){
   rHome();
 }
 
+// Actualizează streak + grafic la orice activitate (adăugare, editare)
+// fără a marca sesiune completă
+function markDailyActive(){
+  const today=new Date().toDateString();
+  const yDate=new Date();yDate.setDate(yDate.getDate()-1);
+  const yesterday=yDate.toDateString();
+  let streakChanged=false;
+  if(LS.lastStudyDate!==today){
+    if(LS.lastStudyDate===yesterday) LS.streak++;
+    else if(!LS.lastStudyDate) LS.streak=1;
+    else LS.streak=1;
+    LS.lastStudyDate=today;
+    streakChanged=true;
+    saveLK();
+  }
+  if(streakChanged) showXPBurst('🔥 +1 dzień!');
+  // Rerandăm graficul și heatmap-ul imediat
+  rProgressChart();
+  rHeatmap();
+  // Actualizăm streak display în home
+  const sw=document.getElementById('home-streak-wrap');
+  const sv=document.getElementById('home-streak-val');
+  if(sw&&sv){const s=LS.streak||0;sv.textContent=s;sw.style.display=s>0?'flex':'none';}
+}
+
 // ════════════════════════════════════════════════════════════════
 // HELPERS
 // ════════════════════════════════════════════════════════════════
@@ -1912,7 +2016,7 @@ function importJSON(file){
       } else {
         toast('✓ Dodano: '+added+' · Pominięto: '+skipped);
       }
-      save();rHome();rWL();
+      save();markDailyActive();rHome();rWL();
     }catch(err){toast('⚠ Błąd importu: '+err.message);}
   };
   reader.readAsText(file);
@@ -2227,6 +2331,8 @@ function saveItem(){
       return;
     }
     S.items.push({id:_newId(),nl,pl,type:EDIT_TYPE,categoryId:cat,subcategoryId:sub,level:0,nextReview:now,addedAt:now,...verbFields});
+    logDaily('added',1);
+    markDailyActive();
     toast('✓ Dodano!');
   } else {
     S.items=S.items.map(i=>{
@@ -2552,6 +2658,7 @@ function srConfirmImport(){
   if(!toImport.length){toast('⚠ Nic nie zaznaczono!');return;}
   const{added,skipped}=mergeItems(toImport);
   save();autoExport();
+  if(added>0)markDailyActive();
   closeModal('scan-review-modal');
   const bc={};toImport.forEach(i=>{const cat=S.categories.find(c=>c.id===i.categoryId);const cn=cat?.name||'Inne';if(!bc[cn])bc[cn]={w:0,p:0,ico:cat?.icon||'📦'};if(i.type==='word')bc[cn].w++;else bc[cn].p++;});
   let h=`<div class="aok">✓ Dodano: <strong>${added}</strong> · Pominięto: <strong>${skipped}</strong><br><span style="font-size:11px;opacity:.8">💾 Plik JSON pobrany automatycznie</span></div><div class="card" style="margin-top:8px"><div class="sec">Podsumowanie</div>`;
@@ -2925,6 +3032,7 @@ function irrConfirmImport(){
   if(!toImport.length){toast('⚠ Nic nie zaznaczono!');return;}
   const{added,skipped}=mergeItems(toImport);
   save();autoExport();
+  if(added>0)markDailyActive();
   document.getElementById('modal-irr-review').classList.remove('open');
   document.getElementById('sres-irr').innerHTML=`<div class="aok">✓ Dodano: <strong>${added}</strong> czasowników · Pominięto: <strong>${skipped}</strong><br><span style="font-size:11px;opacity:.8">💾 Plik JSON pobrany automatycznie</span></div>`;
   rHome();
@@ -3116,17 +3224,88 @@ function czPokazFeedback(ok, correctLabel, voltooid){
 // ════════════════════════════════════════════════════════════════
 // VTT FISZKI — Fiszki czasownikowe (regularne + nieregularne)
 // ════════════════════════════════════════════════════════════════
-let _vttSesja = null; // {queue, idx, known, unknown, flipped}
+let _vttSesja = null;
+let _vttCount = 20;
+
+function vttOnCatChange(){
+  const catId = document.getElementById('vtt-cat').value;
+  const row = document.getElementById('vtt-sub-row');
+  const sub = document.getElementById('vtt-sub');
+  sub.innerHTML = '<option value="">Wszystkie</option>';
+  if(catId){
+    const cat = S.categories.find(c=>c.id===catId);
+    const subs = (cat?.subs||[]).filter(s=>S.items.some(i=>i.subcategoryId===s.id&&i.voltooid));
+    if(subs.length){ subs.forEach(s=>sub.innerHTML+=`<option value="${s.id}">${esc(s.n)}</option>`); row.style.display='flex'; }
+    else row.style.display='none';
+  } else row.style.display='none';
+  vttUpdateAvail();
+}
+
+function vttLvlPick(btn){
+  document.querySelectorAll('#vtt-level-picker .lvl-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('vtt-level').value = btn.dataset.lvl;
+  vttUpdateAvail();
+}
+
+function vttAdjCount(d){ _vttCount=Math.max(5,Math.min(100,_vttCount+d)); document.getElementById('vtt-cnt').textContent=_vttCount; vttUpdateAvail(); }
+function vttSetCount(n){ _vttCount=n; document.getElementById('vtt-cnt').textContent=n; vttUpdateAvail(); }
+
+function vttGetPool(){
+  const catId = document.getElementById('vtt-cat')?.value||'';
+  const subId = document.getElementById('vtt-sub')?.value||'';
+  const type  = document.getElementById('vtt-type')?.value||'all';
+  const lvl   = document.getElementById('vtt-level')?.value;
+  let pool = S.items.filter(i=>i.type==='word'&&i.voltooid);
+  if(type==='regular')   pool=pool.filter(i=>!i.irregular);
+  if(type==='irregular') pool=pool.filter(i=>i.irregular);
+  if(catId) pool=pool.filter(i=>i.categoryId===catId);
+  if(subId) pool=pool.filter(i=>i.subcategoryId===subId);
+  if(lvl!==''&&lvl!=null) pool=pool.filter(i=>(i.level||0)===parseInt(lvl));
+  return pool;
+}
+
+function vttUpdateAvail(){
+  const pool = vttGetPool();
+  const avail = pool.length;
+  const sesja = Math.min(_vttCount, avail);
+  document.getElementById('vtt-avail').textContent = avail>0 ? `Dostępnych: ${avail} (sesja: ${sesja})` : '';
+  document.getElementById('vtt-start-btn').style.display = avail>0?'flex':'none';
+  document.getElementById('vtt-noitems').style.display = avail>0?'none':'block';
+}
 
 function startFiszkiCzasownikowe(){
-  // Pool: wszystkie verbe cu voltooid (regulate + neregulate)
-  const pool = S.items.filter(i => i.type === 'word' && i.voltooid);
-  if(!pool.length){ toast('⚠ Brak czasowników z participium!'); return; }
-  const N = Math.min(20, pool.length);
-  const queue = [...pool].sort(() => Math.random() - 0.5).slice(0, N);
-  _vttSesja = { queue, idx: 0, known: 0, unknown: 0, flipped: false };
+  // Populate selectors & show setup
+  const catSel = document.getElementById('vtt-cat');
+  catSel.innerHTML = '<option value="">Wszystkie</option>';
+  S.categories.forEach(c=>{
+    if(S.items.some(i=>i.categoryId===c.id&&i.voltooid))
+      catSel.innerHTML+=`<option value="${c.id}">${esc(c.icon)} ${esc(c.name)}</option>`;
+  });
+  document.getElementById('vtt-sub-row').style.display='none';
+  document.getElementById('vtt-setup').style.display='block';
+  document.getElementById('vtt-sesja').style.display='none';
+  document.getElementById('vtt-result').style.display='none';
+  vttUpdateAvail();
   goTo('vtt-fiszki');
+}
+
+function vttStartSesja(){
+  const pool = vttGetPool();
+  if(!pool.length){ toast('⚠ Brak czasowników!'); return; }
+  const N = Math.min(_vttCount, pool.length);
+  const queue = [...pool].sort(()=>Math.random()-.5).slice(0,N);
+  _vttSesja = { queue, idx:0, known:0, unknown:0, flipped:false };
+  document.getElementById('vtt-setup').style.display='none';
+  document.getElementById('vtt-sesja').style.display='block';
+  document.getElementById('vtt-result').style.display='none';
   vttRenderCard();
+}
+
+function vttBackSetup(){
+  document.getElementById('vtt-setup').style.display='block';
+  document.getElementById('vtt-sesja').style.display='none';
+  document.getElementById('vtt-result').style.display='none';
 }
 
 function vttRenderCard(){
@@ -3136,33 +3315,25 @@ function vttRenderCard(){
   const it = queue[idx];
   const total = queue.length;
 
-  // Progress
-  document.getElementById('vtt-progress').style.width = ((idx / total) * 100) + '%';
-  document.getElementById('vtt-counter').textContent = (idx + 1) + ' / ' + total;
+  document.getElementById('vtt-progress').style.width = ((idx/total)*100)+'%';
+  document.getElementById('vtt-counter').textContent = (idx+1)+' / '+total;
   document.getElementById('vtt-known').textContent = known;
   document.getElementById('vtt-unknown').textContent = unknown;
 
-  // Reset flip
   _vttSesja.flipped = false;
   document.getElementById('vtt-front').style.display = 'block';
   document.getElementById('vtt-back').style.display = 'none';
   document.getElementById('vtt-buttons').style.display = 'none';
-  document.getElementById('vtt-result').style.display = 'none';
-
-  // Față: verbul
-  const nl = it.nl.replace(/^(de |het |een )/i, '').trim();
+  document.getElementById('vtt-card').style.cursor = 'pointer';
   document.getElementById('vtt-word').textContent = it.nl;
   document.getElementById('vtt-pl').textContent = it.pl;
 }
 
 function vttFlip(){
-  if(!_vttSesja) return;
-  if(_vttSesja.flipped) return;
+  if(!_vttSesja||_vttSesja.flipped) return;
   _vttSesja.flipped = true;
-
   const it = _vttSesja.queue[_vttSesja.idx];
 
-  // Spate: participiu + tip + hebben/zijn
   document.getElementById('vtt-front').style.display = 'none';
   document.getElementById('vtt-back').style.display = 'block';
   document.getElementById('vtt-buttons').style.display = 'flex';
@@ -3174,25 +3345,28 @@ function vttFlip(){
     badge.style.color = 'var(--orange)';
   } else {
     const bd = getVoltooideBreakdown(it.nl);
-    badge.textContent = '✅ Regularny' + (bd ? ' (+' + bd.suffix + ')' : '');
+    badge.textContent = '✅ Regularny' + (bd&&bd.suffix!=='∅'?' (+'+bd.suffix+')':'');
     badge.style.color = 'var(--green)';
   }
 
   // Participium
-  document.getElementById('vtt-voltooid').textContent = it.voltooid;
-  document.getElementById('vtt-voltooid').style.color = it.irregular ? 'var(--orange)' : 'var(--green)';
+  const voltEl = document.getElementById('vtt-voltooid');
+  voltEl.textContent = it.voltooid;
+  voltEl.style.color = it.irregular ? 'var(--orange)' : 'var(--text1)';
 
-  // Hebben/Zijn
+  // Hebben/Zijn — TYLKO nazwa, bez participium
   const hz = it.hebben_zijn || 'Hebben';
   const hzEl = document.getElementById('vtt-hz-display');
-  hzEl.textContent = hz + ' ' + it.voltooid;
-  hzEl.style.color = hz === 'Zijn' ? 'var(--blue)' : 'var(--gold)';
+  hzEl.textContent = hz;
+  if(hz==='Zijn'){ hzEl.style.background='#1e3a5f'; hzEl.style.color='var(--blue)'; }
+  else if(hz==='Hebben/Zijn'){ hzEl.style.background='#2a1a5a'; hzEl.style.color='var(--purple)'; }
+  else { hzEl.style.background='var(--gold-dim)'; hzEl.style.color='var(--gold)'; }
 
-  // Rădăcină+sufix pentru regulate
+  // Rdzeń+sufiks dla regularnych
   const suffEl = document.getElementById('vtt-suffix-display');
   if(!it.irregular){
     const bd = getVoltooideBreakdown(it.nl);
-    suffEl.textContent = bd ? bd.root + '+' + bd.suffix + ' → ' + it.voltooid : '';
+    suffEl.textContent = bd ? bd.root+'+'+bd.suffix+' → '+it.voltooid : '';
   } else {
     suffEl.textContent = '';
   }
@@ -3200,8 +3374,7 @@ function vttFlip(){
 
 function vttAnswer(known){
   if(!_vttSesja) return;
-  if(known) _vttSesja.known++;
-  else _vttSesja.unknown++;
+  if(known) _vttSesja.known++; else _vttSesja.unknown++;
   _vttSesja.idx++;
   vttRenderCard();
 }
@@ -3210,266 +3383,13 @@ function vttShowResult(){
   if(!_vttSesja) return;
   const { known, unknown, queue } = _vttSesja;
   const total = queue.length;
-  const pct = Math.round((known / total) * 100);
-  document.getElementById('vtt-progress').style.width = '100%';
-  document.getElementById('vtt-counter').textContent = total + ' / ' + total;
-  document.getElementById('vtt-front').style.display = 'none';
-  document.getElementById('vtt-back').style.display = 'none';
-  document.getElementById('vtt-buttons').style.display = 'none';
-  document.getElementById('vtt-card').style.cursor = 'default';
-  document.getElementById('vtt-result').style.display = 'block';
-  const emoji = pct >= 80 ? '🏆' : pct >= 60 ? '👍' : '💪';
+  const pct = Math.round((known/total)*100);
+  document.getElementById('vtt-sesja').style.display='none';
+  document.getElementById('vtt-result').style.display='block';
+  const emoji = pct>=90?'🏆':pct>=70?'🎉':pct>=50?'👍':'💪';
   document.getElementById('vtt-result-emoji').textContent = emoji;
-  document.getElementById('vtt-result-pct').textContent = pct + '%';
-  document.getElementById('vtt-result-sub').textContent = known + ' z ' + total + ' znanych';
-}
-
-function czNastepne(){
-  _czSesja.idx++;
-  document.getElementById('cz-buttons').style.flexDirection='';
-  if(_czSesja.tip==='zdanie') czRenderZdanie();
-  else czRenderPytanie();
-}
-
-function czPokazWynik(){
-  const {correct,wrong,tip,queue}=_czSesja;
-  const total=queue.length;
-  const pct=Math.round((correct/total)*100);
-  // Blacklist zilnică: salvăm propozițiile văzute în sesiunea zdanie
-  if(tip==='zdanie'){
-    czZdanieMarkSeen(queue.map(x=>x.nl+x.zdanie));
-  }
-  document.getElementById('cz-pytanie').innerHTML=`
-    <div style="text-align:center;padding:20px 0">
-      <div style="font-size:48px;margin-bottom:8px">${pct>=80?'🏆':pct>=60?'👍':'💪'}</div>
-      <div style="font-size:28px;font-weight:900;color:var(--text1)">${pct}%</div>
-      <div style="font-size:13px;color:var(--text3);margin-top:4px">${correct} z ${total} poprawnie</div>
-    </div>`;
-  const jeszczeRaz=tip==='zdanie'
-    ? `data-action="startCzasownikiZdanie"`
-    : `onclick="startCzasownikiSesja('${tip}')"`;
-  document.getElementById('cz-buttons').innerHTML=`
-    <button type="button" class="btn bp" style="flex:1" ${jeszczeRaz}>🔄 Jeszcze raz</button>
-    <button type="button" class="btn bs" style="flex:1" data-action="goTo" data-args="czasowniki">← Wróć</button>`;
-  document.getElementById('cz-feedback').style.display='none';
-  document.getElementById('cz-next-btn').style.display='none';
-  document.getElementById('cz-progress').style.width='100%';
-  document.getElementById('cz-counter').textContent=total+' / '+total;
-  document.getElementById('cz-score').textContent='✓'+correct+' ✗'+wrong;
-}
-
-// ════════════════════════════════════════════════════════════════
-// CZASOWNIKI — Uzupełnij zdanie (AI)
-// ════════════════════════════════════════════════════════════════
-const CZ_ZDANIE_KEY='cz_zdania_v1';
-const CZ_ZDANIE_DATE_KEY='cz_zdania_date_v1';
-const CZ_ZDANIE_SEEN_KEY='cz_zdania_seen_v1';
-
-function czZdanieGetStock(){
-  try{const s=localStorage.getItem(CZ_ZDANIE_KEY);return s?safeGetJSON(CZ_ZDANIE_KEY,[]):[];}catch(e){return [];}
-}
-function czZdanieSaveStock(arr){
-  try{safeSetItem(CZ_ZDANIE_KEY,JSON.stringify(arr));}catch(e){debugLog(e)}
-}
-function czZdanieGetDate(){return localStorage.getItem(CZ_ZDANIE_DATE_KEY)||'';}
-function czZdanieSaveDate(d){safeSetItem(CZ_ZDANIE_DATE_KEY,d);}
-function czZdanieGetSeen(){
-  // Returnează {date, ids[]} — propozițiile văzute azi
-  try{
-    const s=localStorage.getItem(CZ_ZDANIE_SEEN_KEY);
-    if(!s)return{date:'',ids:[]};
-    const obj=JSON.parse(s);
-    const today=czZdanieTodayKey();
-    // Dacă e altă zi, resetăm
-    if(obj.date!==today)return{date:today,ids:[]};
-    return obj;
-  }catch(e){return{date:'',ids:[]};}
-}
-function czZdanieMarkSeen(ids){
-  try{
-    const today=czZdanieTodayKey();
-    const existing=czZdanieGetSeen();
-    const merged=[...new Set([...existing.ids,...ids])];
-    safeSetItem(CZ_ZDANIE_SEEN_KEY,JSON.stringify({date:today,ids:merged}));
-  }catch(e){debugLog(e)}
-}
-function czZdanieTodayKey(){
-  const n=new Date();
-  return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
-}
-
-// Afișăm ecranul de start pentru zdanie
-function startCzasownikiZdanie(){
-  const stock=czZdanieGetStock();
-  const today=czZdanieTodayKey();
-  const lastDate=czZdanieGetDate();
-  const needRefresh=lastDate!==today&&stock.length<10;
-  const seen=czZdanieGetSeen();
-  const seenSet=new Set(seen.ids);
-  const unseen=stock.filter(x=>!seenSet.has(x.nl+x.zdanie));
-  document.getElementById('cz-pytanie').innerHTML=`
-    <div style="font-size:14px;font-weight:800;color:var(--text1);margin-bottom:16px">📝 Uzupełnij zdanie</div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:16px">
-      Stok: <strong style="color:${stock.length>10?'var(--green)':'var(--orange)'}">${stock.length}</strong> zdań
-      · Niewidziane dziś: <strong style="color:${unseen.length>0?'var(--green)':'var(--text3)'}">${unseen.length}</strong>
-      ${needRefresh?' <span style="color:var(--orange)">(niski stok — warto wygenerować)</span>':''}
-    </div>
-    <div style="font-size:13px;color:var(--text2);margin-bottom:8px">Tryb wpisywania:</div>
-    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
-      <button type="button" class="btn" style="width:100%;text-align:left;padding:12px 14px" data-action="czZdanieStartMode" data-args="free">
-        ✏️ <strong>Pisz swobodnie</strong><br>
-        <span style="font-size:11px;color:var(--text3)">Wpisz participium samodzielnie</span>
-      </button>
-      <button type="button" class="btn" style="width:100%;text-align:left;padding:12px 14px" data-action="czZdanieStartMode" data-args="mc">
-        🔘 <strong>Multiple choice</strong><br>
-        <span style="font-size:11px;color:var(--text3)">Wybierz z 4 opcji</span>
-      </button>
-    </div>
-    <button type="button" class="btn" style="width:100%;background:linear-gradient(135deg,#1e1260,#0d0c20);border:1px solid #3b2fa0;color:var(--purple)" data-action="czZdanieGenerate">
-      🤖 Generuj nowe zdania (AI)
-    </button>`;
-  document.getElementById('cz-buttons').innerHTML='';
-  document.getElementById('cz-feedback').style.display='none';
-  document.getElementById('cz-next-btn').style.display='none';
-  document.getElementById('cz-progress').style.width='0%';
-  document.getElementById('cz-counter').textContent='';
-  document.getElementById('cz-score').textContent='';
-}
-
-async function czZdanieGenerate(){
-  const pool=S.items.filter(i=>i.type==='word'&&i.voltooid);
-  if(!pool.length){toast('⚠ Brak czasowników z participium!');return;}
-  const apiKey=localStorage.getItem(KK)||'';
-  if(!apiKey){toast('⚠ Brak klucza API! Dodaj w Ustawieniach.');return;}
-
-  // Bierzemy max 50 losowych verbów
-  const sample=[...pool].sort(()=>Math.random()-0.5).slice(0,50);
-  const verbList=sample.map(i=>`${i.nl} (${i.pl}, participium: ${i.voltooid})`).join('\n');
-
-  const btn=document.getElementById('cz-pytanie').querySelector('button[data-action="czZdanieGenerate"]');
-  if(btn){btn.disabled=true;btn.textContent='⏳ Generuję...';}
-
-  try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:4000,
-        messages:[{role:'user',content:`Jesteś pomocnikiem do nauki języka niderlandzkiego.
-
-Wygeneruj zdania po niderlandzku dla każdego z poniższych czasowników. Każde zdanie musi:
-- Być krótkie i proste (max 10 słów)
-- Używać czasu Voltooid Deelwoord (perfectum) z hebben lub zijn
-- Mieć BLANK w miejscu participium (użyj _____)
-- Być realistyczne i naturalne
-
-Lista czasowników:
-${verbList}
-
-Odpowiedz TYLKO w formacie JSON (bez markdown, bez komentarzy):
-[
-  {"nl": "infinityw", "zdanie": "Ik heb gisteren veel _____.", "voltooid": "participium", "pl": "polskie tłumaczenie czasownika"},
-  ...
-]
-
-Wygeneruj zdanie dla każdego czasownika z listy.`}]
-      })
-    });
-    const data=await resp.json();
-    const text=data.content?.[0]?.text||'';
-    const clean=text.replace(/```json|```/g,'').trim();
-    const arr=JSON.parse(clean);
-    if(!Array.isArray(arr)||!arr.length)throw new Error('Brak danych');
-
-    // Łączymy ze starym stockiem, usuwamy duplikaty
-    const existing=czZdanieGetStock();
-    const existingNl=new Set(existing.map(x=>x.nl+x.zdanie));
-    const newItems=arr.filter(x=>x.zdanie&&x.voltooid&&!existingNl.has(x.nl+x.zdanie));
-    const merged=[...existing,...newItems].slice(-200); // max 200
-    czZdanieSaveStock(merged);
-    czZdanieSaveDate(czZdanieTodayKey());
-    toast('✓ Wygenerowano '+newItems.length+' nowych zdań!');
-    startCzasownikiZdanie();
-  }catch(e){
-    toast('⚠ Błąd generowania: '+String(e).slice(0,60));
-  }finally{
-    if(btn){btn.disabled=false;btn.textContent='🤖 Generuj nowe zdania (AI)';}
-  }
-}
-
-function czZdanieStartMode(mode){
-  const stock=czZdanieGetStock();
-  if(!stock.length){toast('⚠ Brak zdań! Kliknij "Generuj nowe zdania".');return;}
-  // Excludem propozițiile văzute azi (blacklist zilnică)
-  const seen=czZdanieGetSeen();
-  const seenSet=new Set(seen.ids);
-  let unseen=stock.filter(x=>!seenSet.has(x.nl+x.zdanie));
-  // Dacă nu mai sunt nevăzute, resetăm blacklist-ul și luăm tot
-  if(!unseen.length){
-    unseen=stock;
-    toast('🔄 Wszystkie zdania dziś widziane — resetuję!');
-  }
-  const N=Math.min(20,unseen.length);
-  const queue=[...unseen].sort(()=>Math.random()-0.5).slice(0,N);
-  _czSesja={tip:'zdanie',mode,queue,idx:0,correct:0,wrong:0};
-  czRenderZdanie();
-}
-
-function czRenderZdanie(){
-  if(!_czSesja)return;
-  const {queue,idx,correct,wrong,mode}=_czSesja;
-  const total=queue.length;
-  if(idx>=total){czPokazWynik();return;}
-  const it=queue[idx];
-
-  document.getElementById('cz-progress').style.width=((idx/total)*100)+'%';
-  document.getElementById('cz-counter').textContent=(idx+1)+' / '+total;
-  document.getElementById('cz-score').textContent='✓'+correct+' ✗'+wrong;
-  document.getElementById('cz-feedback').style.display='none';
-  document.getElementById('cz-next-btn').style.display='none';
-
-  // Zdanie z podkreśleniem w miejscu blank
-  const zdanie=esc(it.zdanie).replace('_____','<span style="color:var(--orange);font-weight:800">_____</span>');
-  document.getElementById('cz-pytanie').innerHTML=`
-    <div style="font-size:13px;color:var(--text3);margin-bottom:8px">Uzupełnij participium:</div>
-    <div style="font-size:20px;font-weight:700;color:var(--text1);line-height:1.4;margin-bottom:12px">${zdanie}</div>
-    <div style="font-size:12px;color:var(--text3)">💡 ${esc(it.pl)}</div>`;
-
-  const btns=document.getElementById('cz-buttons');
-  btns.style.flexDirection='';
-  if(mode==='free'){
-    btns.innerHTML=`
-      <input id="cz-zdanie-inp" type="text" placeholder="Wpisz participium..." autocomplete="off" autocorrect="off" autocapitalize="off"
-        style="flex:1;padding:10px 14px;font-size:15px;background:var(--bg3);color:var(--text1);border:1px solid var(--border2);border-radius:var(--r3);outline:none"
-        onkeydown="if(event.key==='Enter')czOdpowiedzZdanie()" aria-label="Wpisz participium...">
-      <button type="button" class="btn bp" style="flex-shrink:0" data-action="czOdpowiedzZdanie">✓</button>`;
-    setTimeout(()=>{const inp=document.getElementById('cz-zdanie-inp');if(inp)inp.focus();},100);
-  } else {
-    // Multiple choice: poprawna + 3 inne z stocku
-    const correct=it.voltooid;
-    const others=queue.filter(x=>x.voltooid!==correct).sort(()=>Math.random()-0.5).slice(0,3);
-    const opcje=[it,...others].sort(()=>Math.random()-0.5);
-    btns.style.flexDirection='column';
-    btns.innerHTML=opcje.map(o=>
-      `<button type="button" class="btn" style="width:100%;text-align:left;padding:10px 14px;font-size:14px" onclick="czOdpowiedzZdanieMC('${esc(o.voltooid)}','${esc(correct)}')">${esc(o.voltooid)}</button>`
-    ).join('');
-  }
-}
-
-function czOdpowiedzZdanie(){
-  const inp=document.getElementById('cz-zdanie-inp');
-  if(!inp)return;
-  const val=inp.value.trim().toLowerCase();
-  const correct=(_czSesja.queue[_czSesja.idx].voltooid||'').toLowerCase().trim();
-  const ok=val===correct;
-  inp.disabled=true;
-  czPokazFeedback(ok, _czSesja.queue[_czSesja.idx].voltooid, null);
-}
-
-function czOdpowiedzZdanieMC(wybor,correct){
-  const ok=wybor===correct;
-  czPokazFeedback(ok, correct, null);
+  document.getElementById('vtt-result-pct').textContent = pct+'%';
+  document.getElementById('vtt-result-sub').textContent = known+' z '+total+' znanych';
 }
 
 // ════════════════════════════════════════════════════════════════
