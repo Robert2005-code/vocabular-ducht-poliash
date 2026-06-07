@@ -885,38 +885,45 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
     <div class="hero" style="margin-bottom:12px">
       <div style="font-size:11px;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">🃏 Fiszki czasownikowe</div>
       <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:900">Wybierz zakres 🎯</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:4px">Regularne i nieregularne czasowniki</div>
     </div>
 
     <div class="card">
-      <!-- Kategoria -->
-      <div class="set-row">
-        <div style="font-size:13px;font-weight:600">Kategoria</div>
-        <select id="vtt-cat" style="width:auto;padding:7px 10px" onchange="vttOnCatChange()">
-          <option value="">Wszystkie</option>
-        </select>
+      <!-- Liczba -->
+      <div class="ss-row">
+        <div><div class="ss-label">Liczba fiszek</div><div class="ss-sub">od 5 do 100 na sesję</div></div>
+        <div class="ss-ctrl">
+          <button type="button" class="ss-btn" onclick="vttAdjCount(-10)">−</button>
+          <span class="ss-num" id="vtt-cnt">20</span>
+          <button type="button" class="ss-btn" onclick="vttAdjCount(10)">+</button>
+        </div>
       </div>
-      <!-- Podkategoria -->
-      <div class="set-row" id="vtt-sub-row" style="display:none;border:none">
-        <div style="font-size:13px;font-weight:600">Podkategoria</div>
-        <select id="vtt-sub" style="width:auto;padding:7px 10px">
-          <option value="">Wszystkie</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:10px">
       <!-- Typ -->
-      <div class="set-row">
-        <div style="font-size:13px;font-weight:600">Typ</div>
-        <select id="vtt-type" style="width:auto;padding:7px 10px">
+      <div class="ss-row">
+        <div><div class="ss-label">Typ</div></div>
+        <select id="vtt-type" style="width:auto;padding:7px 10px" onchange="vttUpdateAvail()">
           <option value="all">Wszystkie</option>
           <option value="regular">✅ Regularne</option>
           <option value="irregular">⚡ Nieregularne</option>
         </select>
       </div>
+      <!-- Kategoria -->
+      <div class="ss-row">
+        <div><div class="ss-label">Kategoria</div></div>
+        <select id="vtt-cat" style="width:auto;padding:7px 10px" onchange="vttOnCatChange()">
+          <option value="">Wszystkie</option>
+        </select>
+      </div>
+      <!-- Podkategoria -->
+      <div class="ss-row" id="vtt-sub-row" style="display:none;border:none">
+        <div><div class="ss-label">Podkategoria</div></div>
+        <select id="vtt-sub" style="width:auto;padding:7px 10px" onchange="vttUpdateAvail()">
+          <option value="">Wszystkie</option>
+        </select>
+      </div>
       <!-- Poziom -->
-      <div class="set-row" style="flex-direction:column;align-items:flex-start;gap:8px">
-        <div style="font-size:13px;font-weight:600">Poziom</div>
+      <div class="ss-row" style="border:none;flex-direction:column;align-items:flex-start;gap:8px">
+        <div><div class="ss-label">Poziom</div><div class="ss-sub">filtruj po stopniu znajomości</div></div>
         <div id="vtt-level-picker" style="display:flex;flex-wrap:wrap;gap:6px">
           <button type="button" class="lvl-btn active" data-lvl="" onclick="vttLvlPick(this)">Wszystkie</button>
           <button type="button" class="lvl-btn" data-lvl="0" onclick="vttLvlPick(this)" style="background:#FFFFFF22;color:#FFFFFF">● 0 nowe</button>
@@ -931,28 +938,18 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
       </div>
     </div>
 
-    <div class="card" style="margin-top:10px">
-      <!-- Liczba -->
-      <div class="set-row">
-        <div><div style="font-size:13px;font-weight:600">Liczba fiszek</div></div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <button type="button" class="gsb" onclick="vttAdjCount(-5)">−</button>
-          <span id="vtt-cnt" style="font-size:20px;font-weight:800;color:var(--gold);min-width:32px;text-align:center">20</span>
-          <button type="button" class="gsb" onclick="vttAdjCount(5)">+</button>
-        </div>
-      </div>
-      <div style="padding:8px 0 4px">
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button type="button" class="gsb" onclick="vttSetCount(5)">5</button>
-          <button type="button" class="gsb" onclick="vttSetCount(10)">10</button>
-          <button type="button" class="gsb" onclick="vttSetCount(20)">20</button>
-          <button type="button" class="gsb" onclick="vttSetCount(50)">50</button>
-        </div>
-      </div>
+    <!-- Szybkie presetki -->
+    <div class="sec" style="margin-top:14px">SZYBKIE PRESETKI</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <button type="button" id="vsp-5"  class="sp-btn" onclick="vttSetCount(5)">5</button>
+      <button type="button" id="vsp-10" class="sp-btn" onclick="vttSetCount(10)">10</button>
+      <button type="button" id="vsp-20" class="sp-btn sp-active" onclick="vttSetCount(20)">20</button>
+      <button type="button" id="vsp-50" class="sp-btn" onclick="vttSetCount(50)">50</button>
+      <button type="button" id="vsp-100" class="sp-btn" onclick="vttSetCount(100)">100</button>
     </div>
 
-    <div id="vtt-avail" style="font-size:12px;color:var(--text3);text-align:center;margin:10px 0"></div>
-    <button type="button" id="vtt-start-btn" class="btn bp" onclick="vttStartSesja()" style="margin-top:4px">🃏 Zacznij fiszki</button>
+    <div id="vtt-avail" style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:10px"></div>
+    <button type="button" id="vtt-start-btn" class="btn bp" onclick="vttStartSesja()">🃏 Zacznij fiszki</button>
     <div id="vtt-noitems" style="display:none" class="aerr">⚠ Brak czasowników z participium w tym filtrze!</div>
   </div>
 
@@ -974,12 +971,14 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
       <div id="vtt-front">
         <div style="font-size:11px;color:var(--purple);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">🇳🇱 Czasownik</div>
         <div id="vtt-word" style="font-size:30px;font-weight:900;color:var(--text1);margin-bottom:6px"></div>
-        <div id="vtt-pl" style="font-size:13px;color:var(--text3)"></div>
-        <div style="font-size:11px;color:var(--text3);margin-top:20px;opacity:.5">↓ kliknij aby odkryć</div>
+        <div id="vtt-pl" style="font-size:13px;color:var(--text3);margin-bottom:14px"></div>
+        <button type="button" id="vtt-speak-front" onclick="event.stopPropagation();vttSpeak('front')" style="background:var(--blue-dim);border:1px solid var(--blue)44;color:var(--blue);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;margin-bottom:14px">🔊 Wymowa</button>
+        <div style="font-size:11px;color:var(--text3);opacity:.5">↓ kliknij aby odkryć</div>
       </div>
       <div id="vtt-back" style="display:none">
         <div id="vtt-type-badge" style="font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;font-weight:700"></div>
-        <div id="vtt-voltooid" style="font-size:36px;font-weight:900;margin-bottom:10px"></div>
+        <div id="vtt-voltooid" style="font-size:36px;font-weight:900;margin-bottom:8px"></div>
+        <button type="button" onclick="event.stopPropagation();vttSpeak('back')" style="background:var(--blue-dim);border:1px solid var(--blue)44;color:var(--blue);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;margin-bottom:10px">🔊 Participium</button>
         <div id="vtt-hz-display" style="font-size:15px;font-weight:700;padding:6px 14px;border-radius:20px;display:inline-block;margin-bottom:8px"></div>
         <div id="vtt-suffix-display" style="font-size:12px;color:var(--text3)"></div>
       </div>
@@ -994,11 +993,24 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
 
   <!-- WYNIK -->
   <div id="vtt-result" style="display:none;text-align:center;padding:20px 0">
-    <div id="vtt-result-emoji" style="font-size:52px;margin-bottom:10px"></div>
-    <div id="vtt-result-pct" style="font-size:40px;font-weight:900;color:var(--gold)"></div>
-    <div id="vtt-result-sub" style="font-size:13px;color:var(--text3);margin:8px 0 24px"></div>
-    <button type="button" onclick="vttStartSesja()" class="btn bp" style="margin-bottom:8px">🔄 Jeszcze raz</button>
-    <button type="button" data-action="goTo" data-args="czasowniki" class="btn bs">← Wróć do ćwiczeń</button>
+    <div style="font-size:58px;margin-bottom:10px" id="vtt-result-emoji">🎉</div>
+    <div style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;margin-bottom:6px" id="vtt-result-title">Sesja zakończona!</div>
+    <div style="color:var(--text2);font-size:13px;margin-bottom:4px" id="vtt-result-pct"></div>
+    <div style="color:var(--text3);font-size:11px;margin-bottom:20px" id="vtt-result-sub"></div>
+    <div style="display:flex;gap:0;margin:0 0 20px;border:1px solid var(--border);border-radius:var(--r2);overflow:hidden">
+      <div style="flex:1;padding:14px 8px;text-align:center;border-right:1px solid var(--border)">
+        <div style="font-size:24px;font-weight:800;color:var(--green)" id="vtt-res-known">0</div>
+        <div style="font-size:10px;color:var(--text3)">Znane ✓</div>
+      </div>
+      <div style="flex:1;padding:14px 8px;text-align:center">
+        <div style="font-size:24px;font-weight:800;color:var(--red)" id="vtt-res-unknown">0</div>
+        <div style="font-size:10px;color:var(--text3)">Nie znane ✗</div>
+      </div>
+    </div>
+    <button type="button" class="btn bp" onclick="vttStartSesja()" style="margin-bottom:8px">🔄 Jeszcze raz (te same ustawienia)</button>
+    <button type="button" class="btn bp" onclick="vttReplaySame()" style="background:linear-gradient(135deg,#1e3a5f,#0f2a45);color:#7dd3fc;margin-bottom:8px">🔄 Te same słowa jeszcze raz</button>
+    <button type="button" class="btn bs" onclick="vttBackSetup()" style="margin-bottom:8px">← Zmień ustawienia</button>
+    <button type="button" class="btn bs" data-action="goTo" data-args="home">🏠 Start</button>
   </div>
 
 </div>
@@ -3248,8 +3260,24 @@ function vttLvlPick(btn){
   vttUpdateAvail();
 }
 
-function vttAdjCount(d){ _vttCount=Math.max(5,Math.min(100,_vttCount+d)); document.getElementById('vtt-cnt').textContent=_vttCount; vttUpdateAvail(); }
-function vttSetCount(n){ _vttCount=n; document.getElementById('vtt-cnt').textContent=n; vttUpdateAvail(); }
+function vttAdjCount(d){
+  _vttCount=Math.max(5,Math.min(100,_vttCount+d));
+  document.getElementById('vtt-cnt').textContent=_vttCount;
+  [5,10,20,50,100].forEach(v=>{
+    const b=document.getElementById('vsp-'+v);
+    if(b) b.classList.toggle('sp-active',v===_vttCount);
+  });
+  vttUpdateAvail();
+}
+function vttSetCount(n){
+  _vttCount=n;
+  document.getElementById('vtt-cnt').textContent=n;
+  [5,10,20,50,100].forEach(v=>{
+    const b=document.getElementById('vsp-'+v);
+    if(b) b.classList.toggle('sp-active',v===n);
+  });
+  vttUpdateAvail();
+}
 
 function vttGetPool(){
   const catId = document.getElementById('vtt-cat')?.value||'';
@@ -3370,6 +3398,19 @@ function vttFlip(){
   } else {
     suffEl.textContent = '';
   }
+  // Auto-pronunță participiul la flip
+  setTimeout(()=>speak(it.voltooid, LANG_SPEAK), 300);
+}
+
+function vttSpeak(side){
+  if(!_vttSesja) return;
+  const it = _vttSesja.queue[_vttSesja.idx];
+  if(!it) return;
+  if(side==='back'){
+    speak(it.voltooid, LANG_SPEAK);
+  } else {
+    speak(it.nl, LANG_SPEAK);
+  }
 }
 
 function vttAnswer(known){
@@ -3386,10 +3427,26 @@ function vttShowResult(){
   const pct = Math.round((known/total)*100);
   document.getElementById('vtt-sesja').style.display='none';
   document.getElementById('vtt-result').style.display='block';
-  const emoji = pct>=90?'🏆':pct>=70?'🎉':pct>=50?'👍':'💪';
+  let emoji='😅',title='Ćwicz dalej!';
+  if(pct>=90){emoji='🏆';title='Doskonale!';}
+  else if(pct>=70){emoji='🎉';title='Świetnie!';}
+  else if(pct>=50){emoji='👍';title='Nieźle!';}
   document.getElementById('vtt-result-emoji').textContent = emoji;
-  document.getElementById('vtt-result-pct').textContent = pct+'%';
-  document.getElementById('vtt-result-sub').textContent = known+' z '+total+' znanych';
+  document.getElementById('vtt-result-title').textContent = title;
+  document.getElementById('vtt-result-pct').textContent = known+' z '+total+' poprawnie ('+pct+'%)';
+  document.getElementById('vtt-result-sub').textContent = 'Nieznane: '+unknown;
+  document.getElementById('vtt-res-known').textContent = known;
+  document.getElementById('vtt-res-unknown').textContent = unknown;
+  markActivityDone();
+}
+
+function vttReplaySame(){
+  if(!_vttSesja) return;
+  const queue = [..._vttSesja.queue].sort(()=>Math.random()-.5);
+  _vttSesja = { queue, idx:0, known:0, unknown:0, flipped:false };
+  document.getElementById('vtt-result').style.display='none';
+  document.getElementById('vtt-sesja').style.display='block';
+  vttRenderCard();
 }
 
 // ════════════════════════════════════════════════════════════════
