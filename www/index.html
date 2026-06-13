@@ -844,28 +844,10 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
   <div class="sec">🔤 Czasowniki — ćwiczenia</div>
   <div style="display:flex;flex-direction:column;gap:12px;padding:0 0 20px">
 
-    <!-- +t czy +d -->
-    <button type="button" data-action="startCzasownikiSesja" data-args="td" style="width:100%;text-align:left;background:linear-gradient(135deg,#1a1260,#0d0c20);border:1px solid #3b2fa0;border-radius:var(--r);padding:18px;cursor:pointer">
-      <div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:4px">➕ +t czy +d?</div>
-      <div style="font-size:12px;color:var(--text3)">Wybierz sufiks na podstawie rdzenia</div>
-    </button>
-
     <!-- Hebben czy Zijn -->
     <button type="button" data-action="startCzasownikiSesja" data-args="hz" style="width:100%;text-align:left;background:linear-gradient(135deg,#1a1260,#0d0c20);border:1px solid #3b2fa0;border-radius:var(--r);padding:18px;cursor:pointer">
       <div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:4px">🔄 Hebben czy Zijn?</div>
       <div style="font-size:12px;color:var(--text3)">Wybierz czasownik posiłkowy</div>
-    </button>
-
-    <!-- Odgadnij bezokolicznik -->
-    <button type="button" data-action="startCzasownikiSesja" data-args="inf" style="width:100%;text-align:left;background:linear-gradient(135deg,#1a1260,#0d0c20);border:1px solid #3b2fa0;border-radius:var(--r);padding:18px;cursor:pointer">
-      <div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:4px">🔁 Odgadnij bezokolicznik</div>
-      <div style="font-size:12px;color:var(--text3)">Z participium → infinityw</div>
-    </button>
-
-    <!-- Uzupełnij zdanie -->
-    <button type="button" data-action="startCzasownikiSesja" data-args="zdanie" style="width:100%;text-align:left;background:linear-gradient(135deg,#1a1260,#0d0c20);border:1px solid #3b2fa0;border-radius:var(--r);padding:18px;cursor:pointer">
-      <div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:4px">📝 Uzupełnij zdanie</div>
-      <div style="font-size:12px;color:var(--text3)">Wpisz participium w kontekście</div>
     </button>
 
     <!-- Fiszki czasownikowe -->
@@ -925,14 +907,14 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
       <div class="ss-row" style="border:none;flex-direction:column;align-items:flex-start;gap:8px">
         <div><div class="ss-label">Poziom</div><div class="ss-sub">filtruj po stopniu znajomości</div></div>
         <div id="vtt-level-picker" style="display:flex;flex-wrap:wrap;gap:6px">
-          <button type="button" class="lvl-btn active" data-lvl="" onclick="vttLvlPick(this)">Wszystkie</button>
-          <button type="button" class="lvl-btn" data-lvl="0" onclick="vttLvlPick(this)" style="background:#FFFFFF22;color:#FFFFFF">● 0 nowe</button>
-          <button type="button" class="lvl-btn" data-lvl="1" onclick="vttLvlPick(this)" style="background:#4A8DFF22;color:#4A8DFF">● 1</button>
-          <button type="button" class="lvl-btn" data-lvl="2" onclick="vttLvlPick(this)" style="background:#7A5CFF22;color:#7A5CFF">● 2</button>
-          <button type="button" class="lvl-btn" data-lvl="3" onclick="vttLvlPick(this)" style="background:#FF1A1A22;color:#FF1A1A">● 3</button>
-          <button type="button" class="lvl-btn" data-lvl="4" onclick="vttLvlPick(this)" style="background:#F29A3822;color:#F29A38">● 4</button>
-          <button type="button" class="lvl-btn" data-lvl="5" onclick="vttLvlPick(this)" style="background:#D9B24C22;color:#D9B24C">● 5</button>
-          <button type="button" class="lvl-btn" data-lvl="6" onclick="vttLvlPick(this)" style="background:#45C66A22;color:#45C66A">● 6 opanowane</button>
+          <button type="button" class="lvl-btn active" data-lvl="" onclick="vttLvlPick(this)" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">Wszystkie</button>
+          <button type="button" class="lvl-btn" data-lvl="0" onclick="vttLvlPick(this)" style="background:#FFFFFF22;border:1px solid #FFFFFF66;color:#FFFFFF;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">● 0 nowe</button>
+          <button type="button" class="lvl-btn" data-lvl="1" onclick="vttLvlPick(this)" style="background:#4A8DFF22;border:1px solid #4A8DFF66;color:#4A8DFF;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">● 1</button>
+          <button type="button" class="lvl-btn" data-lvl="2" onclick="vttLvlPick(this)" style="background:#7A5CFF22;border:1px solid #7A5CFF66;color:#7A5CFF;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">● 2</button>
+          <button type="button" class="lvl-btn" data-lvl="3" onclick="vttLvlPick(this)" style="background:#FF1A1A22;border:1px solid #FF1A1A66;color:#FF1A1A;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">● 3</button>
+          <button type="button" class="lvl-btn" data-lvl="4" onclick="vttLvlPick(this)" style="background:#F29A3822;border:1px solid #F29A3866;color:#F29A38;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">● 4</button>
+          <button type="button" class="lvl-btn" data-lvl="5" onclick="vttLvlPick(this)" style="background:#D9B24C22;border:1px solid #D9B24C66;color:#D9B24C;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">● 5</button>
+          <button type="button" class="lvl-btn" data-lvl="6" onclick="vttLvlPick(this)" style="background:#45C66A22;border:1px solid #45C66A66;color:#45C66A;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">● 6 opanowane</button>
         </div>
         <input type="hidden" id="vtt-level" value="">
       </div>
@@ -1509,7 +1491,26 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
       <div style="font-size:12px;color:var(--text3);margin-bottom:14px" id="co-info"></div>
       <button type="button" data-action="catOptsDirPicker" style="width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a2e;border:none;border-radius:var(--r2);padding:14px;font-size:14px;font-weight:700;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:10px;justify-content:center">▶ Ucz się z tej kategorii</button>
       <button type="button" data-action="showCatEdit" style="width:100%;background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:var(--r2);padding:12px;font-size:14px;font-weight:700;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:10px;justify-content:center">✏️ Edytuj nazwę / emoji</button>
+      <button type="button" data-action="showCatWords" style="width:100%;background:var(--blue-dim);border:1px solid var(--blue)44;color:var(--blue);border-radius:var(--r2);padding:12px;font-size:14px;font-weight:700;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:10px;justify-content:center">📖 Przeglądaj słowa</button>
       <button type="button" id="co-del-btn" data-action="deleteCatFromModal" style="width:100%;background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:var(--r2);padding:12px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:10px;justify-content:center">🗑 Usuń kategorię</button>
+    </div>
+    <div id="co-words" style="display:none">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div class="srch" style="flex:1;margin-bottom:0"><span class="srch-icon">🔍</span><input type="text" id="co-search" placeholder="Szukaj..." oninput="renderCatWords()" autocomplete="off" aria-label="Szukaj..."></div>
+        <button type="button" id="co-select-toggle" onclick="toggleCatSelect()" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;white-space:nowrap">☐ Wybierz</button>
+      </div>
+      <div id="co-multi-bar" style="display:none;margin-bottom:10px;padding:10px;background:var(--bg4);border-radius:10px;border:1px solid var(--border2)">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px">Przenieś zaznaczone (<span id="co-sel-cnt">0</span>) do:</div>
+        <select id="co-move-cat" style="width:100%;margin-bottom:6px;padding:8px;border-radius:8px;background:var(--bg3);border:1px solid var(--border2);color:var(--text1);font-size:13px"></select>
+        <select id="co-move-sub" style="width:100%;margin-bottom:8px;padding:8px;border-radius:8px;background:var(--bg3);border:1px solid var(--border2);color:var(--text1);font-size:13px"><option value="">— bez podkategorii —</option></select>
+        <div style="display:flex;gap:8px">
+          <button type="button" onclick="moveSelectedItems()" style="flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a2e;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer">✓ Przenieś</button>
+          <button type="button" onclick="selectAllCatWords()" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text2);border-radius:8px;padding:10px 12px;font-size:12px;cursor:pointer">Wszystkie</button>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:8px">Elementów: <span id="co-wcnt">0</span></div>
+      <div id="co-wlist" style="max-height:280px;overflow-y:auto"></div>
+      <button type="button" data-action="showCatView" style="margin-top:12px;width:100%;background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:var(--r2);padding:10px;font-size:13px;cursor:pointer">← Wróć</button>
     </div>
     <div id="co-edit" style="display:none">
       <label class="edit-label">Nazwa kategorii</label>
@@ -2252,14 +2253,16 @@ function rWL(append=false){
     // Regulate: afișăm rădăcina+sufix (werk+t). Neregulate: afișăm hebben/zijn
     let voltooideInfo='';
     if(it.voltooid){
+      const vl=Math.min(it.vlevel||0,6);
+      const vlBadge=`<span class="tag" style="background:${LC[vl]}22;color:${LC[vl]};font-size:9px;margin-left:6px">poz.${vl}</span>`;
       if(it.irregular){
         // Neregulat: voltooid · Hebben/Zijn
-        voltooideInfo=`<div style="font-size:10px;color:var(--orange);margin-top:2px">▶ ${esc(it.voltooid)}${hzDisplay?' · '+esc(hzDisplay):''}</div>`;
+        voltooideInfo=`<div style="font-size:10px;color:var(--orange);margin-top:2px;display:flex;align-items:center">▶ ${esc(it.voltooid)}${hzDisplay?' · '+esc(hzDisplay):''}${vlBadge}</div>`;
       } else {
         // Regulat: voltooid · rădăcină+sufix
         const bd=getVoltooideBreakdown(it.nl);
         const breakdownStr=bd?`${esc(bd.root)}+${bd.suffix}`:'';
-        voltooideInfo=`<div style="font-size:10px;color:var(--green);margin-top:2px">▶ ${esc(it.voltooid)}${breakdownStr?' · '+breakdownStr:''}</div>`;
+        voltooideInfo=`<div style="font-size:10px;color:var(--green);margin-top:2px;display:flex;align-items:center">▶ ${esc(it.voltooid)}${breakdownStr?' · '+breakdownStr:''}${vlBadge}</div>`;
       }
     }
     div.innerHTML=`<div style="flex:1;min-width:0;cursor:pointer" onclick="openEditItem('${idStr}')"><div style="font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">${nlHtml}<span class="type-badge ${it.type==='phrase'?'tp2':'tw'}">${it.type==='phrase'?'fraza':'słowo'}</span>${irregularBadge}</div><div style="color:var(--text2);font-size:12px;margin-top:2px">${plHtml}</div>${voltooideInfo}${cat?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${cat.icon} ${cat.name}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px"><span class="tag" style="background:${LC[l]}22;color:${LC[l]}">poz.${l}</span>${isDue(it)?'<span class="tag tg" style="font-size:9px">nauka</span>':''}<div style="display:flex;gap:4px;margin-top:2px"><button type="button" onclick="event.stopPropagation();speak('${escJ(it.nl)}',LANG_SPEAK)" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🔊</button><button type="button" onclick="openMoveModal('${idStr}')" style="background:var(--blue-dim);border:1px solid var(--blue)44;color:var(--blue);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">↗</button><button type="button" onclick="delItem('${idStr}')" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🗑</button></div></div>`;
@@ -2417,11 +2420,11 @@ function openCatModal(catId){
   document.getElementById('co-del-btn').style.display=catId==='inne'?'none':'flex';
   showCatView();openModal('modal-cat-opts');
 }
-function showCatView(){document.getElementById('co-view').style.display='block';document.getElementById('co-edit').style.display='none';}
+function showCatView(){document.getElementById('co-view').style.display='block';document.getElementById('co-edit').style.display='none';var cw=document.getElementById('co-words');if(cw)cw.style.display='none';}
 function showCatEdit(){
   const catId=document.getElementById('co-id').value;const cat=S.categories.find(c=>c.id===catId);if(!cat)return;
   document.getElementById('co-edit-name').value=cat.name;document.getElementById('co-edit-icon').value=cat.icon;
-  document.getElementById('co-view').style.display='none';document.getElementById('co-edit').style.display='block';
+  document.getElementById('co-view').style.display='none';document.getElementById('co-edit').style.display='block';var _cw=document.getElementById('co-words');if(_cw)_cw.style.display='none';
   setTimeout(()=>document.getElementById('co-edit-name').focus(),100);
 }
 function saveCatEdit(){
@@ -2480,6 +2483,92 @@ function deleteCat(catId){
   S.items=S.items.map(i=>i.categoryId===catId?{...i,categoryId:'inne',subcategoryId:null}:i);
   S.categories=S.categories.filter(c=>c.id!==catId);save();rCats();toast('✓ Kategoria usunięta'+(cnt>0?` · ${cnt} elementów → Inne`:''));
 }
+let _catSelectMode=false;
+let _catSelected=new Set();
+function showCatWords(){
+  document.getElementById('co-view').style.display='none';
+  document.getElementById('co-edit').style.display='none';
+  document.getElementById('co-words').style.display='block';
+  document.getElementById('co-search').value='';
+  _catSelectMode=false;_catSelected.clear();
+  document.getElementById('co-multi-bar').style.display='none';
+  document.getElementById('co-select-toggle').textContent='☐ Wybierz';
+  populateMoveSelects();
+  renderCatWords();
+}
+function toggleCatSelect(){
+  _catSelectMode=!_catSelectMode;_catSelected.clear();
+  document.getElementById('co-select-toggle').textContent=_catSelectMode?'✕ Anuluj':'☐ Wybierz';
+  document.getElementById('co-multi-bar').style.display=_catSelectMode?'block':'none';
+  document.getElementById('co-sel-cnt').textContent='0';
+  renderCatWords();
+}
+function selectAllCatWords(){
+  const catId=document.getElementById('co-id').value;
+  const q=(document.getElementById('co-search').value||'').toLowerCase().trim();
+  let items=S.items.filter(i=>i.categoryId===catId);
+  if(q)items=items.filter(i=>i.nl.toLowerCase().includes(q)||i.pl.toLowerCase().includes(q));
+  items.forEach(it=>_catSelected.add(String(it.id)));
+  document.getElementById('co-sel-cnt').textContent=_catSelected.size;
+  renderCatWords();
+}
+function populateMoveSelects(){
+  const sel=document.getElementById('co-move-cat');sel.innerHTML='';
+  S.categories.forEach(c=>sel.innerHTML+=`<option value="${c.id}">${esc(c.icon)} ${esc(c.name)}</option>`);
+  updateMoveSubSelect();
+  sel.onchange=updateMoveSubSelect;
+}
+function updateMoveSubSelect(){
+  const catId=document.getElementById('co-move-cat').value;
+  const cat=S.categories.find(c=>c.id===catId);
+  const sel=document.getElementById('co-move-sub');sel.innerHTML='<option value="">— bez podkategorii —</option>';
+  (cat?.subs||[]).forEach(s=>sel.innerHTML+=`<option value="${s.id}">${esc(s.n)}</option>`);
+}
+function moveSelectedItems(){
+  if(!_catSelected.size){toast('⚠ Zaznacz elementy!');return;}
+  const toCat=document.getElementById('co-move-cat').value;
+  const toSub=document.getElementById('co-move-sub').value||null;
+  const movedCnt=_catSelected.size;
+  S.items=S.items.map(it=>_catSelected.has(String(it.id))?{...it,categoryId:toCat,subcategoryId:toSub}:it);
+  save();_catSelected.clear();_catSelectMode=false;
+  document.getElementById('co-multi-bar').style.display='none';
+  document.getElementById('co-select-toggle').textContent='☐ Wybierz';
+  toast('✓ Przeniesiono '+movedCnt+' elementów!');
+  renderCatWords();rCats();
+}
+function renderCatWords(){
+  const catId=document.getElementById('co-id').value;
+  const q=(document.getElementById('co-search').value||'').toLowerCase().trim();
+  let items=S.items.filter(i=>i.categoryId===catId);
+  if(q)items=items.filter(i=>i.nl.toLowerCase().includes(q)||i.pl.toLowerCase().includes(q));
+  document.getElementById('co-wcnt').textContent=items.length;
+  const list=document.getElementById('co-wlist');list.innerHTML='';
+  if(!items.length){list.innerHTML='<div style="color:var(--text3);font-size:12px;padding:12px 0;text-align:center">Brak wyników</div>';return;}
+  const frag=document.createDocumentFragment();
+  const cat=S.categories.find(c=>c.id===catId);
+  items.forEach(it=>{
+    const l=Math.min(it.level||0,6);const d=document.createElement('div');
+    const id=String(it.id);const checked=_catSelected.has(id);
+    d.style.cssText='display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);gap:8px';
+    const sub=it.subcategoryId?cat?.subs?.find(s=>s.id===it.subcategoryId):null;
+    const subLabel=sub?`<span style="font-size:9px;color:var(--text3)"> · ${esc(sub.n)}</span>`:'<span style="font-size:9px;color:var(--orange)"> · bez podkat.</span>';
+    const checkHtml=_catSelectMode?`<input type="checkbox" ${checked?'checked':''} onchange="toggleItemSelect('${id}',this.checked)" style="width:18px;height:18px;flex-shrink:0;accent-color:var(--gold);cursor:pointer">`:'';
+    d.innerHTML=`${checkHtml}<div style="flex:1;min-width:0;cursor:pointer" onclick="${_catSelectMode?`toggleItemSelectClick('${id}')`:`closeModal('modal-cat-opts');openEditItem('${id}')`}"><div style="font-weight:600;font-size:13px">${esc(it.nl)}${subLabel}</div><div style="color:var(--text2);font-size:11px">${esc(it.pl)}</div></div>${_catSelectMode?'':`<div style="display:flex;align-items:center;gap:5px;flex-shrink:0"><span class="tag" style="background:${LC[l]}22;color:${LC[l]};font-size:9px">poz.${l}</span><button type="button" onclick="delItemFromCat('${id}')" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:6px;padding:3px 7px;font-size:12px;cursor:pointer">🗑</button></div>`}`;
+    frag.appendChild(d);
+  });
+  list.appendChild(frag);
+}
+function toggleItemSelect(id,checked){
+  if(checked)_catSelected.add(id);else _catSelected.delete(id);
+  document.getElementById('co-sel-cnt').textContent=_catSelected.size;
+}
+function toggleItemSelectClick(id){
+  if(_catSelected.has(id))_catSelected.delete(id);else _catSelected.add(id);
+  document.getElementById('co-sel-cnt').textContent=_catSelected.size;
+  renderCatWords();
+}
+function delItemFromCat(id){if(!confirm('Usunąć ten element?'))return;S.items=S.items.filter(i=>String(i.id)!==String(id));save();renderCatWords();}
+
 function deleteSub(catId,subId){
   const cat=S.categories.find(c=>c.id===catId);const sub=cat?.subs?.find(s=>s.id===subId);if(!sub)return;
   const cnt=S.items.filter(i=>i.subcategoryId===subId).length;
@@ -3109,10 +3198,10 @@ function startCzasownikiSesja(tip){
   // zdanie are propriul flux cu stoc AI — dirijăm direct
   if(tip==='zdanie'){goTo('cz-sesja');startCzasownikiZdanie();return;}
   const regulate=S.items.filter(i=>i.type==='word'&&i.voltooid&&!i.irregular);
-  const neregulate=S.items.filter(i=>i.type==='word'&&i.voltooid&&i.irregular&&i.hebben_zijn);
+  const zHebbenZijn=S.items.filter(i=>i.type==='word'&&i.voltooid&&i.hebben_zijn);
   let pool=[];
   if(tip==='td'||tip==='inf') pool=regulate;
-  else if(tip==='hz') pool=neregulate;
+  else if(tip==='hz') pool=zHebbenZijn;
   if(!pool.length){toast('⚠ Brak czasowników do ćwiczeń!');return;}
   const N=Math.min(20,pool.length);
   let queue=[];
@@ -3289,7 +3378,7 @@ function vttGetPool(){
   if(type==='irregular') pool=pool.filter(i=>i.irregular);
   if(catId) pool=pool.filter(i=>i.categoryId===catId);
   if(subId) pool=pool.filter(i=>i.subcategoryId===subId);
-  if(lvl!==''&&lvl!=null) pool=pool.filter(i=>(i.level||0)===parseInt(lvl));
+  if(lvl!==''&&lvl!=null) pool=pool.filter(i=>(i.vlevel||0)===parseInt(lvl));
   return pool;
 }
 
@@ -3415,7 +3504,15 @@ function vttSpeak(side){
 
 function vttAnswer(known){
   if(!_vttSesja) return;
-  if(known) _vttSesja.known++; else _vttSesja.unknown++;
+  const it = _vttSesja.queue[_vttSesja.idx];
+  if(known){
+    _vttSesja.known++;
+    const nl=Math.min((it.vlevel||0)+1,6);
+    upd(it.id,{vlevel:nl});it.vlevel=nl;
+  } else {
+    _vttSesja.unknown++;
+    upd(it.id,{vlevel:0});it.vlevel=0;
+  }
   _vttSesja.idx++;
   vttRenderCard();
 }
@@ -6198,6 +6295,7 @@ window.addEventListener('unhandledrejection',function(e){console.error('[unhandl
     'showCatView':   ()=>showCatView(),
     'showSubEdit':   ()=>showSubEdit(),
     'showSubWords':  ()=>showSubWords(),
+    'showCatWords':  ()=>showCatWords(),
     'startFiszkiCzasownikowe': ()=>startFiszkiCzasownikowe(),
     'cancelCat':     ()=>cancelCat(),
     'deleteCatFromModal':()=>deleteCatFromModal(),
