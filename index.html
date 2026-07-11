@@ -648,8 +648,8 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
     <input type="text" id="kol-pl" placeholder="np. otworzyć drzwi" style="margin-bottom:10px" onkeydown="if(event.key==='Enter'){document.getElementById('kol-a').focus()}" aria-label="Tłumaczenie po polsku">
     <div style="font-size:11px;color:var(--text3);margin-bottom:6px">🧩 Części do gry „Znajdź parę" (opcjonalne):</div>
     <div style="display:flex;gap:8px;margin-bottom:10px">
-      <input type="text" id="kol-a" placeholder="część 1 (np. examen)" style="flex:1;margin:0" onkeydown="if(event.key==='Enter'){document.getElementById('kol-b').focus()}" aria-label="Część pierwsza">
-      <input type="text" id="kol-b" placeholder="część 2 (np. doen)" style="flex:1;margin:0" onkeydown="if(event.key==='Enter')addKolokacja()" aria-label="Część druga">
+      <input type="text" id="kol-a" placeholder="część 1 (np. examen)" style="flex:1;margin:0" oninput="kolSyncNl()" onkeydown="if(event.key==='Enter'){document.getElementById('kol-b').focus()}" aria-label="Część pierwsza">
+      <input type="text" id="kol-b" placeholder="część 2 (np. doen)" style="flex:1;margin:0" oninput="kolSyncNl()" onkeydown="if(event.key==='Enter')addKolokacja()" aria-label="Część druga">
     </div>
     <button type="button" data-action="addKolokacja" style="background:var(--gold);color:#1a1a2e;border:none;border-radius:8px;padding:11px 18px;font-weight:700;width:100%">+ Dodaj</button>
   </div>
@@ -2423,6 +2423,14 @@ function rKolokacje(){
     div.innerHTML=`<div style="flex:1;min-width:0;cursor:pointer" onclick="openEditItem('${idStr}')"><div style="font-weight:700;font-size:14px">${esc(it.nl)}</div><div style="color:var(--text2);font-size:12px;margin-top:2px">${esc(it.pl)}</div>${it.kolA&&it.kolB?`<div style="color:var(--orange);font-size:11px;margin-top:3px">🧩 ${esc(it.kolA)} + ${esc(it.kolB)}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px"><span class="tag" style="background:${LC[l]}22;color:${LC[l]}">poz.${l}</span><div style="display:flex;gap:4px;margin-top:2px"><button type="button" onclick="event.stopPropagation();speak('${escJ(it.nl)}',LANG_SPEAK)" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🔊</button><button type="button" onclick="delKolokacja('${idStr}')" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🗑</button></div></div>`;
     list.appendChild(div);
   });
+}
+function kolSyncNl(){
+  const a=document.getElementById('kol-a').value.trim();
+  const b=document.getElementById('kol-b').value.trim();
+  const nlEl=document.getElementById('kol-nl');
+  if(!nlEl)return;
+  // combină cele două părți în fraza completă
+  nlEl.value=(a+' '+b).trim();
 }
 function addKolokacja(){
   const nlEl=document.getElementById('kol-nl');const plEl=document.getElementById('kol-pl');
