@@ -645,7 +645,12 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
   <div class="card" style="margin-bottom:10px">
     <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--gold)">Dodaj kolokację</div>
     <input type="text" id="kol-nl" placeholder="np. de deur openen" style="margin-bottom:8px" onkeydown="if(event.key==='Enter'){document.getElementById('kol-pl').focus()}" aria-label="Kolokacja po niderlandzku">
-    <input type="text" id="kol-pl" placeholder="np. otworzyć drzwi" style="margin-bottom:10px" onkeydown="if(event.key==='Enter')addKolokacja()" aria-label="Tłumaczenie po polsku">
+    <input type="text" id="kol-pl" placeholder="np. otworzyć drzwi" style="margin-bottom:10px" onkeydown="if(event.key==='Enter'){document.getElementById('kol-a').focus()}" aria-label="Tłumaczenie po polsku">
+    <div style="font-size:11px;color:var(--text3);margin-bottom:6px">🧩 Części do gry „Znajdź parę" (opcjonalne):</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <input type="text" id="kol-a" placeholder="część 1 (np. examen)" style="flex:1;margin:0" onkeydown="if(event.key==='Enter'){document.getElementById('kol-b').focus()}" aria-label="Część pierwsza">
+      <input type="text" id="kol-b" placeholder="część 2 (np. doen)" style="flex:1;margin:0" onkeydown="if(event.key==='Enter')addKolokacja()" aria-label="Część druga">
+    </div>
     <button type="button" data-action="addKolokacja" style="background:var(--gold);color:#1a1a2e;border:none;border-radius:8px;padding:11px 18px;font-weight:700;width:100%">+ Dodaj</button>
   </div>
   <div style="display:flex;gap:8px;margin-bottom:8px">
@@ -2415,20 +2420,24 @@ function rKolokacje(){
   sorted.forEach(it=>{
     const idStr=String(it.id);const l=Math.min(it.level||0,6);
     const div=document.createElement('div');div.className='wi';
-    div.innerHTML=`<div style="flex:1;min-width:0;cursor:pointer" onclick="openEditItem('${idStr}')"><div style="font-weight:700;font-size:14px">${esc(it.nl)}</div><div style="color:var(--text2);font-size:12px;margin-top:2px">${esc(it.pl)}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px"><span class="tag" style="background:${LC[l]}22;color:${LC[l]}">poz.${l}</span><div style="display:flex;gap:4px;margin-top:2px"><button type="button" onclick="event.stopPropagation();speak('${escJ(it.nl)}',LANG_SPEAK)" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🔊</button><button type="button" onclick="delKolokacja('${idStr}')" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🗑</button></div></div>`;
+    div.innerHTML=`<div style="flex:1;min-width:0;cursor:pointer" onclick="openEditItem('${idStr}')"><div style="font-weight:700;font-size:14px">${esc(it.nl)}</div><div style="color:var(--text2);font-size:12px;margin-top:2px">${esc(it.pl)}</div>${it.kolA&&it.kolB?`<div style="color:var(--orange);font-size:11px;margin-top:3px">🧩 ${esc(it.kolA)} + ${esc(it.kolB)}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px"><span class="tag" style="background:${LC[l]}22;color:${LC[l]}">poz.${l}</span><div style="display:flex;gap:4px;margin-top:2px"><button type="button" onclick="event.stopPropagation();speak('${escJ(it.nl)}',LANG_SPEAK)" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🔊</button><button type="button" onclick="delKolokacja('${idStr}')" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🗑</button></div></div>`;
     list.appendChild(div);
   });
 }
 function addKolokacja(){
   const nlEl=document.getElementById('kol-nl');const plEl=document.getElementById('kol-pl');
+  const aEl=document.getElementById('kol-a');const bEl=document.getElementById('kol-b');
   const nl=nlEl.value.trim();const pl=plEl.value.trim();
+  const kolA=aEl?aEl.value.trim():'';const kolB=bEl?bEl.value.trim():'';
   if(!nl||!pl){toast('⚠ Wpisz NL i PL!');return;}
   const dup=S.items.find(i=>i.categoryId==='kolokacje'&&i.nl.toLowerCase()===nl.toLowerCase());
   if(dup){toast('⚠ Ta kolokacja już istnieje!');return;}
   const now=Date.now();
-  S.items.push({id:_newId(),nl,pl,type:'phrase',categoryId:'kolokacje',subcategoryId:null,level:0,nextReview:now,addedAt:now});
+  const it={id:_newId(),nl,pl,type:'phrase',categoryId:'kolokacje',subcategoryId:null,level:0,nextReview:now,addedAt:now};
+  if(kolA&&kolB){it.kolA=kolA;it.kolB=kolB;}
+  S.items.push(it);
   save();
-  nlEl.value='';plEl.value='';nlEl.focus();
+  nlEl.value='';plEl.value='';if(aEl)aEl.value='';if(bEl)bEl.value='';nlEl.focus();
   toast('✓ Dodano kolokację!');
   rKolokacje();
 }
@@ -2447,22 +2456,26 @@ function kolStartFiszki(){
   },50);
 }
 function kolStartGame(){
-  const pool=S.items.filter(i=>i.categoryId==='kolokacje');
-  if(pool.length<2){toast('⚠ Potrzebujesz min. 2 kolokacje!');return;}
+  const pool=S.items.filter(i=>i.categoryId==='kolokacje'&&i.kolA&&i.kolB);
+  if(pool.length<2){toast('⚠ Dodaj min. 2 kolokacje z częściami (część 1 + część 2)!');return;}
   goTo('games');
   setTimeout(()=>{
-    // pre-configurează match-up clasic pe categoria kolokacje
-    showClassicSetup();
-    const gt=document.getElementById('gtype');if(gt)gt.value='all';
-    const gc=document.getElementById('gcat');if(gc)gc.value='kolokacje';
-    const gs=document.getElementById('gsub');if(gs)gs.value='';
-    const gsr=document.getElementById('gsub-row');if(gsr)gsr.style.display='none';
-    // ajustează numărul de perechi la câte kolokacje există (2–6)
+    // ascunde meniurile, arată arena
+    document.getElementById('gsetup').style.display='none';
+    document.getElementById('gsetup-classic').style.display='none';
+    document.getElementById('gsetup-endless').style.display='none';
+    document.getElementById('gres').style.display='none';
+    document.getElementById('garena').style.display='block';
+    // config joc
+    EM._lastMode='kol';
+    G.kolMode=true;
     G.pairs=Math.max(2,Math.min(6,pool.length));
-    const pv=document.getElementById('pval');if(pv)pv.textContent=G.pairs;
-    // pornește jocul direct
-    startGame();
-  },60);
+    const sel=[...pool].sort(()=>Math.random()-.5).slice(0,G.pairs);
+    G.score=0;G.sel=null;G.selNl=null;G.matched=0;G.total=G.pairs*G.spp;G.elapsed=0;G.errors=0;
+    document.getElementById('gerrors').textContent='0';
+    const gp=document.getElementById('gprog');if(gp)gp.textContent='0/'+G.pairs;
+    rPairCards(sel);startTimer();
+  },80);
 }
 function populateWlCatFilter(){
   const sel=document.getElementById('wl-cat-filter');const cur=sel.value;
@@ -4816,6 +4829,7 @@ function onECatChange(){
 }
 function startGame(){
   EM._lastMode='classic';
+  G.kolMode=false;
   const tp=document.getElementById('gtype').value||'all';const cid=document.getElementById('gcat').value||'';const sid=document.getElementById('gsub').value||'';
   let pool=S.items;if(tp!=='all')pool=pool.filter(i=>i.type===tp);if(cid)pool=pool.filter(i=>i.categoryId===cid);if(sid)pool=pool.filter(i=>i.subcategoryId===sid);
   if(pool.length<G.pairs){toast('Za mało elementów!');return;}
@@ -4827,9 +4841,10 @@ function startGame(){
 }
 function rPairCards(pairs){
   const nlc=document.getElementById('cnl'),plc=document.getElementById('cpl');nlc.innerHTML='';plc.innerHTML='';
+  const km=G.kolMode;
   const shpl=[...pairs].sort(()=>Math.random()-.5);
-  pairs.forEach(p=>{const c=document.createElement('div');c.className='pc';c.dataset.id=p.id;c.textContent=p.nl;c.onclick=()=>selNl(p.id,c);nlc.appendChild(c);});
-  shpl.forEach(p=>{const c=document.createElement('div');c.className='pc';c.dataset.id=p.id;c.textContent=p.pl;c.onclick=()=>selPl(p.id,c);plc.appendChild(c);});
+  pairs.forEach(p=>{const c=document.createElement('div');c.className='pc';c.dataset.id=p.id;c.textContent=km?p.kolA:p.nl;c.onclick=()=>selNl(p.id,c);nlc.appendChild(c);});
+  shpl.forEach(p=>{const c=document.createElement('div');c.className='pc';c.dataset.id=p.id;c.textContent=km?p.kolB:p.pl;c.onclick=()=>selPl(p.id,c);plc.appendChild(c);});
 }
 // Sistem unificat: click din oricare coloana
 // G.sel = { id, side:'nl'|'pl' }
@@ -4940,6 +4955,9 @@ function backSetup(){
     document.getElementById('gsetup-endless').style.display='block';
   } else if(EM._lastMode==='classic'){
     document.getElementById('gsetup-classic').style.display='block';
+  } else if(EM._lastMode==='kol'){
+    G.kolMode=false;
+    goTo('kolokacje');
   } else {
     document.getElementById('gsetup').style.display='block';
   }
@@ -6839,7 +6857,7 @@ window.addEventListener('unhandledrejection',function(e){console.error('[unhandl
     'stopGame':      ()=>stopGame(),
     'showGameMenu':  ()=>showGameMenu(),
     'setEndlessMode':(a)=>setEndlessMode(a),
-    'emRestart':     ()=>(EM._lastMode==='endless'?startEndless():startGame()),
+    'emRestart':     ()=>(EM._lastMode==='endless'?startEndless():EM._lastMode==='kol'?kolStartGame():startGame()),
     // Learn
     'startLearn':    (a)=>startLearn(null,null,a||'all'),
     'launchLearn':   (a)=>launchLearn(a),
