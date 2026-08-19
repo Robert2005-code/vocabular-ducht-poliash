@@ -1765,7 +1765,8 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
       </div>
       <div id="so-multi-bar" style="display:none;margin-bottom:10px;padding:10px;background:var(--bg4);border-radius:10px;border:1px solid var(--border2)">
         <div style="font-size:12px;color:var(--text3);margin-bottom:8px">Przenieś zaznaczone (<span id="so-sel-cnt">0</span>) do:</div>
-        <select id="so-move-anysub" style="width:100%;margin-bottom:8px;padding:8px;border-radius:8px;background:var(--bg3);border:1px solid var(--border2);color:var(--text1);font-size:13px"></select>
+        <select id="so-move-cat" style="width:100%;margin-bottom:6px;padding:8px;border-radius:8px;background:var(--bg3);border:1px solid var(--border2);color:var(--text1);font-size:13px"></select>
+        <select id="so-move-sub" style="width:100%;margin-bottom:8px;padding:8px;border-radius:8px;background:var(--bg3);border:1px solid var(--border2);color:var(--text1);font-size:13px"><option value="">— bez podkategorii —</option></select>
         <div style="display:flex;gap:8px">
           <button type="button" onclick="soMoveSelected()" style="flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a2e;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer">✓ Przenieś</button>
           <button type="button" onclick="soSelectAll()" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text2);border-radius:8px;padding:10px 12px;font-size:12px;cursor:pointer">Wszystkie</button>
@@ -2900,7 +2901,12 @@ function toggleSoSelect(){
   if(btn)btn.textContent=_soSelectMode?'✕ Anuluj':'☐ Wybierz';
   const bar=document.getElementById('so-multi-bar');
   if(bar)bar.style.display=_soSelectMode?'block':'none';
-  if(_soSelectMode)populateSoMoveAnySub();
+  if(_soSelectMode){
+    populateSoMoveSelects();
+    // preselectează categoria curentă a subcategoriei deschise
+    const curCat=document.getElementById('so-cat-id').value;
+    const mc=document.getElementById('so-move-cat');if(mc&&curCat){mc.value=curCat;updateSoMoveSubSelect();}
+  }
   const cnt=document.getElementById('so-sel-cnt');if(cnt)cnt.textContent='0';
   renderSubWords();
 }
@@ -2923,20 +2929,22 @@ function soSelectAll(){
   const cnt=document.getElementById('so-sel-cnt');if(cnt)cnt.textContent=_soSelected.size;
   renderSubWords();
 }
-function populateSoMoveAnySub(){
-  const sel=document.getElementById('so-move-anysub');if(!sel)return;
-  sel.innerHTML='<option value="">— wybierz cel (kategoria / podkategoria) —</option>';
-  S.categories.forEach(c=>{
-    let opts=`<option value="${c.id}|">${esc(c.icon)} ${esc(c.name)} (bez podkat.)</option>`;
-    (c.subs||[]).forEach(s=>{opts+=`<option value="${c.id}|${s.id}">↳ ${esc(s.n)}</option>`;});
-    sel.innerHTML+=`<optgroup label="${esc(c.icon)} ${esc(c.name)}">${opts}</optgroup>`;
-  });
+function populateSoMoveSelects(){
+  const sel=document.getElementById('so-move-cat');if(!sel)return;sel.innerHTML='';
+  S.categories.forEach(c=>sel.innerHTML+=`<option value="${c.id}">${esc(c.icon)} ${esc(c.name)}</option>`);
+  updateSoMoveSubSelect();
+  sel.onchange=updateSoMoveSubSelect;
+}
+function updateSoMoveSubSelect(){
+  const catId=document.getElementById('so-move-cat').value;
+  const cat=S.categories.find(c=>c.id===catId);
+  const sel=document.getElementById('so-move-sub');if(!sel)return;sel.innerHTML='<option value="">— bez podkategorii —</option>';
+  (cat?.subs||[]).forEach(s=>sel.innerHTML+=`<option value="${s.id}">${esc(s.n)}</option>`);
 }
 function soMoveSelected(){
   if(!_soSelected.size){toast('⚠ Zaznacz elementy!');return;}
-  const val=document.getElementById('so-move-anysub').value;
-  if(!val){toast('⚠ Wybierz cel!');return;}
-  const [toCat,toSubRaw]=val.split('|');const toSub=toSubRaw||null;
+  const toCat=document.getElementById('so-move-cat').value;
+  const toSub=document.getElementById('so-move-sub').value||null;
   const movedCnt=_soSelected.size;
   S.items=S.items.map(it=>_soSelected.has(String(it.id))?{...it,categoryId:toCat,subcategoryId:toSub}:it);
   save();_soSelected.clear();_soSelectMode=false;
