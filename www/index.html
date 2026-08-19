@@ -615,7 +615,18 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
   <div id="wl-sub-row" style="display:none;margin-bottom:10px">
     <select id="wl-sub-filter" style="width:100%;padding:8px 10px;font-size:12px" onchange="rWL()"><option value="">Wszystkie podkategorie</option></select>
   </div>
-  <div style="font-size:11px;color:var(--text3);margin-bottom:8px">Wyniki: <span id="wlcnt">0</span> <span id="wl-showing-hint"></span></div>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+    <div style="font-size:11px;color:var(--text3);flex:1">Wyniki: <span id="wlcnt">0</span> <span id="wl-showing-hint"></span></div>
+    <button type="button" id="wl-select-toggle" onclick="toggleWlSelect()" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;white-space:nowrap">☐ Wybierz</button>
+  </div>
+  <div id="wl-multi-bar" style="display:none;margin-bottom:10px;padding:10px;background:var(--bg4);border-radius:10px;border:1px solid var(--border2)">
+    <div style="font-size:12px;color:var(--text3);margin-bottom:8px">Przenieś zaznaczone (<span id="wl-sel-cnt">0</span>) do:</div>
+    <select id="wl-move-anysub" style="width:100%;margin-bottom:8px;padding:8px;border-radius:8px;background:var(--bg3);border:1px solid var(--border2);color:var(--text1);font-size:13px"></select>
+    <div style="display:flex;gap:8px">
+      <button type="button" onclick="wlMoveSelected()" style="flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a2e;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer">✓ Przenieś</button>
+      <button type="button" onclick="wlSelectAll()" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text2);border-radius:8px;padding:10px 12px;font-size:12px;cursor:pointer">Wszystkie</button>
+    </div>
+  </div>
   <div id="wlist"></div>
   <div id="wl-load-more" style="display:none;text-align:center;padding:12px 0">
     <button type="button" data-action="wlLoadMore" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:var(--r2);padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer">Załaduj więcej ↓</button>
@@ -1594,6 +1605,10 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
     <select id="move-cat" style="margin-bottom:4px" onchange="populateMoveSub()"></select>
     <label class="edit-label">Podkategoria (opcjonalnie)</label>
     <select id="move-sub" style="margin-bottom:14px"></select>
+    <div style="border-top:1px solid var(--border);margin:0 0 12px;padding-top:12px">
+      <label class="edit-label" style="color:var(--orange)">↪ Lub przenieś prosto do podkategorii (dowolna kategoria)</label>
+      <select id="move-anysub" style="margin-bottom:0" onchange="onMoveAnySub()"></select>
+    </div>
     <button type="button" class="btn bp" style="margin:0" data-action="confirmMove">✓ Przenieś</button>
   </div>
 </div>
@@ -1744,7 +1759,18 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
       </div>
     </div>
     <div id="so-words" style="display:none">
-      <div class="srch" style="margin-bottom:10px"><span class="srch-icon">🔍</span><input type="text" id="so-search" placeholder="Szukaj..." oninput="renderSubWords()" autocomplete="off" aria-label="Szukaj..."></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div class="srch" style="flex:1;margin-bottom:0"><span class="srch-icon">🔍</span><input type="text" id="so-search" placeholder="Szukaj..." oninput="renderSubWords()" autocomplete="off" aria-label="Szukaj..."></div>
+        <button type="button" id="so-select-toggle" onclick="toggleSoSelect()" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;white-space:nowrap">☐ Wybierz</button>
+      </div>
+      <div id="so-multi-bar" style="display:none;margin-bottom:10px;padding:10px;background:var(--bg4);border-radius:10px;border:1px solid var(--border2)">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px">Przenieś zaznaczone (<span id="so-sel-cnt">0</span>) do:</div>
+        <select id="so-move-anysub" style="width:100%;margin-bottom:8px;padding:8px;border-radius:8px;background:var(--bg3);border:1px solid var(--border2);color:var(--text1);font-size:13px"></select>
+        <div style="display:flex;gap:8px">
+          <button type="button" onclick="soMoveSelected()" style="flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a2e;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer">✓ Przenieś</button>
+          <button type="button" onclick="soSelectAll()" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text2);border-radius:8px;padding:10px 12px;font-size:12px;cursor:pointer">Wszystkie</button>
+        </div>
+      </div>
       <div style="font-size:11px;color:var(--text3);margin-bottom:8px">Elementów: <span id="so-wcnt">0</span></div>
       <div id="so-wlist" style="max-height:320px;overflow-y:auto"></div>
       <button type="button" data-action="showSubView" style="width:100%;background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:var(--r2);padding:10px;font-size:13px;font-weight:700;margin-top:10px;cursor:pointer">← Wróć</button>
@@ -1929,6 +1955,8 @@ let LS={completedLessons:[],xp:0,streak:0,lastStudyDate:null,totalCorrect:0,tota
 let LRN={queue:[],idx:0,flipped:false};
 let G={pairs:6,spp:8,sel:null,selNl:null,matched:0,score:0,tmr:null,total:0,elapsed:0};
 let WLF='all',WL_SEARCH='',EDIT_TYPE='word',WL_PAGE=0,WL_PAGE_SIZE=50;
+let _wlSelectMode=false;let _wlSelected=new Set();
+let _soSelectMode=false;let _soSelected=new Set();
 let WL_SEARCH_TIMER=null;
 let SES={count:30,dir:'nl',mode:'flip',type:'all',catId:'',queue:[],retryQueue:[],idx:0,flipped:false,round:1,knownCnt:0,unknownCnt:0,skipCnt:0,isRetry:false};
 
@@ -2361,8 +2389,6 @@ function rHeatmap(){
   if(!grid||!monthLabels)return;
   const log=LS.dailyLog||{};
   const today=new Date();
-  const start=new Date(today);
-  start.setDate(today.getDate()-today.getDay()-52*7+1);
   // maxVal separat pentru added și advanced — importul masiv nu striveşte activitatea zilnică
   const maxAdded=Math.max(...Object.values(log).map(d=>d.added||0),1);
   const maxAdvanced=Math.max(...Object.values(log).map(d=>d.advanced||0),1);
@@ -2376,11 +2402,15 @@ function rHeatmap(){
   }
   grid.innerHTML='';monthLabels.innerHTML='';
   const MONTHS=['Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz','Paź','Lis','Gru'];
+  // Începutul săptămânii curente (niedziela), ca azi să fie în prima coloană (stânga)
+  const curWeekStart=new Date(today);curWeekStart.setDate(today.getDate()-today.getDay());
   let prevMonth=-1;
   for(let w=0;w<53;w++){
     const col=document.createElement('div');col.className='heatmap-col';
+    // w=0 → săptămâna curentă; w crescător → înapoi în timp (spre dreapta)
+    const colStart=new Date(curWeekStart);colStart.setDate(curWeekStart.getDate()-w*7);
     for(let dow=0;dow<7;dow++){
-      const d=new Date(start);d.setDate(start.getDate()+w*7+dow);
+      const d=new Date(colStart);d.setDate(colStart.getDate()+dow);
       const cell=document.createElement('div');
       if(d>today){cell.className='hm-cell';cell.style.opacity='0';}
       else{
@@ -2391,7 +2421,7 @@ function rHeatmap(){
         cell.title=`${key}: ${dayData.advanced||0} powtórzeń · ${dayData.added||0} dodanych`;
       }
       col.appendChild(cell);
-      // Month label on first day of week (dow=0)
+      // Eticheta lunii pe prima zi a coloanei (dow=0)
       if(dow===0){
         const month=d.getMonth();
         const lbl=document.createElement('div');
@@ -2529,6 +2559,7 @@ function rWL(append=false){
   const re_esc_pat=WL_SEARCH?new RegExp('('+WL_SEARCH.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'):null;
   page.forEach(it=>{
     const cat=catMap[it.categoryId];const l=Math.min(it.level||0,6);const div=document.createElement('div');div.className='wi';
+    const wlChk=_wlSelectMode?`<input type="checkbox" ${_wlSelected.has(String(it.id))?'checked':''} onchange="wlToggleItem('${String(it.id)}',this.checked)" onclick="event.stopPropagation()" style="width:18px;height:18px;flex-shrink:0;accent-color:var(--gold);cursor:pointer;margin-right:8px">`:'';
     let nlHtml=esc(it.nl),plHtml=esc(it.pl);
     if(re_esc_pat){nlHtml=nlHtml.replace(re_esc_pat,'<mark style="background:#e8a83844;color:var(--gold);border-radius:3px">$1</mark>');plHtml=plHtml.replace(re_esc_pat,'<mark style="background:#e8a83844;color:var(--gold);border-radius:3px">$1</mark>');}
     const idStr=String(it.id);
@@ -2556,11 +2587,73 @@ function rWL(append=false){
       const ovtForms=[it.imperf_sg,it.imperf_pl].filter(Boolean).map(esc).join(' / ');
       voltooideInfo+=`<div style="font-size:10px;color:var(--blue);margin-top:2px;display:flex;align-items:center;flex-wrap:wrap"><span style="font-weight:700;margin-right:4px">OVT:</span> ${ovtForms}${ilBadge}</div>`;
     }
-    div.innerHTML=`<div style="flex:1;min-width:0;cursor:pointer" onclick="openEditItem('${idStr}')"><div style="font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">${nlHtml}<span class="type-badge ${it.type==='phrase'?'tp2':'tw'}">${it.type==='phrase'?'fraza':'słowo'}</span>${irregularBadge}</div><div style="color:var(--text2);font-size:12px;margin-top:2px">${plHtml}</div>${voltooideInfo}${cat?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${cat.icon} ${cat.name}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px"><span class="tag" style="background:${LC[l]}22;color:${LC[l]}">poz.${l}</span>${isDue(it)?'<span class="tag tg" style="font-size:9px">nauka</span>':''}<div style="display:flex;gap:4px;margin-top:2px"><button type="button" onclick="event.stopPropagation();speak('${escJ(it.nl)}',LANG_SPEAK)" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🔊</button><button type="button" onclick="openMoveModal('${idStr}')" style="background:var(--blue-dim);border:1px solid var(--blue)44;color:var(--blue);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">↗</button><button type="button" onclick="delItem('${idStr}')" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🗑</button></div></div>`;
+    div.innerHTML=`${wlChk}<div style="flex:1;min-width:0;cursor:pointer" onclick="${_wlSelectMode?`wlToggleItem('${idStr}')`:`openEditItem('${idStr}')`}"><div style="font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">${nlHtml}<span class="type-badge ${it.type==='phrase'?'tp2':'tw'}">${it.type==='phrase'?'fraza':'słowo'}</span>${irregularBadge}</div><div style="color:var(--text2);font-size:12px;margin-top:2px">${plHtml}</div>${voltooideInfo}${cat?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${cat.icon} ${cat.name}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px"><span class="tag" style="background:${LC[l]}22;color:${LC[l]}">poz.${l}</span>${isDue(it)?'<span class="tag tg" style="font-size:9px">nauka</span>':''}<div style="display:flex;gap:4px;margin-top:2px"><button type="button" onclick="event.stopPropagation();speak('${escJ(it.nl)}',LANG_SPEAK)" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🔊</button><button type="button" onclick="event.stopPropagation();openMoveModal('${idStr}')" style="background:var(--blue-dim);border:1px solid var(--blue)44;color:var(--blue);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">↗</button><button type="button" onclick="event.stopPropagation();delItem('${idStr}')" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer">🗑</button></div></div>`;
     frag.appendChild(div);
   });
   list.appendChild(frag);
   document.getElementById('wl-load-more').style.display=hasMore?'block':'none';
+}
+function toggleWlSelect(){
+  _wlSelectMode=!_wlSelectMode;_wlSelected.clear();
+  const btn=document.getElementById('wl-select-toggle');
+  if(btn)btn.textContent=_wlSelectMode?'✕ Anuluj':'☐ Wybierz';
+  const bar=document.getElementById('wl-multi-bar');
+  if(bar)bar.style.display=_wlSelectMode?'block':'none';
+  if(_wlSelectMode)populateWlMoveAnySub();
+  document.getElementById('wl-sel-cnt').textContent='0';
+  rWL();
+}
+function wlToggleItem(id,checked){
+  id=String(id);
+  const fromRow=(checked===undefined);
+  if(fromRow)checked=!_wlSelected.has(id);
+  if(checked)_wlSelected.add(id);else _wlSelected.delete(id);
+  document.getElementById('wl-sel-cnt').textContent=_wlSelected.size;
+  if(fromRow)rWL();
+}
+function wlSelectAll(){
+  // selectează toate elementele care corespund filtrelor curente (nu doar pagina afișată)
+  const catFilter=document.getElementById('wl-cat-filter')?.value||'';
+  const subFilter=document.getElementById('wl-sub-filter')?.value||'';
+  let items=S.items;
+  if(WLF==='word')items=items.filter(i=>i.type==='word');
+  else if(WLF==='phrase')items=items.filter(i=>i.type==='phrase');
+  else if(WLF==='due')items=items.filter(isDue);
+  else if(WLF==='known')items=items.filter(i=>(i.level||0)>=3);
+  else if(WLF==='het')items=items.filter(i=>/^het\s/i.test(i.nl));
+  else if(WLF==='de')items=items.filter(i=>/^de\s/i.test(i.nl));
+  else if(WLF==='irregular')items=items.filter(i=>i.irregular);
+  else if(WLF==='regular')items=items.filter(i=>i.voltooid&&!i.irregular);
+  if(catFilter)items=items.filter(i=>i.categoryId===catFilter);
+  if(subFilter)items=items.filter(i=>i.subcategoryId===subFilter);
+  if(WL_SEARCH){const q=WL_SEARCH.toLowerCase();items=items.filter(i=>i.nl.toLowerCase().includes(q)||i.pl.toLowerCase().includes(q));}
+  const allSel=items.every(i=>_wlSelected.has(String(i.id)));
+  if(allSel){items.forEach(i=>_wlSelected.delete(String(i.id)));}
+  else{items.forEach(i=>_wlSelected.add(String(i.id)));}
+  document.getElementById('wl-sel-cnt').textContent=_wlSelected.size;
+  rWL();
+}
+function populateWlMoveAnySub(){
+  const sel=document.getElementById('wl-move-anysub');if(!sel)return;
+  sel.innerHTML='<option value="">— wybierz podkategorię / kategorię —</option>';
+  S.categories.forEach(c=>{
+    let opts=`<option value="${c.id}|">${esc(c.icon)} ${esc(c.name)} (bez podkat.)</option>`;
+    (c.subs||[]).forEach(s=>{opts+=`<option value="${c.id}|${s.id}">↳ ${esc(s.n)}</option>`;});
+    sel.innerHTML+=`<optgroup label="${esc(c.icon)} ${esc(c.name)}">${opts}</optgroup>`;
+  });
+}
+function wlMoveSelected(){
+  if(!_wlSelected.size){toast('⚠ Zaznacz elementy!');return;}
+  const val=document.getElementById('wl-move-anysub').value;
+  if(!val){toast('⚠ Wybierz cel!');return;}
+  const [toCat,toSubRaw]=val.split('|');const toSub=toSubRaw||null;
+  const movedCnt=_wlSelected.size;
+  S.items=S.items.map(it=>_wlSelected.has(String(it.id))?{...it,categoryId:toCat,subcategoryId:toSub}:it);
+  save();_wlSelected.clear();_wlSelectMode=false;
+  const btn=document.getElementById('wl-select-toggle');if(btn)btn.textContent='☐ Wybierz';
+  document.getElementById('wl-multi-bar').style.display='none';
+  WL_PAGE=0;rWL();rHome();
+  const cat=S.categories.find(c=>c.id===toCat);toast('✓ Przeniesiono '+movedCnt+' → '+(cat?.name||toCat));
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -2674,6 +2767,24 @@ function populateMoveSub(){
   const sel=document.getElementById('move-sub');sel.innerHTML='<option value="">— brak —</option>';
   (cat?.subs||[]).forEach(s=>sel.innerHTML+=`<option value="${s.id}">${esc(s.n)}</option>`);
 }
+function populateMoveAnySub(){
+  const sel=document.getElementById('move-anysub');if(!sel)return;
+  sel.innerHTML='<option value="">— wybierz podkategorię —</option>';
+  S.categories.forEach(c=>{
+    if(!c.subs||!c.subs.length)return;
+    let opts='';
+    c.subs.forEach(s=>{opts+=`<option value="${c.id}|${s.id}">${esc(s.n)}</option>`;});
+    sel.innerHTML+=`<optgroup label="${esc(c.icon)} ${esc(c.name)}">${opts}</optgroup>`;
+  });
+}
+function onMoveAnySub(){
+  const val=document.getElementById('move-anysub').value;
+  if(!val)return;
+  const [catId,subId]=val.split('|');
+  const mc=document.getElementById('move-cat');mc.value=catId;
+  populateMoveSub();
+  const ms=document.getElementById('move-sub');ms.value=subId;
+}
 function openMoveModal(id){
   const it=S.items.find(i=>String(i.id)===String(id));if(!it)return;
   document.getElementById('move-item-id').value=id;document.getElementById('move-item-label').textContent=it.nl+' → '+it.pl;
@@ -2681,6 +2792,8 @@ function openMoveModal(id){
   S.categories.forEach(c=>sel.innerHTML+=`<option value="${c.id}">${esc(c.icon)} ${esc(c.name)}</option>`);
   sel.value=it.categoryId||'inne';populateMoveSub();
   if(it.subcategoryId)document.getElementById('move-sub').value=it.subcategoryId;
+  populateMoveAnySub();
+  const anysub=document.getElementById('move-anysub');if(anysub)anysub.value='';
   openModal('modal-move');
 }
 function confirmMove(){
@@ -2757,6 +2870,9 @@ function saveSubEdit(){
 function deleteSubFromModal(){const catId=document.getElementById('so-cat-id').value;const subId=document.getElementById('so-sub-id').value;closeModal('modal-sub-opts');deleteSub(catId,subId);}
 function showSubWords(){
   document.getElementById('so-view').style.display='none';document.getElementById('so-edit').style.display='none';document.getElementById('so-words').style.display='block';
+  _soSelectMode=false;_soSelected.clear();
+  const btn=document.getElementById('so-select-toggle');if(btn)btn.textContent='☐ Wybierz';
+  const bar=document.getElementById('so-multi-bar');if(bar)bar.style.display='none';
   document.getElementById('so-search').value='';renderSubWords();
 }
 function renderSubWords(){
@@ -2769,12 +2885,66 @@ function renderSubWords(){
   items.forEach(it=>{
     const l=Math.min(it.level||0,6);const d=document.createElement('div');
     d.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);gap:8px';
-    d.innerHTML=`<div style="flex:1;min-width:0;cursor:pointer" onclick="closeModal('modal-sub-opts');openEditItem('${String(it.id)}')"><div style="font-weight:600;font-size:13px">${esc(it.nl)}</div><div style="color:var(--text2);font-size:11px">${esc(it.pl)}</div></div><div style="display:flex;align-items:center;gap:5px;flex-shrink:0"><span class="tag" style="background:${LC[l]}22;color:${LC[l]};font-size:9px">poz.${l}</span><button type="button" onclick="delItemFromSub('${String(it.id)}')" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:6px;padding:3px 7px;font-size:12px;cursor:pointer">🗑</button></div>`;
+    const idS=String(it.id);
+    const soChk=_soSelectMode?`<input type="checkbox" ${_soSelected.has(idS)?'checked':''} onchange="soToggleItem('${idS}',this.checked)" onclick="event.stopPropagation()" style="width:18px;height:18px;flex-shrink:0;accent-color:var(--gold);cursor:pointer;margin-right:6px">`:'';
+    const mainClick=_soSelectMode?`soToggleItem('${idS}')`:`closeModal('modal-sub-opts');openEditItem('${idS}')`;
+    d.innerHTML=`${soChk}<div style="flex:1;min-width:0;cursor:pointer" onclick="${mainClick}"><div style="font-weight:600;font-size:13px">${esc(it.nl)}</div><div style="color:var(--text2);font-size:11px">${esc(it.pl)}</div></div><div style="display:flex;align-items:center;gap:5px;flex-shrink:0"><span class="tag" style="background:${LC[l]}22;color:${LC[l]};font-size:9px">poz.${l}</span><button type="button" onclick="event.stopPropagation();delItemFromSub('${idS}')" style="background:var(--red-dim);border:1px solid var(--red)44;color:var(--red);border-radius:6px;padding:3px 7px;font-size:12px;cursor:pointer">🗑</button></div>`;
     frag.appendChild(d);
   });
   list.appendChild(frag);
 }
 function delItemFromSub(id){if(!confirm('Usunąć ten element?'))return;S.items=S.items.filter(i=>String(i.id)!==String(id));save();renderSubWords();rCats();toast('Usunięto');}
+function toggleSoSelect(){
+  _soSelectMode=!_soSelectMode;_soSelected.clear();
+  const btn=document.getElementById('so-select-toggle');
+  if(btn)btn.textContent=_soSelectMode?'✕ Anuluj':'☐ Wybierz';
+  const bar=document.getElementById('so-multi-bar');
+  if(bar)bar.style.display=_soSelectMode?'block':'none';
+  if(_soSelectMode)populateSoMoveAnySub();
+  const cnt=document.getElementById('so-sel-cnt');if(cnt)cnt.textContent='0';
+  renderSubWords();
+}
+function soToggleItem(id,checked){
+  id=String(id);
+  const fromRow=(checked===undefined);
+  if(fromRow)checked=!_soSelected.has(id);
+  if(checked)_soSelected.add(id);else _soSelected.delete(id);
+  const cnt=document.getElementById('so-sel-cnt');if(cnt)cnt.textContent=_soSelected.size;
+  if(fromRow)renderSubWords();
+}
+function soSelectAll(){
+  const subId=document.getElementById('so-sub-id').value;
+  const q=(document.getElementById('so-search').value||'').toLowerCase().trim();
+  let items=S.items.filter(i=>i.subcategoryId===subId);
+  if(q)items=items.filter(i=>i.nl.toLowerCase().includes(q)||i.pl.toLowerCase().includes(q));
+  const allSel=items.length&&items.every(i=>_soSelected.has(String(i.id)));
+  if(allSel){items.forEach(i=>_soSelected.delete(String(i.id)));}
+  else{items.forEach(i=>_soSelected.add(String(i.id)));}
+  const cnt=document.getElementById('so-sel-cnt');if(cnt)cnt.textContent=_soSelected.size;
+  renderSubWords();
+}
+function populateSoMoveAnySub(){
+  const sel=document.getElementById('so-move-anysub');if(!sel)return;
+  sel.innerHTML='<option value="">— wybierz cel (kategoria / podkategoria) —</option>';
+  S.categories.forEach(c=>{
+    let opts=`<option value="${c.id}|">${esc(c.icon)} ${esc(c.name)} (bez podkat.)</option>`;
+    (c.subs||[]).forEach(s=>{opts+=`<option value="${c.id}|${s.id}">↳ ${esc(s.n)}</option>`;});
+    sel.innerHTML+=`<optgroup label="${esc(c.icon)} ${esc(c.name)}">${opts}</optgroup>`;
+  });
+}
+function soMoveSelected(){
+  if(!_soSelected.size){toast('⚠ Zaznacz elementy!');return;}
+  const val=document.getElementById('so-move-anysub').value;
+  if(!val){toast('⚠ Wybierz cel!');return;}
+  const [toCat,toSubRaw]=val.split('|');const toSub=toSubRaw||null;
+  const movedCnt=_soSelected.size;
+  S.items=S.items.map(it=>_soSelected.has(String(it.id))?{...it,categoryId:toCat,subcategoryId:toSub}:it);
+  save();_soSelected.clear();_soSelectMode=false;
+  const btn=document.getElementById('so-select-toggle');if(btn)btn.textContent='☐ Wybierz';
+  const bar=document.getElementById('so-multi-bar');if(bar)bar.style.display='none';
+  renderSubWords();rCats();rHome();
+  const cat=S.categories.find(c=>c.id===toCat);toast('✓ Przeniesiono '+movedCnt+' → '+(cat?.name||toCat));
+}
 function deleteCat(catId){
   const cat=S.categories.find(c=>c.id===catId);if(!cat)return;
   const cnt=S.items.filter(i=>i.categoryId===catId).length;
