@@ -646,7 +646,7 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
       <button type="button" data-action="cancelCat" style="background:var(--bg4);color:var(--text3);border:none;border-radius:8px;padding:10px 14px">Anuluj</button>
     </div>
   </div>
-  <button type="button" class="btn bs" id="sac" data-action="showAddCat">+ Dodaj kategorię</button>
+  <button type="button" class="btn bs" id="sac" data-action="showAddCat" style="display:none">+ Dodaj kategorię</button>
 </div>
 
 <!-- ═══ KOLOKACJE ═══ -->
@@ -2816,7 +2816,7 @@ function rCats(){
     const catIdx=S.categories.indexOf(cat);const catLast=S.categories.length-1;
     const hasSubs=(cat.subs||[]).length>0;
     const chev=hasSubs?`<button type="button" id="chev-${cat.id}" onclick="event.stopPropagation();toggleSubs('${cat.id}')" style="background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;padding:2px 4px;flex-shrink:0;transition:transform .15s">▸</button>`:`<span style="width:16px;flex-shrink:0;display:inline-block"></span>`;
-    div.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center">${chev}<div style="display:flex;align-items:center;gap:10px;flex:1;cursor:pointer;min-width:0" onclick="openCatModal('${cat.id}')"><span style="font-size:22px">${esc(cat.icon)}</span><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:14px">${esc(cat.name)}</div><div style="font-size:11px;color:var(--text3)">${cw.length} elementów${cd>0?' · <span style="color:var(--gold)">'+cd+' do nauki</span>':''}</div></div><span style="font-size:16px;color:var(--text3)">›</span></div><div id="catmv-${cat.id}" style="display:${_reorderMode?'flex':'none'};flex-direction:column;gap:2px;flex-shrink:0;margin-left:6px"><button type="button" onclick="event.stopPropagation();moveCat('${cat.id}',-1)" ${catIdx===0?'disabled':''} style="background:var(--bg4);border:1px solid var(--border2);color:${catIdx===0?'var(--border2)':'var(--text2)'};border-radius:6px;padding:1px 7px;font-size:11px;cursor:${catIdx===0?'default':'pointer'};line-height:1.3">▲</button><button type="button" onclick="event.stopPropagation();moveCat('${cat.id}',1)" ${catIdx===catLast?'disabled':''} style="background:var(--bg4);border:1px solid var(--border2);color:${catIdx===catLast?'var(--border2)':'var(--text2)'};border-radius:6px;padding:1px 7px;font-size:11px;cursor:${catIdx===catLast?'default':'pointer'};line-height:1.3">▼</button></div><button type="button" onclick="event.stopPropagation();toggleCatMove('${cat.id}')" ${catIdx===0&&catLast===0?'disabled':''} style="background:var(--bg4);border:1px solid var(--border2);color:var(--text3);border-radius:8px;padding:6px 10px;font-size:16px;font-weight:800;cursor:pointer;flex-shrink:0;margin-left:6px;line-height:1;display:none">⋮</button><button type="button" onclick="openDirPicker('${cat.id}',null)" style="background:var(--gold-dim);color:var(--gold);border:2px solid var(--gold)66;border-radius:10px;padding:8px 14px;font-size:14px;font-weight:800;cursor:pointer;flex-shrink:0;margin-left:6px">▶</button></div><div id="subs-${cat.id}" style="display:${_reorderMode?'block':'none'}"></div><div id="asf-${cat.id}" style="display:none;margin-top:10px"><div style="display:flex;gap:8px"><input type="text" id="ns-${cat.id}" placeholder="Nazwa podkategorii..." aria-label="Nazwa podkategorii..."><button type="button" onclick="addSub('${cat.id}')" style="background:var(--gold);color:#1a1a2e;border:none;border-radius:8px;padding:0 12px;font-weight:700;flex-shrink:0">+</button><button type="button" onclick="document.getElementById('asf-${cat.id}').style.display='none'" style="background:var(--bg4);color:var(--text3);border:none;border-radius:8px;padding:0 9px;flex-shrink:0">✕</button></div></div><button type="button" onclick="document.getElementById('asf-${cat.id}').style.display='block'" style="margin-top:10px;background:none;border:1px dashed var(--border2);color:var(--text3);border-radius:7px;padding:5px 12px;font-size:11px;width:100%">+ dodaj podkategorię</button>`;
+    div.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center">${chev}<div style="display:flex;align-items:center;gap:10px;flex:1;cursor:pointer;min-width:0" onclick="openCatModal('${cat.id}')"><span style="font-size:22px">${esc(cat.icon)}</span><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:14px">${esc(cat.name)}</div><div style="font-size:11px;color:var(--text3)">${cw.length} elementów${cd>0?' · <span style="color:var(--gold)">'+cd+' do nauki</span>':''}</div></div><span style="font-size:16px;color:var(--text3)">›</span></div><div id="catmv-${cat.id}" style="display:${_reorderMode?'flex':'none'};flex-direction:column;gap:2px;flex-shrink:0;margin-left:6px"><button type="button" onclick="event.stopPropagation();moveCat('${cat.id}',-1)" ${catIdx===0?'disabled':''} style="background:var(--bg4);border:1px solid var(--border2);color:${catIdx===0?'var(--border2)':'var(--text2)'};border-radius:6px;padding:1px 7px;font-size:11px;cursor:${catIdx===0?'default':'pointer'};line-height:1.3">▲</button><button type="button" onclick="event.stopPropagation();moveCat('${cat.id}',1)" ${catIdx===catLast?'disabled':''} style="background:var(--bg4);border:1px solid var(--border2);color:${catIdx===catLast?'var(--border2)':'var(--text2)'};border-radius:6px;padding:1px 7px;font-size:11px;cursor:${catIdx===catLast?'default':'pointer'};line-height:1.3">▼</button></div><button type="button" onclick="event.stopPropagation();toggleCatMove('${cat.id}')" ${catIdx===0&&catLast===0?'disabled':''} style="background:var(--bg4);border:1px solid var(--border2);color:var(--text3);border-radius:8px;padding:6px 10px;font-size:16px;font-weight:800;cursor:pointer;flex-shrink:0;margin-left:6px;line-height:1;display:none">⋮</button><button type="button" onclick="openDirPicker('${cat.id}',null)" style="background:var(--gold-dim);color:var(--gold);border:2px solid var(--gold)66;border-radius:10px;padding:8px 14px;font-size:14px;font-weight:800;cursor:pointer;flex-shrink:0;margin-left:6px">▶</button></div><div id="subs-${cat.id}" style="display:${_reorderMode?'block':'none'}"></div><div id="asf-${cat.id}" style="display:none;margin-top:10px"><div style="display:flex;gap:8px"><input type="text" id="ns-${cat.id}" placeholder="Nazwa podkategorii..." aria-label="Nazwa podkategorii..."><button type="button" onclick="addSub('${cat.id}')" style="background:var(--gold);color:#1a1a2e;border:none;border-radius:8px;padding:0 12px;font-weight:700;flex-shrink:0">+</button><button type="button" onclick="document.getElementById('asf-${cat.id}').style.display='none'" style="background:var(--bg4);color:var(--text3);border:none;border-radius:8px;padding:0 9px;flex-shrink:0">✕</button></div></div><button type="button" onclick="document.getElementById('asf-${cat.id}').style.display='block'" style="margin-top:10px;background:none;border:1px dashed var(--border2);color:var(--text3);border-radius:7px;padding:5px 12px;font-size:11px;width:100%;display:${_reorderMode?'block':'none'}">+ dodaj podkategorię</button>`;
     list.appendChild(div);rSubs(cat);
   });
 }
@@ -2861,6 +2861,7 @@ function toggleSubs(catId){
 }
 function enterReorderMode(){
   _reorderMode=true;rCats();
+  const sac=document.getElementById('sac');if(sac)sac.style.display='block';
   // activează listenerul de închidere după ce se termină click-ul curent
   setTimeout(()=>{document.addEventListener('click',_reorderOutsideClick,true);},0);
 }
@@ -2868,11 +2869,17 @@ function exitReorderMode(){
   if(!_reorderMode)return;
   _reorderMode=false;
   document.removeEventListener('click',_reorderOutsideClick,true);
+  const sac=document.getElementById('sac');if(sac)sac.style.display='none';
+  const acf=document.getElementById('acf');if(acf)acf.style.display='none';
   rCats();
 }
 function _reorderOutsideClick(e){
-  // dacă s-a apăsat pe o săgeată de mutare (▲▼), nu ieși din mod
-  if(e.target.closest('[id^="catmv-"]')||e.target.closest('[id^="submv-"]'))return;
+  // nu ieși din mod dacă s-a apăsat pe: săgeți (▲▼), butonul/formularul de adăugare categorie,
+  // sau formularul de adăugare subcategorie
+  if(e.target.closest('[id^="catmv-"]')||e.target.closest('[id^="submv-"]')||
+     e.target.closest('#sac')||e.target.closest('#acf')||
+     e.target.closest('[id^="asf-"]')||
+     (e.target.tagName==='BUTTON'&&/dodaj podkategori/i.test(e.target.textContent)))return;
   exitReorderMode();
 }
 function toggleCatMove(catId){enterReorderMode();}
