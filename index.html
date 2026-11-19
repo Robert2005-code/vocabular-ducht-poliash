@@ -925,24 +925,42 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
 
 <!-- ═══ LEARN (flashcard) ═══ -->
 <div class="scr" id="scr-learn">
-  <button type="button" class="back" data-action="goTo" data-args="home">‹ Wróć</button>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-    <div style="font-size:12px;color:var(--text3)" id="lpt">0 / 0</div>
-    <div id="lbadge" class="tag tg"></div>
+  <div id="l-main">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <button type="button" class="back" style="margin:0" onclick="goTo(LRN.returnTo||'home')">‹ Zakończ</button>
+      <div style="font-size:12px;color:var(--text3)" id="lpt">0 / 0</div>
+      <div id="lbadge" class="tag tg"></div>
+    </div>
+    <div style="margin-bottom:6px">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:3px"><span id="l-round-lbl">Runda 1</span><span id="l-retry-lbl"></span></div>
+      <div class="pgbar" style="margin-bottom:4px"><div class="pgfill" id="lpf" style="width:0%"></div></div>
+    </div>
+    <div id="l-retry-bar" style="display:none" class="retry-bar">🔁 <span id="l-retry-count">0</span> słów wróci na powtórkę</div>
+    <div class="fc" id="fcard" data-action="flipCard">
+      <button type="button" id="fc-speak-front" onclick="event.stopPropagation();fcSpeak('front')" style="position:absolute;top:10px;right:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:var(--text2);border-radius:10px;padding:10px 14px;font-size:22px;cursor:pointer;z-index:2">🔊</button>
+      <button type="button" id="fc-speak-back" onclick="event.stopPropagation();fcSpeak('back')" style="display:none;position:absolute;top:10px;left:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:var(--text2);border-radius:10px;padding:10px 14px;font-size:22px;cursor:pointer;z-index:2">🔊</button>
+      <div class="fc-lang" id="fcl" style="color:var(--blue)">🇳🇱 Niderlandzki</div>
+      <div class="fc-word" id="fcw">—</div>
+      <div class="fc-hint" id="fch">dotknij, aby zobaczyć odpowiedź</div>
+      <div class="fc-sub" id="fcs" style="display:none"></div>
+    </div>
+    <div class="la" id="laf"><button type="button" class="lb bs" data-action="skipCard" style="background:var(--bg4);color:var(--text2)">→ Pomiń</button></div>
+    <div class="la" id="lab" style="display:none">
+      <button type="button" class="lb br" data-action="markNo">✗ Nie znam</button>
+      <button type="button" class="lb bs" data-action="skipCard" style="background:var(--bg4);color:var(--text2)">→ Dalej</button>
+      <button type="button" class="lb bg2" data-action="markYes">✓ Znam</button>
+    </div>
   </div>
-  <div class="pgbar"><div class="pgfill" id="lpf" style="width:0%"></div></div>
-  <div class="fc" id="fcard" data-action="flipCard">
-    <button type="button" id="fc-speak-btn" onclick="event.stopPropagation();fcSpeak()" style="position:absolute;top:10px;right:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:var(--text2);border-radius:8px;padding:5px 9px;font-size:13px;cursor:pointer;z-index:2">🔊</button>
-    <div class="fc-lang" id="fcl" style="color:var(--blue)">🇳🇱 Niderlandzki</div>
-    <div class="fc-word" id="fcw">—</div>
-    <div class="fc-hint" id="fch">dotknij, aby zobaczyć tłumaczenie</div>
-    <div class="fc-sub" id="fcs" style="display:none"></div>
-  </div>
-  <div class="la" id="laf"><button type="button" class="lb bs" data-action="skipCard" style="background:var(--bg4);color:var(--text2)">→ Pomiń</button></div>
-  <div class="la" id="lab" style="display:none">
-    <button type="button" class="lb br" data-action="markNo">✗ Nie znam</button>
-    <button type="button" class="lb bs" data-action="skipCard" style="background:var(--bg4);color:var(--text2)">→ Dalej</button>
-    <button type="button" class="lb bg2" data-action="markYes">✓ Znam</button>
+  <div id="l-result" style="display:none;text-align:center;padding:20px 0">
+    <div style="font-size:58px;margin-bottom:10px" id="l-res-emoji">🎉</div>
+    <div style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;margin-bottom:6px" id="l-res-title">Sesja zakończona!</div>
+    <div style="color:var(--text2);font-size:13px;margin-bottom:18px" id="l-res-stats"></div>
+    <div style="display:flex;gap:0;margin:0 0 20px;border:1px solid var(--border);border-radius:var(--r2);overflow:hidden">
+      <div style="flex:1;padding:14px 8px;text-align:center;border-right:1px solid var(--border)"><div style="font-size:24px;font-weight:800;color:var(--green)" id="lr-known">0</div><div style="font-size:10px;color:var(--text3)">Znane ✓</div></div>
+      <div style="flex:1;padding:14px 8px;text-align:center;border-right:1px solid var(--border)"><div style="font-size:24px;font-weight:800;color:var(--red)" id="lr-unknown">0</div><div style="font-size:10px;color:var(--text3)">Nie znane ✗</div></div>
+      <div style="flex:1;padding:14px 8px;text-align:center"><div style="font-size:24px;font-weight:800;color:var(--gold)" id="lr-skip">0</div><div style="font-size:10px;color:var(--text3)">Pominięte</div></div>
+    </div>
+    <button type="button" class="btn bs" onclick="goTo(LRN.returnTo||'home')">← Wróć</button>
   </div>
 </div>
 
@@ -4556,50 +4574,92 @@ function startLearn(cid,sid,type,dir='nl',returnTo='home'){
   if(type==='lvl6')shuf(pool);
   else pool.sort((a,b)=>(a.level||0)-(b.level||0));
   if(!pool.length){toast(type==='lvl6'?'Brak słów na poziomie 6 do powtórki!':'Brak elementów do powtórzenia!');return;}
-  LRN={queue:pool,idx:0,flipped:false,dir,returnTo};goTo('learn');rLCard();
+  LRN={queue:pool,retryQueue:[],idx:0,flipped:false,round:1,knownCnt:0,unknownCnt:0,skipCnt:0,isRetry:false,dir,returnTo};
+  document.getElementById('l-result').style.display='none';
+  document.getElementById('l-main').style.display='block';
+  goTo('learn');rLCard();
 }
 function rLCard(){
-  const it=LRN.queue[LRN.idx];if(!it)return;
+  const q=LRN.isRetry?LRN.retryQueue:LRN.queue;const it=q[LRN.idx];if(!it)return;
   const showNl=(LRN.dir||'nl')==='nl';
   document.getElementById('fcard').classList.remove('fl');LRN.flipped=false;
   document.getElementById('laf').style.display='flex';document.getElementById('lab').style.display='none';
+  document.getElementById('fc-speak-front').style.display='block';
+  document.getElementById('fc-speak-back').style.display='none';
   document.getElementById('fcl').textContent=showNl?'🇳🇱 Niderlandzki':'🇵🇱 Polski';
   document.getElementById('fcl').style.color=showNl?'var(--blue)':'#f59e0b';
   document.getElementById('fcw').textContent=showNl?it.nl:it.pl;
   document.getElementById('fch').style.display='block';document.getElementById('fcs').style.display='none';
-  document.getElementById('lpf').style.width=((LRN.idx+1)/LRN.queue.length*100)+'%';
-  document.getElementById('lpt').textContent=(LRN.idx+1)+' / '+LRN.queue.length;
+  document.getElementById('lpf').style.width=((LRN.idx+1)/q.length*100)+'%';
+  document.getElementById('lpt').textContent=(LRN.idx+1)+' / '+q.length;
+  document.getElementById('l-round-lbl').textContent=LRN.isRetry?'🔁 Powtórka nieznanych':'Runda '+(LRN.round||1);
+  const rc=(LRN.retryQueue||[]).length;
+  document.getElementById('l-retry-bar').style.display=rc>0&&!LRN.isRetry?'flex':'none';
+  document.getElementById('l-retry-count').textContent=rc;
+  document.getElementById('l-retry-lbl').textContent=rc>0?rc+' do powtórki':'';
   const l=Math.min(it.level||0,6),b=document.getElementById('lbadge');
-  b.textContent=(it.type==='phrase'?'💬 Fraza':'📝 Słowo')+' · '+LN[l];b.style.background=LC[l]+'22';b.style.color=LC[l];
+  b.textContent=(it.type==='phrase'?'💬':'📝')+' poz.'+l;b.style.background=LC[l]+'22';b.style.color=LC[l];
 }
-function fcSpeak(){
-  const it = LRN.queue && LRN.queue[LRN.idx];
+function fcSpeak(side){
+  const q=LRN.isRetry?LRN.retryQueue:LRN.queue;
+  const it=q&&q[LRN.idx];
   if(!it) return;
-  if(LRN.flipped){
-    // Cardul e intors - pronunta traducerea (pl sau nl in functie de directie)
-    const showNl = (LRN.dir||'nl') === 'nl';
-    speak(showNl ? it.pl : it.nl, showNl ? LANG_NATIVE : LANG_SPEAK);
+  const showNl=(LRN.dir||'nl')==='nl';
+  if(side==='back'||(!side&&LRN.flipped)){
+    speak(showNl?it.pl:it.nl, showNl?LANG_NATIVE:LANG_SPEAK);
   } else {
-    // Cardul nu e intors - pronunta cuvantul afisat
-    const showNl = (LRN.dir||'nl') === 'nl';
-    speak(showNl ? it.nl : it.pl, showNl ? LANG_SPEAK : LANG_NATIVE);
+    speak(showNl?it.nl:it.pl, showNl?LANG_SPEAK:LANG_NATIVE);
   }
 }
 function flipCard(){
-  if(LRN.flipped)return;const it=LRN.queue[LRN.idx];LRN.flipped=true;
+  const q=LRN.isRetry?LRN.retryQueue:LRN.queue;const it=q[LRN.idx];if(!it)return;
   const showNl=(LRN.dir||'nl')==='nl';
-  document.getElementById('fcard').classList.add('fl');
-  document.getElementById('fcl').textContent=showNl?'🇵🇱 Polski':'🇳🇱 Niderlandzki';
-  document.getElementById('fcl').style.color=showNl?'#f59e0b':'var(--blue)';
-  document.getElementById('fcw').textContent=showNl?it.pl:it.nl;
-  document.getElementById('fch').style.display='none';
-  document.getElementById('fcs').textContent=showNl?it.nl:it.pl;document.getElementById('fcs').style.display='block';
-  document.getElementById('laf').style.display='none';document.getElementById('lab').style.display='flex';
+  if(!LRN.flipped){
+    LRN.flipped=true;
+    document.getElementById('fcard').classList.add('fl');
+    document.getElementById('fcl').textContent=showNl?'🇵🇱 Polski':'🇳🇱 Niderlandzki';
+    document.getElementById('fcl').style.color=showNl?'#f59e0b':'var(--blue)';
+    document.getElementById('fcw').textContent=showNl?it.pl:it.nl;
+    document.getElementById('fch').style.display='none';
+    document.getElementById('fcs').textContent=showNl?it.nl:it.pl;document.getElementById('fcs').style.display='block';
+    document.getElementById('fc-speak-front').style.display='none';
+    document.getElementById('fc-speak-back').style.display='block';
+    document.getElementById('laf').style.display='none';document.getElementById('lab').style.display='flex';
+  } else {
+    LRN.flipped=false;
+    document.getElementById('fcard').classList.remove('fl');
+    document.getElementById('fcl').textContent=showNl?'🇳🇱 Niderlandzki':'🇵🇱 Polski';
+    document.getElementById('fcl').style.color=showNl?'var(--blue)':'#f59e0b';
+    document.getElementById('fcw').textContent=showNl?it.nl:it.pl;
+    document.getElementById('fch').style.display='block';
+    document.getElementById('fcs').style.display='none';
+    document.getElementById('fc-speak-front').style.display='block';
+    document.getElementById('fc-speak-back').style.display='none';
+    document.getElementById('laf').style.display='flex';document.getElementById('lab').style.display='none';
+  }
 }
-function markYes(){const it=LRN.queue[LRN.idx];const l=Math.min((it.level||0)+1,6);upd(it.id,{level:l,nextReview:nrev(l)});logDaily('advanced',1);nxtCard();}
-function markNo(){const it=LRN.queue[LRN.idx];upd(it.id,{level:0,nextReview:nrev(0)});nxtCard();}
-function skipCard(){nxtCard();}
-function nxtCard(){if(LRN.idx+1>=LRN.queue.length){toast('✓ Sesja zakończona!');markActivityDone();goTo(LRN.returnTo||'home');}else{LRN.idx++;rLCard();}}
+function markYes(){const q=LRN.isRetry?LRN.retryQueue:LRN.queue;const it=q[LRN.idx];const l=Math.min((it.level||0)+1,6);upd(it.id,{level:l,nextReview:nrev(l)});it.level=l;LRN.knownCnt++;logDaily('advanced',1);nxtCard();}
+function markNo(){const q=LRN.isRetry?LRN.retryQueue:LRN.queue;const it=q[LRN.idx];upd(it.id,{level:0,nextReview:nrev(0)});it.level=0;LRN.unknownCnt++;if(!LRN.isRetry&&!LRN.retryQueue.find(x=>x.id===it.id))LRN.retryQueue.push({...it});nxtCard();}
+function skipCard(){LRN.skipCnt++;nxtCard();}
+function nxtCard(){
+  const q=LRN.isRetry?LRN.retryQueue:LRN.queue;
+  if(LRN.idx+1<q.length){LRN.idx++;rLCard();}
+  else if(!LRN.isRetry&&LRN.retryQueue.length>0){
+    LRN.isRetry=true;LRN.idx=0;LRN.round=(LRN.round||1)+1;
+    toast('🔁 Powtórka nieznanych!');rLCard();
+  } else {
+    document.getElementById('l-main').style.display='none';
+    document.getElementById('l-result').style.display='block';
+    document.getElementById('lr-known').textContent=LRN.knownCnt||0;
+    document.getElementById('lr-unknown').textContent=LRN.unknownCnt||0;
+    document.getElementById('lr-skip').textContent=LRN.skipCnt||0;
+    const tot=(LRN.knownCnt||0)+(LRN.unknownCnt||0);
+    const pct=tot?Math.round((LRN.knownCnt||0)/tot*100):100;
+    document.getElementById('l-res-emoji').textContent=pct>=80?'🎉':pct>=50?'👍':'💪';
+    document.getElementById('l-res-stats').textContent=`${LRN.knownCnt||0} z ${tot} poprawnie (${pct}%)`;
+    markActivityDone();
+  }
+}
 
 // ════════════════════════════════════════════════════════════════
 // SESSION ENGINE
