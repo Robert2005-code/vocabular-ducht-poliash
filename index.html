@@ -211,9 +211,9 @@ select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(-
 .cal-month{font-size:13px;font-weight:700;color:var(--text)}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .cal-dow{text-align:center;font-size:9px;color:var(--text3);font-weight:700;padding-bottom:4px}
-.cal-day{aspect-ratio:1;min-height:52px;border-radius:8px;background:var(--bg4);border:1px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;padding:4px 3px;gap:2px;overflow:hidden}
-.cal-num{font-size:clamp(14px,4.2vw,22px);font-weight:900;line-height:1.05}
-.cal-meta{font-size:clamp(9.5px,2.6vw,13.5px);line-height:1.15;font-weight:800;opacity:.95;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.cal-day{width:100%;min-width:0;aspect-ratio:1;border-radius:8px;background:var(--bg4);border:1px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;padding:2px 1px;gap:1px;overflow:hidden}
+.cal-num{font-size:clamp(11px,3.2vw,20px);font-weight:900;line-height:1.05}
+.cal-meta{font-size:clamp(7.2px,1.95vw,12.5px);line-height:1.1;font-weight:800;letter-spacing:-0.2px;opacity:.95;white-space:nowrap;max-width:100%}
 .cal-day.empty{background:transparent;cursor:default}
 .cal-day.future{opacity:.35;cursor:default}
 .cal-day.today{border-color:var(--gold);color:#fff}
@@ -2151,7 +2151,7 @@ function markDailyActive(){
 // ════════════════════════════════════════════════════════════════
 // HELPERS
 // ════════════════════════════════════════════════════════════════
-function nrev(l){const d=new Date();d.setDate(d.getDate()+[0,1,3,7,14,30,60][Math.min(l,6)]);return d.toISOString();}
+function nrev(l){const d=new Date();d.setDate(d.getDate()+[0,1,3,7,14,30,30][Math.min(l,6)]);return d.toISOString();}
 const isDue=w=>!w.nextReview||new Date(w.nextReview)<=new Date();
 function upd(id,ch){S.items=S.items.map(i=>String(i.id)===String(id)?{...i,...ch}:i);save();}
 function delItem(id){if(!confirm('Usunąć ten element?'))return;S.items=S.items.filter(i=>String(i.id)!==String(id));_fuzzyDone=false;save();WL_PAGE=0;rWL();toast('Usunięto');}
@@ -2424,7 +2424,7 @@ document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if
 function rHome(){
   const w=S.items.filter(i=>i.type==='word').length,p=S.items.filter(i=>i.type==='phrase'&&i.categoryId!=='kolokacje').length;
   const k=S.items.filter(i=>i.categoryId==='kolokacje').length;
-  const d=S.items.filter(isDue).length,m=S.items.filter(i=>(i.level||0)>=5).length,lvl6=S.items.filter(i=>(i.level||0)===6).length;
+  const d=S.items.filter(isDue).length,m=S.items.filter(i=>(i.level||0)>=5).length,lvl6=S.items.filter(i=>(i.level||0)===6&&isDue(i)).length;
   document.getElementById('st-w').textContent=w;document.getElementById('st-p').textContent=p;
   document.getElementById('st-k').textContent=k;
   document.getElementById('st-d').textContent=d;document.getElementById('st-m').textContent=m;
@@ -4548,14 +4548,14 @@ function openDirPicker(catId,subId,returnTo){
 }
 function launchLearn(dir){const catId=document.getElementById('dp-cat').value||null;const subId=document.getElementById('dp-sub').value||null;const ret=document.getElementById('dp-return').value||'home';closeModal('modal-dir');startLearn(catId,subId,'all',dir,ret);}
 function startLearn(cid,sid,type,dir='nl',returnTo='home'){
-  let pool=type==='lvl6'?S.items.filter(i=>(i.level||0)===6):S.items.filter(isDue);
+  let pool=type==='lvl6'?S.items.filter(i=>(i.level||0)===6&&isDue(i)):S.items.filter(isDue);
   if(cid)pool=pool.filter(i=>i.categoryId===cid);
   if(sid)pool=pool.filter(i=>i.subcategoryId===sid);
   if(type==='word')pool=pool.filter(i=>i.type==='word');
   if(type==='phrase')pool=pool.filter(i=>i.type==='phrase');
   if(type==='lvl6')shuf(pool);
   else pool.sort((a,b)=>(a.level||0)-(b.level||0));
-  if(!pool.length){toast(type==='lvl6'?'Brak słów na poziomie 6!':'Brak elementów do powtórzenia!');return;}
+  if(!pool.length){toast(type==='lvl6'?'Brak słów na poziomie 6 do powtórki!':'Brak elementów do powtórzenia!');return;}
   LRN={queue:pool,idx:0,flipped:false,dir,returnTo};goTo('learn');rLCard();
 }
 function rLCard(){
